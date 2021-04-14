@@ -1,0 +1,11 @@
+FROM node:14.16.0
+
+# set working directory
+WORKDIR /usr/src/app
+
+# install and cache app dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# start app
+CMD ["yarn", "start"]

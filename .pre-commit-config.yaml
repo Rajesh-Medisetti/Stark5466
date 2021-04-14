@@ -1,0 +1,90 @@
+repos:
+  -   repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v3.1.0
+      hooks:
+        -   id: check-added-large-files
+        -   id: check-ast
+        -   id: check-builtin-literals
+        -   id: check-byte-order-marker
+        -   id: check-case-conflict
+        -   id: check-docstring-first
+#        -   id: check-executables-have-shebangs
+        -   id: check-json
+        -   id: check-merge-conflict
+        -   id: check-symlinks
+        -   id: check-toml
+        -   id: check-vcs-permalinks
+        -   id: check-xml
+        -   id: check-yaml
+        -   id: detect-private-key
+        -   id: end-of-file-fixer
+        -   id: pretty-format-json
+            args:
+              - --autofix
+              - --no-sort-keys
+        -   id: requirements-txt-fixer
+        -   id: trailing-whitespace
+  -   repo: https://github.com/pre-commit/mirrors-autopep8
+      rev: v1.5.3
+      hooks:
+        -   id: autopep8
+  -   repo: https://gitlab.com/pycqa/flake8
+      rev: 3.8.3
+      hooks:
+        -   id: flake8
+  -   repo: https://github.com/pre-commit/pre-commit
+      rev: v2.6.0
+      hooks:
+        -   id: validate_manifest
+  -   repo: meta
+      hooks:
+        -   id: check-useless-excludes
+  -   repo: https://github.com/PyCQA/pydocstyle
+      rev: 5.0.2
+      hooks:
+        -   id: pydocstyle
+  -   repo: https://github.com/asottile/reorder_python_imports
+      rev: v2.3.0
+      hooks:
+        -   id: reorder-python-imports
+            language_version: python3.7
+  -   repo: https://github.com/asottile/add-trailing-comma
+      rev: v1.4.1
+      hooks:
+        -   id: add-trailing-comma
+  -   repo: https://github.com/antonbabenko/pre-commit-terraform.git
+      rev: v1.31.0
+      hooks:
+        -   id: terraform_fmt
+  -   repo: local
+      hooks:
+        -   id: format-java-code
+            name: format-java-code
+            entry: ./format-java-code.sh
+            language: script
+            files: \.java$
+            require_serial: true
+  -   repo: local
+      hooks:
+        -   id: lint-java-code
+            name: lint-java-code
+            entry: ./lint-java-code.sh
+            language: script
+            files: \.java$
+            require_serial: true
+  -   repo: local
+      hooks:
+        -   id: format-react-code
+            name: format-react-code
+            entry: ./format-react-code.sh
+            language: script
+            files: \.js$
+            require_serial: true
+  -   repo: local
+      hooks:
+        -   id: lint-react-code
+            name: lint-react-code
+            entry: ./lint-react-code.sh
+            language: script
+            files: \.js$
+            require_serial: true
