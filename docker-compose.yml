@@ -1,0 +1,49 @@
+version: '3.8'
+
+x-env:
+  common:
+    environment: &common-env
+      ENVIRONMENT: 'development'
+
+x-restarts:
+  restart: &restarts on-failure
+
+services:
+  mongo:
+    container_name: "${PROJECT}_mongo"
+    image: mongo:3.6.3
+    volumes:
+      - './data/mongo:/data/db'
+    logging:
+      driver: none
+
+  java-application:
+    environment: *common-env
+    restart: *restarts
+    build:
+      context: java-application
+      dockerfile: Dockerfile.dev
+    container_name: "${PROJECT}_java-application"
+    image: "${PROJECT}/java-application:latest-dev"
+    volumes:
+      - './java-application:/usr/src/app'
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
+
+  react-application:
+    environment: *common-env
+    restart: *restarts
+    build:
+      context: react-application
+      dockerfile: Dockerfile.dev
+    container_name: "${PROJECT}_react-application"
+    image: "${PROJECT}/react-application:latest-dev"
+    volumes:
+      - './react-application:/usr/src/app'
+      - '/usr/src/app/node_modules'
+    ports:
+      - 3000:3000
+    stdin_open: true
+    tty: true

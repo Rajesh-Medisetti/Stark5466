@@ -1,0 +1,25 @@
+FROM node:14.16.0
+
+RUN apt-get update \
+    && apt-get install -y \
+        netcat-openbsd \
+        git \
+        python3 \
+        python3-pip \
+        python3-setuptools \
+        jq \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install arrow gspread oauth2client
+RUN pip3 install --upgrade google-auth-oauthlib
+
+# set working directory
+WORKDIR /usr/src/app
+
+# install and cache app dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+COPY ./ /usr/src/app
+
+CMD ["/usr/src/app/test.sh"]
