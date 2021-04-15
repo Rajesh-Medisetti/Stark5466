@@ -4,11 +4,9 @@ source .env
 
 set -e
 
-JAVA_APPLICATION_DOCKER_IMAGES=(java-application)
-REACT_APPLICATION_DOCKER_IMAGES=(react-application)
+EQR_TEST_SDK_DOCKER_IMAGES=(eqr-test-sdk)
 
-JAVA_APPLICATION_DEPLOYABLES=(mongo java-application)
-REACT_APPLICATION_DEPLOYABLES=(react-application)
+EQR_TEST_SDK_DEPLOYABLES=(mongo eqr-test-sdk)
 
 build_docker_image() {
     arr=("$@")
@@ -42,23 +40,18 @@ start_docker_container() {
 }
 
 PS3='What do you want to run? '
-options=("Entire Stack" "java-application" "react-application" "Quit")
+options=("Entire Stack" "eqr-test-sdk" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
         "Entire Stack")
-            build_docker_image "${JAVA_APPLICATION_DOCKER_IMAGES[@]}" "${REACT_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${JAVA_APPLICATION_DEPLOYABLES[@]}" "${REACT_APPLICATION_DEPLOYABLES[@]}"
+            build_docker_image "${EQR_TEST_SDK_DOCKER_IMAGES[@]}"
+            start_docker_container "${EQR_TEST_SDK_DEPLOYABLES[@]}"
             break;
             ;;
-        "java-application")
-            build_docker_image "${JAVA_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${JAVA_APPLICATION_DEPLOYABLES[@]}"
-            break;
-            ;;
-        "react-application")
-            build_docker_image "${REACT_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${REACT_APPLICATION_DEPLOYABLES[@]}"
+        "eqr-test-sdk")
+            build_docker_image "${EQR_TEST_SDK_DOCKER_IMAGES[@]}"
+            start_docker_container "${EQR_TEST_SDK_DEPLOYABLES[@]}"
             break;
             ;;
         "Quit")

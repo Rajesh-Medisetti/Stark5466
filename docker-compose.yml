@@ -17,33 +17,17 @@ services:
     logging:
       driver: none
 
-  java-application:
+  eqr-test-sdk:
     environment: *common-env
     restart: *restarts
     build:
-      context: java-application
+      context: eqr-test-sdk
       dockerfile: Dockerfile.dev
-    container_name: "${PROJECT}_java-application"
-    image: "${PROJECT}/java-application:latest-dev"
+    container_name: "${PROJECT}_eqr-test-sdk"
+    image: "${PROJECT}/eqr-test-sdk:latest-dev"
     volumes:
-      - './java-application:/usr/src/app'
+      - './eqr-test-sdk:/usr/src/app'
     ports:
       - 8080:8080
-    stdin_open: true
-    tty: true
-
-  react-application:
-    environment: *common-env
-    restart: *restarts
-    build:
-      context: react-application
-      dockerfile: Dockerfile.dev
-    container_name: "${PROJECT}_react-application"
-    image: "${PROJECT}/react-application:latest-dev"
-    volumes:
-      - './react-application:/usr/src/app'
-      - '/usr/src/app/node_modules'
-    ports:
-      - 3000:3000
     stdin_open: true
     tty: true
