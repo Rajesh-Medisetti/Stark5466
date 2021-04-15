@@ -31,3 +31,18 @@ services:
       - 8080:8080
     stdin_open: true
     tty: true
+
+  perf-suite:
+    environment: *common-env
+    restart: *restarts
+    build:
+      context: perf-suite
+      dockerfile: Dockerfile.dev
+    container_name: "${PROJECT}_perf-suite"
+    image: "${PROJECT}/perf-suite:latest-dev"
+    volumes:
+      - './perf-suite:/usr/src/app'
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true

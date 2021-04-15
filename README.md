@@ -5,6 +5,7 @@ Table of Contents
    * [Application](#application)
       * [Components](#components)
          * [e2e-suite](#e2e-suite)
+         * [perf-suite](#perf-suite)
       * [Getting Started](#getting-started)
          * [Prerequisites](#prerequisites)
          * [Installing](#installing)
@@ -17,6 +18,7 @@ Table of Contents
       * [Profile](#profile)
       * [Running locally without Docker](#running-locally-without-docker)
          * [e2e-suite](#e2e-suite-1)
+         * [perf-suite](#perf-suite-1)
       * [CI/CD](#cicd)
       * [Deployment](#deployment)
       * [Built With](#built-with)
@@ -38,6 +40,10 @@ Short description about the application.
 ## Components
 
 ### e2e-suite
+
+Short description about the component.
+
+### perf-suite
 
 Short description about the component.
 
@@ -91,11 +97,18 @@ We build the following docker images in development environment.
 | Application  | Image  | Tag |
 |----------|-----------|------|
 | e2e-suite | eqr-test-runner/e2e-suite | latest-dev |
+| perf-suite | eqr-test-runner/perf-suite | latest-dev |
 
 The e2e-suite runs on
 
 ```
 http://localhost:8080
+```
+
+The perf-suite runs on
+
+```
+http://localhost:8081
 ```
 
 ## Databases
@@ -118,7 +131,7 @@ You can run tests locally.
 
 We have enforced test coverage in CI. You can find the latest coverage report [here](https://docs.google.com/spreadsheets/d/1vK3YIJdkM89IfzjRQcutA-14CNvX0ux9XuuDzto0ovM/edit#gid=0).
 
-Whenever you create a new pull request, [coveragelimits.py](e2e-suite/coveragelimits.py) checks if the coverage ratio has reduced from the current value with some threshold. If that happens, then the CI doesn't let you merge the PR, and you need to add more unit tests. After the PR is merged, we calculate the new coverage ratio using the release branch, and update it in the Google spreadsheet. This process ensures that the coverage ratio keeps increasing with time without any superhuman effort.
+Whenever you create a new pull request, coveragelimits.py checks if the coverage ratio has reduced from the current value with some threshold. If that happens, then the CI doesn't let you merge the PR, and you need to add more unit tests. After the PR is merged, we calculate the new coverage ratio using the release branch, and update it in the Google spreadsheet. This process ensures that the coverage ratio keeps increasing with time without any superhuman effort.
 
 ## Code style
 
@@ -134,7 +147,7 @@ You can run the code style check locally. This will help you uncover code style 
 
 You should install [google-java-format](https://github.com/google/google-java-format#intellij-android-studio-and-other-jetbrains-ides) to ensure your IDE can format your code as per the Google Java code style guide.
 
-You should install [CheckStyle-IDEA](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea) plugin and import [checkstyle.xml](e2e-suite/checkstyle.xml) to ensure your IDEA follows the same Java code style guide as the CI.
+You should install [CheckStyle-IDEA](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea) plugin and import checkstyle.xml to ensure your IDEA follows the same Java code style guide as the CI.
 
 We use Gitleaks to detect hardcoded secrets like passwords, api keys, and tokens - https://github.com/zricethezav/gitleaks
 
@@ -160,16 +173,16 @@ https://www.jetbrains.com/help/idea/tutorial-remote-debug.html#43631bff
 * https://www.jetbrains.com/help/idea/tutorial-remote-debug.html#108df9bd
 
 ## Profile
-We have set up below profiles for the e2e-suite.
+We have set up below profiles for the e2e-suite and perf-suite.
 
 | Profile  | Use case  |
 |----------|-----------|
-| ci           | Used by jenkins to run tests and in Dockerfile to build image |
-| default      | Used by IntelliJ IDEA for hot reload |
-| development  | Used in development environment when running inside docker |
-| localhost    | Used in development environment when running on host |
-| production   | Used in production environment |
-| staging      | Used in staging environment |
+| ci           | Used by Jenkins to run tests. |
+| default      | Used in development environment when using IntelliJ IDEA. |
+| development  | Used in development environment when running inside docker. |
+| localhost    | Used in development environment when running on host using command line. |
+| production   | Used in production environment. |
+| staging      | Used in staging environment. |
 
 ## Running locally without Docker
 
@@ -192,6 +205,25 @@ docker run -p 27017:27017 mongo:3.6.3
 mvn clean spring-boot:run -Dspring-boot.run.profiles=localhost -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 ```
 
+### perf-suite
+You need to install Java 11, Maven 3.6.3 to run the perf-suite locally without Docker.
+
+```bash
+# install sdkman (https://sdkman.io) - The Software Development Kit Manager
+curl -s "https://get.sdkman.io" | bash
+
+# install java
+sdk install java 11.0.10-open
+
+# install maven
+sdk install maven
+
+# run perf-suite
+cd perf-suite
+docker run -p 27017:27017 mongo:3.6.3
+mvn clean spring-boot:run -Dspring-boot.run.profiles=localhost -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+```
+
 ## CI/CD
 
 We have setup CI/CD by following the guide - https://joveojira.atlassian.net/wiki/spaces/JB/pages/2243166251/CI+CD
@@ -203,12 +235,14 @@ We build the following docker images in the staging environment.
 | Application  | Image  | Tag |
 |----------|-----------|------|
 | e2e-suite | eqr-test-runner/e2e-suite | latest |
+| perf-suite | eqr-test-runner/perf-suite | latest |
 
 We build the following docker images in the production environment.
 
 | Application  | Image  | Tag |
 |----------|-----------|------|
 | e2e-suite | eqr-test-runner/e2e-suite | stable |
+| perf-suite | eqr-test-runner/perf-suite | stable |
 
 Both `latest` and `stable` are floating tags. They point to the most recent docker image available. In addition to it, we also create docker images with git revision as tag.
 
@@ -220,13 +254,11 @@ We have deployed this application to Kubernetes by following the guide - https:/
 |----------|-----------|
 | Terraform cloud workspace | https://app.terraform.io/app/joveo-staging/workspaces/k8s-eqr-test-runner-staging-us-east-1-aws/runs |
 | Kubernetes dashboard  | https://kubernetes-dashboard.staging.joveo.com/#/overview?namespace=eqr-test-runner |
-| e2e-suite URL (accessible behind VPN) | https://eqr-test-runner-api.staging.joveo.com |
 
 | Production  | URL  |
 |----------|-----------|
 | Terraform cloud workspace | https://app.terraform.io/app/joveo-production/workspaces/k8s-eqr-test-runner-production-us-east-1-aws/runs |
 | Kubernetes dashboard  | https://kubernetes-dashboard.joveo.com/#/overview?namespace=eqr-test-runner |
-| e2e-suite URL (accessible behind VPN) | https://eqr-test-runner-api.joveo.com |
 
 ## Built With
 
