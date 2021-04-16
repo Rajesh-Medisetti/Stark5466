@@ -17,33 +17,32 @@ services:
     logging:
       driver: none
 
-  java-application:
+  e2e-suite:
     environment: *common-env
     restart: *restarts
     build:
-      context: java-application
+      context: e2e-suite
       dockerfile: Dockerfile.dev
-    container_name: "${PROJECT}_java-application"
-    image: "${PROJECT}/java-application:latest-dev"
+    container_name: "${PROJECT}_e2e-suite"
+    image: "${PROJECT}/e2e-suite:latest-dev"
     volumes:
-      - './java-application:/usr/src/app'
+      - './e2e-suite:/usr/src/app'
     ports:
       - 8080:8080
     stdin_open: true
     tty: true
 
-  react-application:
+  perf-suite:
     environment: *common-env
     restart: *restarts
     build:
-      context: react-application
+      context: perf-suite
       dockerfile: Dockerfile.dev
-    container_name: "${PROJECT}_react-application"
-    image: "${PROJECT}/react-application:latest-dev"
+    container_name: "${PROJECT}_perf-suite"
+    image: "${PROJECT}/perf-suite:latest-dev"
     volumes:
-      - './react-application:/usr/src/app'
-      - '/usr/src/app/node_modules'
+      - './perf-suite:/usr/src/app'
     ports:
-      - 3000:3000
+      - 8080:8080
     stdin_open: true
     tty: true

@@ -4,11 +4,11 @@ source .env
 
 set -e
 
-JAVA_APPLICATION_DOCKER_IMAGES=(java-application)
-REACT_APPLICATION_DOCKER_IMAGES=(react-application)
+E2E_SUITE_DOCKER_IMAGES=(e2e-suite)
+PERF_SUITE_DOCKER_IMAGES=(perf-suite)
 
-JAVA_APPLICATION_DEPLOYABLES=(mongo java-application)
-REACT_APPLICATION_DEPLOYABLES=(react-application)
+E2E_SUITE_DEPLOYABLES=(mongo e2e-suite)
+PERF_SUITE_DEPLOYABLES=(mongo perf-suite)
 
 build_docker_image() {
     arr=("$@")
@@ -42,23 +42,23 @@ start_docker_container() {
 }
 
 PS3='What do you want to run? '
-options=("Entire Stack" "java-application" "react-application" "Quit")
+options=("Entire Stack" "e2e-suite" "per-suite" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
         "Entire Stack")
-            build_docker_image "${JAVA_APPLICATION_DOCKER_IMAGES[@]}" "${REACT_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${JAVA_APPLICATION_DEPLOYABLES[@]}" "${REACT_APPLICATION_DEPLOYABLES[@]}"
+            build_docker_image "${E2E_SUITE_DOCKER_IMAGES[@]}" "${PERF_SUITE_DOCKER_IMAGES[@]}"
+            start_docker_container "${E2E_SUITE_DEPLOYABLES[@]}" "${PERF_SUITE_DEPLOYABLES[@]}"
             break;
             ;;
-        "java-application")
-            build_docker_image "${JAVA_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${JAVA_APPLICATION_DEPLOYABLES[@]}"
+        "e2e-suite")
+            build_docker_image "${E2E_SUITE_DOCKER_IMAGES[@]}"
+            start_docker_container "${E2E_SUITE_DEPLOYABLES[@]}"
             break;
             ;;
-        "react-application")
-            build_docker_image "${REACT_APPLICATION_DOCKER_IMAGES[@]}"
-            start_docker_container "${REACT_APPLICATION_DEPLOYABLES[@]}"
+        "perf-suite")
+            build_docker_image "${PERF_SUITE_DOCKER_IMAGES[@]}"
+            start_docker_container "${PERF_SUITE_DEPLOYABLES[@]}"
             break;
             ;;
         "Quit")
