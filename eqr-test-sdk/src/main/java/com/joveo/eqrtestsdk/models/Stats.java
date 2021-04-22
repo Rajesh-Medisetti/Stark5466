@@ -469,7 +469,7 @@ public class Stats {
     }
   }
 
-  class PacingStatus {
+  public static class PacingStatus {
     private boolean underPacing;
     private double value;
 
