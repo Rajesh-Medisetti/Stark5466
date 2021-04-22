@@ -30,7 +30,7 @@ start_docker_container() {
     arr=("$@")
     for deployable in "${arr[@]}"
     do
-        if [[ ! "$(docker ps -q -f name="${deployable}")" ]]; then
+        if [[ ! "$(docker ps -q -f name="${PROJECT}_${deployable}")" ]]; then
             if [[ "$(docker ps -aq -f status=exited -f name="${PROJECT}_${deployable}")" ]]; then
                 docker rm "${PROJECT}_${deployable}"
             fi
