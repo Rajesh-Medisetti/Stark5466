@@ -293,7 +293,7 @@ public class CampaignService extends BaseService {
     PlatformFiltersDto platformFiltersDto = new PlatformFiltersDto();
     platformFiltersDto = enrichFiltersWithEntityId(platformFiltersDto, entityId);
     return jobService.getJobs(
-        driver.session, driver.conf, platformFiltersDto, clientId, page, limit, startDate, endDate);
+        driver, platformFiltersDto, clientId, page, limit, startDate, endDate);
   }
 
   /**

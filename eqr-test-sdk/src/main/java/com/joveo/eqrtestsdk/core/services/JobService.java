@@ -5,6 +5,7 @@ import static com.joveo.eqrtestsdk.utils.DateUtils.formatAsMojoDate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.inject.Inject;
 import com.joveo.eqrtestsdk.api.Session;
+import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.RestResponse;
@@ -39,16 +40,16 @@ public class JobService extends BaseService {
   /**
    * fetch job details.
    *
-   * @param session session details
-   * @param config config details
+   * @param session            session details
+   * @param config             config details
    * @param platformFiltersDto Instance of platformFilterDto
-   * @param clientId clientId as a string
-   * @param reqId Ref number
-   * @param startDate start date in local date format
-   * @param endDate end date in local date format
+   * @param clientId           clientId as a string
+   * @param reqId              Ref number
+   * @param startDate          start date in local date format
+   * @param endDate            end date in local date format
    * @return optional
-   * @throws MojoException throws custom mojo exception
-   * @throws ApiRequestException something wrong with request
+   * @throws MojoException               throws custom mojo exception
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   public Optional<JobStats> getJobDetails(
@@ -74,7 +75,8 @@ public class JobService extends BaseService {
           "failed to get jobs data " + response.getJoveoErrorMessage());
     }
     MojoResponse<JobStats> mojoResponse =
-        response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {});
+        response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {
+        });
 
     for (MojoData<JobStats> data : mojoResponse.getData()) {
       if (data.getFields().getRefNumber().equals(reqId)) {
@@ -87,23 +89,21 @@ public class JobService extends BaseService {
   /**
    * get all jobs.
    *
-   * @param session session details
-   * @param config config details
+   * @param driver             Instance of driver
    * @param platformFiltersDto Instance of platformFilterDto
-   * @param clientId clientId as a string
-   * @param page page number on Mojo
-   * @param limit limit within the page
-   * @param startDate start date in local date format
-   * @param endDate end date in local date format
+   * @param clientId           clientId as a string
+   * @param page               page number on Mojo
+   * @param limit              limit within the page
+   * @param startDate          start date in local date format
+   * @param endDate            end date in local date format
    * @return list of jobs
-   * @throws MojoException throws custom mojo exception
-   * @throws ApiRequestException something wrong with request
+   * @throws MojoException               throws custom mojo exception
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public List<Job> getJobs(
-      Session session,
-      Config config,
+      Driver driver,
       PlatformFiltersDto platformFiltersDto,
       String clientId,
       int page,
@@ -123,20 +123,22 @@ public class JobService extends BaseService {
     platformFiltersDto.setLimit(limit);
     platformFiltersDto.setPage(page);
 
-    String url = config.getString("MojoBaseUrl") + "/api/jobsv2";
+    String url = driver.conf.getString("MojoBaseUrl") + "/api/jobsv2";
 
-    RestResponse response = executor.post(session, url, platformFiltersDto);
+    RestResponse response = executor.post(driver.session, url, platformFiltersDto);
     if (!response.isSuccess()) {
       logger.error("failed to get jobs data " + response.getJoveoErrorMessage());
       throw new UnexpectedResponseException(
           "failed to get jobs data " + response.getJoveoErrorMessage());
     }
     MojoResponse<JobStats> mojoResponse =
-        response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {});
+        response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {
+        });
 
     List<Job> jobs = new ArrayList<>();
     for (MojoData<JobStats> data : mojoResponse.getData()) {
-      jobs.add(new Job(data.getFields().getId(), data.getFields().getRefNumber()));
+      jobs.add(
+          new Job(driver, clientId, data.getFields().getId(), data.getFields().getRefNumber()));
     }
     return jobs;
   }
