@@ -17,10 +17,10 @@ public class Job {
   /**
    * job constructor.
    *
-   * @param driver   Driver instance
+   * @param driver Driver instance
    * @param clientId client id
-   * @param jobId    job id
-   * @param reqId    ref number
+   * @param jobId job id
+   * @param reqId ref number
    */
   public Job(Driver driver, String clientId, String jobId, String reqId) {
     this.driver = driver;
@@ -36,8 +36,13 @@ public class Job {
    * @throws MojoException custom MOjo exception
    */
   public Optional<JobStats> getJobDetails() throws MojoException {
-    return driver.jobService
-        .getJobDetails(driver.session, driver.conf, new PlatformFiltersDto(), this.clientId,
-            this.reqId, startOfMonth(LocalDate.now()), LocalDate.now());
+    return driver.jobService.getJobDetails(
+        driver.session,
+        driver.conf,
+        new PlatformFiltersDto(),
+        this.clientId,
+        this.reqId,
+        startOfMonth(LocalDate.now()),
+        LocalDate.now());
   }
 }
