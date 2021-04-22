@@ -3,7 +3,9 @@ WORKDIR /usr/src/app
 COPY pom.xml /usr/src/app/pom.xml
 RUN mvn dependency:go-offline
 COPY src /usr/src/app/src
+COPY settings.xml /root/.m2/settings.xml
 RUN mvn clean package -Dspring.profiles.active=ci -DskipTests
+RUN mvn clean deploy -Dspring.profiles.active=ci -DskipTests
 
 FROM openjdk:11-jre-slim
 WORKDIR /usr/src/app

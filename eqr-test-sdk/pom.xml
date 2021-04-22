@@ -173,4 +173,16 @@
 		</plugins>
 	</reporting>
 
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>c07108d0a783-releases</name>
+			<url>http://artifactory.joveo.com/artifactory/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>c07108d0a783-snapshots</name>
+			<url>http://artifactory.joveo.com/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

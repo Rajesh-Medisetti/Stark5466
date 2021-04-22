@@ -181,7 +181,7 @@ You need to install Java 11, Maven 3.6.3 to run the eqr-test-sdk locally without
 curl -s "https://get.sdkman.io" | bash
 
 # install java
-sdk install java 11.0.10-open
+sdk install java 11.0.2-open
 
 # install maven
 sdk install maven
@@ -190,6 +190,11 @@ sdk install maven
 cd eqr-test-sdk
 docker run -p 27017:27017 mongo:3.6.3
 mvn clean spring-boot:run -Dspring-boot.run.profiles=localhost -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+
+# publish jar locally
+cd eqr-test-sdk
+docker run -p 27017:27017 mongo:3.6.3
+mvn clean install -Dspring-boot.run.profiles=localhost
 ```
 
 ## CI/CD
