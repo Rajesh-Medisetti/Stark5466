@@ -473,7 +473,7 @@ public class ClientService extends BaseService {
     PlatformFiltersDto platformFiltersDto = new PlatformFiltersDto();
     platformFiltersDto = enrichFiltersWithEntityId(platformFiltersDto, clientId);
     return jobService.getJobs(
-        driver.session, driver.conf, platformFiltersDto, clientId, page, limit, startDate, endDate);
+        driver, platformFiltersDto, clientId, page, limit, startDate, endDate);
   }
 
   /**

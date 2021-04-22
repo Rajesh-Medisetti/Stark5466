@@ -5,6 +5,7 @@ import static com.joveo.eqrtestsdk.utils.DateUtils.formatAsMojoDate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.inject.Inject;
 import com.joveo.eqrtestsdk.api.Session;
+import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.RestResponse;
@@ -87,8 +88,7 @@ public class JobService extends BaseService {
   /**
    * get all jobs.
    *
-   * @param session session details
-   * @param config config details
+   * @param driver Instance of driver
    * @param platformFiltersDto Instance of platformFilterDto
    * @param clientId clientId as a string
    * @param page page number on Mojo
@@ -102,8 +102,7 @@ public class JobService extends BaseService {
    */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public List<Job> getJobs(
-      Session session,
-      Config config,
+      Driver driver,
       PlatformFiltersDto platformFiltersDto,
       String clientId,
       int page,
@@ -123,9 +122,9 @@ public class JobService extends BaseService {
     platformFiltersDto.setLimit(limit);
     platformFiltersDto.setPage(page);
 
-    String url = config.getString("MojoBaseUrl") + "/api/jobsv2";
+    String url = driver.conf.getString("MojoBaseUrl") + "/api/jobsv2";
 
-    RestResponse response = executor.post(session, url, platformFiltersDto);
+    RestResponse response = executor.post(driver.session, url, platformFiltersDto);
     if (!response.isSuccess()) {
       logger.error("failed to get jobs data " + response.getJoveoErrorMessage());
       throw new UnexpectedResponseException(
@@ -136,7 +135,8 @@ public class JobService extends BaseService {
 
     List<Job> jobs = new ArrayList<>();
     for (MojoData<JobStats> data : mojoResponse.getData()) {
-      jobs.add(new Job(data.getFields().getId(), data.getFields().getRefNumber()));
+      jobs.add(
+          new Job(driver, clientId, data.getFields().getId(), data.getFields().getRefNumber()));
     }
     return jobs;
   }
