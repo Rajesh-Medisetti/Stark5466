@@ -21,6 +21,7 @@ COMMAND=$2
 
 if [[ $ENVIRONMENT = "staging" ]]
 then
+  echo "setting up for SNAPSHOT deployment"
   # shellcheck disable=SC2091
 elif [[ $ENVIRONMENT = "production" ]]
 then
