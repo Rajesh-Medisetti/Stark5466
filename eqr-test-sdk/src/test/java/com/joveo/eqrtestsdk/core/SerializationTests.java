@@ -24,11 +24,6 @@ public class SerializationTests {
   }
 
   @Test
-  public void testJson() {
-    //        JSONAssert.assertEquals();
-  }
-
-  @Test
   public void JobGroupFiltersCreation_JobGroupService_Assertions()
       throws JsonProcessingException, JSONException {
     List<String> countries = new ArrayList<>();
