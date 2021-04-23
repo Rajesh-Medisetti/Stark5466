@@ -9,7 +9,7 @@
         <branchPolicy>
             <pattern>(staging)</pattern>                  <!-- regex pattern -->
             <!-- list of transformations to apply, if empty, defaults to REPLACE_UNEXPECTED_CHARS_UNDERSCORE, LOWERCASE_EN -->
-            <transformations>                           
+            <transformations>
                 <transformation>IGNORE</transformation> <!-- transformation name, one of jgitver#fr.brouillard.oss.jgitver.BranchingPolicy#BranchNameTransformations -->
             </transformations>
         </branchPolicy>
