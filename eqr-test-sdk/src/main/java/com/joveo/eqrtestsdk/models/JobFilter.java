@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.models.validationgroups.EditJobGroup;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -249,15 +248,17 @@ public class JobFilter<T> implements Filter {
   }
 
   @JsonIgnore
-  private boolean isValidDateFormat(String date) throws InvalidInputException {
-    DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    df.setLenient(false);
+  private boolean isValidDateFormat(String dateStr) throws InvalidInputException {
+    DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    boolean status;
+    dateFormat.setLenient(false);
     try {
-      df.parse(date);
-    } catch (ParseException e) {
-      return false;
+      dateFormat.parse(dateStr);
+      status = true;
+    } catch (Exception e) {
+      status = false;
     }
-    return true;
+    return status;
   }
 
   @JsonIgnore
