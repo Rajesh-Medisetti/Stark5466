@@ -212,7 +212,6 @@ public class JobFilter<T> implements Filter {
 
     if (operator.equals(RuleOperator.BETWEEN)) {
       if (((List<?>) data).size() == 2) {
-        // validation for date
         return true;
       } else {
         return false;
@@ -241,7 +240,6 @@ public class JobFilter<T> implements Filter {
       return isValidDateFormat((String) data);
     } else if (operator == RuleOperator.BETWEEN) {
       List<String> list = (ArrayList) data;
-
       return (list.size() == 2
           && isValidDateFormat(list.get(0))
           && isValidDateFormat(list.get(1))
@@ -253,15 +251,6 @@ public class JobFilter<T> implements Filter {
   @JsonIgnore
   private boolean isValidDateFormat(String dateStr) throws InvalidInputException {
 
-    /*DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-        .withResolverStyle(ResolverStyle.STRICT);
-
-    try {
-      dateFormatter.parse(dateStr);
-    } catch (DateTimeParseException e) {
-      return false;
-    }
-    return true;*/
     DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     boolean status;
     dateFormat.setLenient(false);
@@ -304,7 +293,6 @@ public class JobFilter<T> implements Filter {
 
   @JsonIgnore
   private boolean isNumberValid(String number) {
-
     String regex = "\\d+(\\.\\d+)?";
     return number.matches(regex);
   }
