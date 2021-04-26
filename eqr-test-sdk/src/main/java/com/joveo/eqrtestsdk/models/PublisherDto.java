@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.joveo.eqrtestsdk.models.validationgroups.EditPublisher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
 
 @JsonSerialize
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -26,7 +28,6 @@ public class PublisherDto {
 
   public void setName(String name) {
     this.placement.name = name;
-    this.placement.value = name;
   }
 
   public void setMinBid(Double number) {
@@ -92,6 +93,7 @@ public class PublisherDto {
     this.placement.ftpConfig = new Placement.FtpConfig();
     this.placement.feedFileType = "newXml";
     this.placement.currency = "USD";
+    this.setValue(this.placement.name);
 
     if (this.placement.country == null) {
       this.placement.country = "United States";
@@ -104,6 +106,7 @@ public class PublisherDto {
   @Valid private Placement placement;
 
   @NotNull(message = "agencyId can't be null")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private String agencyId;
 
   @JsonIgnore
@@ -113,13 +116,19 @@ public class PublisherDto {
 
   public static class Placement {
 
-    @NotEmpty(message = "name can't be null/empty")
+    @NotEmpty(
+        message = "name can't be null/empty",
+        groups = {Default.class, EditPublisher.class})
     public String name;
 
-    @NotEmpty(message = "bidType can't be null/empty")
+    @NotEmpty(
+        message = "bidType can't be null/empty",
+        groups = {Default.class, EditPublisher.class})
     public String bidType;
 
-    @NotEmpty(message = "publisherUrl can't be null/empty ")
+    @NotEmpty(
+        message = "publisherUrl can't be null/empty ",
+        groups = {Default.class, EditPublisher.class})
     public String url;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -143,7 +152,6 @@ public class PublisherDto {
     @Min(value = 0, message = "minBid must be a positive number")
     public Double minBid;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer feedIndexLatency;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

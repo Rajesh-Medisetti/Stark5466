@@ -152,7 +152,7 @@ public class JobGroupDto {
     params.tradingGoals.addPerformanceTargets(type, value);
   }
 
-  /** constructor for placements. */
+  /** add placement with id. */
   public void addPlacement(String placementId) {
 
     if (params.placements == null) {
@@ -163,10 +163,22 @@ public class JobGroupDto {
     params.placements.add(placementValue);
   }
 
+  /** add placement with budget and id. */
   public void addPlacementWithBudget(
-      String placementId, Double budgetCap, Freq freqency, Boolean pacing, Double threshold) {
+      String placementId, Double budgetCap, Freq freq, Boolean pacing, Double threshold) {
 
-    this.addPlacementWithBudgetAndBid(placementId, null, budgetCap, freqency, pacing, threshold);
+    this.addPlacementWithBudgetAndBid(placementId, null, budgetCap, freq, pacing, threshold);
+  }
+
+  /** add placement with bid. */
+  public void addPlacementWithBid(String placementId, Double bid) {
+
+    if (params.placements == null) {
+      params.placements = new ArrayList<>();
+    }
+    JobGroupParams.Placements placementValue = new JobGroupParams.Placements(placementId);
+    placementValue.setBid(bid);
+    params.placements.add(placementValue);
   }
 
   /** Adding placements with budget and Bid. */
@@ -174,7 +186,7 @@ public class JobGroupDto {
       String placementId,
       Double bid,
       Double budgetCap,
-      Freq freqency,
+      Freq freq,
       Boolean pacing,
       Double threshold) {
 
@@ -184,7 +196,7 @@ public class JobGroupDto {
 
     JobGroupParams.Placements placementValue = new JobGroupParams.Placements(placementId);
     placementValue.setBid(bid);
-    placementValue.setBudget(new CapDto(pacing, freqency, threshold, budgetCap));
+    placementValue.setBudget(new CapDto(pacing, freq, threshold, budgetCap));
     params.placements.add(placementValue);
   }
 

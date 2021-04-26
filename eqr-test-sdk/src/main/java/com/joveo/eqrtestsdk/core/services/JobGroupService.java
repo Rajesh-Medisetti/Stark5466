@@ -9,6 +9,7 @@ import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.core.models.fetcher.JobGroupGetResponse;
+import com.joveo.eqrtestsdk.core.models.fetcher.PlacementGetResponse;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.RestResponse;
 import com.joveo.eqrtestsdk.exception.ApiRequestException;
@@ -32,6 +33,7 @@ import com.typesafe.config.Config;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -70,8 +72,11 @@ public class JobGroupService extends BaseService {
 
     String validationErrors = this.validateEntity(jobGroup, validator);
     if (validationErrors != null) {
+      logger.error(validationErrors);
       throw new InvalidInputException(validationErrors);
     }
+
+    checkPlacementsMinBid(session, conf, jobGroup);
 
     RestResponse response =
         executor.post(session, conf.getString("MojoBaseUrl") + "/thor/api/jobgroups", jobGroup);
@@ -88,8 +93,68 @@ public class JobGroupService extends BaseService {
       return mojoResponse.getFirstData().getId();
     } catch (IndexOutOfBoundsException e) {
       logger.error(e.getMessage());
-      throw new UnexpectedResponseException("data at first index missing in response " + response);
+      throw new UnexpectedResponseException("data at first index missing in response" + response);
     }
+  }
+
+  private void checkPlacementsMinBid(Session session, Config conf, JobGroupDto jobGroup)
+      throws ApiRequestException, UnexpectedResponseException, InvalidInputException {
+
+    RestResponse getResponse =
+        executor.get(
+            session,
+            conf.getString("MojoBaseUrl")
+                + "/api/recengine/v2/publishers?cat=&budget=0&deviceType=all&bidType=all");
+
+    if (getResponse.getResponseCode() != 200) {
+      String errorMessage =
+          "Unable to make getClient Request , check clientId " + getResponse.toString();
+
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    List<PlacementGetResponse> getResponsePlacements =
+        Arrays.asList(getResponse.toEntity(PlacementGetResponse[].class).clone());
+
+    List<JobGroupDto.JobGroupParams.Placements> placementsList = jobGroup.getPlacements();
+    for (JobGroupDto.JobGroupParams.Placements placement : placementsList) {
+
+      if (placement.delete) {
+        continue;
+      }
+      if (!isValidPublisher(placement, getResponsePlacements)) {
+        String errorMessage = "publisher " + placement.publisher + " is inValid ,";
+        logger.error(errorMessage);
+        throw new InvalidInputException(errorMessage);
+      }
+    }
+  }
+
+  @SuppressWarnings("checkstyle:CyclomaticComplexity")
+  private boolean isValidPublisher(
+      JobGroupDto.JobGroupParams.Placements placement,
+      List<PlacementGetResponse> getResponsePlacements)
+      throws InvalidInputException {
+
+    for (PlacementGetResponse responsePlacement : getResponsePlacements) {
+
+      if (responsePlacement.getPublisher().equals(placement.publisher)
+          && (placement.bid == null || responsePlacement.getMinBid() <= placement.bid)) {
+        return true;
+      }
+      if (responsePlacement.getPublisher().equals(placement.publisher)) {
+        String errorMessage =
+            "bid for publisher "
+                + placement.publisher
+                + " is inValid, minBid is "
+                + responsePlacement.getMinBid();
+
+        logger.error(errorMessage);
+        throw new InvalidInputException(errorMessage);
+      }
+    }
+    return false;
   }
 
   /**
@@ -151,6 +216,7 @@ public class JobGroupService extends BaseService {
     }
 
     jobGroup.setCampaignId(responseData.getCampaignId());
+    checkPlacementsMinBid(session, config, jobGroup);
     deleteAndCopyActivePlacements(jobGroup, responseData);
     copyTradingGoals(jobGroup, responseData.getTradingGoals());
 
