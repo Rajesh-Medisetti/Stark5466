@@ -126,6 +126,10 @@ public class Client {
         driver.session, driver.conf, this.id, publisher.id, startDate, endDate);
   }
 
+  public List<String> getInboundFeeds() throws ApiRequestException, UnexpectedResponseException {
+    return driver.clientService.getInboundFeedData(this.id, driver.session, driver.conf);
+  }
+
   public OutboundFeed getOutboundFeed(String publisherId) throws MojoException {
     return driver.clientService.getOutboundFeedData(
         publisherId, this.id, driver.session, driver.conf);
