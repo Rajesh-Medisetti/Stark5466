@@ -44,7 +44,7 @@ public class SchedulerService {
         executor.get(session, baseUrl + "/api/batch/dashboard/clients/stats?clientId=" + clientId);
 
     if (!response.isSuccess()) {
-      logger.error("failed to get last successful schedular execution");
+      logger.error("failed to get last successful scheduler execution");
       // Success false is given before batch picking the request; hence, we have to avoid this
       // false-negative case.
       return null;

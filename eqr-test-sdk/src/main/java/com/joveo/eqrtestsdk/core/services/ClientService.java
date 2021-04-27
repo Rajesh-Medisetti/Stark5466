@@ -324,7 +324,7 @@ public class ClientService extends BaseService {
 
     if (client.getFeeds() != null) {
       for (ClientDto.ClientParams.Feeds feed : client.getFeeds()) {
-        if (feed.deleted == false) {
+        if (!feed.deleted) {
           populateFeed(session, conf, feed);
         } else {
           String feedId = getFeedId(feeds, feed);
@@ -372,9 +372,7 @@ public class ClientService extends BaseService {
 
     for (ClientGetResponse.Feeds feed : feeds) {
 
-      if (feed.deleted != null
-          && feed.deleted == false
-          && feed.xmlFeedUrl.equals(inputFeed.xmlFeedUrl)) {
+      if (feed.deleted != null && !feed.deleted && feed.xmlFeedUrl.equals(inputFeed.xmlFeedUrl)) {
         return feed.id;
       }
     }
