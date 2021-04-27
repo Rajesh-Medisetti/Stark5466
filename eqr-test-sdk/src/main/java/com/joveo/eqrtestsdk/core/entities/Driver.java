@@ -5,8 +5,10 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
+import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
 import com.joveo.eqrtestsdk.core.services.ClientService;
+import com.joveo.eqrtestsdk.core.services.FeedService;
 import com.joveo.eqrtestsdk.core.services.JobGroupService;
 import com.joveo.eqrtestsdk.core.services.JobService;
 import com.joveo.eqrtestsdk.core.services.PublisherService;
@@ -17,6 +19,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
 import com.joveo.eqrtestsdk.models.PublisherDto;
@@ -28,17 +31,26 @@ public class Driver {
   public Session session;
   public Config conf;
 
-  @Inject ClientService clientService;
-  @Inject CampaignService campaignService;
-  @Inject JobGroupService jobGroupService;
-  @Inject PublisherService publisherService;
-  @Inject JobService jobService;
+  @Inject
+  ClientService clientService;
+  @Inject
+  CampaignService campaignService;
+  @Inject
+  JobGroupService jobGroupService;
+  @Inject
+  PublisherService publisherService;
+  @Inject
+  JobService jobService;
+  @Inject
+  FeedService feedService;
+  @Inject
+  AwsService awsService;
 
   /**
    * Start an instance of Driver.
    *
-   * @param username Mojo username
-   * @param password Mojo passwords
+   * @param username  Mojo username
+   * @param password  Mojo passwords
    * @param JOVEO_ENV Joveo environment
    * @return Driver
    * @throws MojoException throws custom mojo exception On unexpected behaviour
@@ -63,7 +75,7 @@ public class Driver {
    */
   public Client createClient(ClientDto client)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     String clientId = clientService.create(session, conf, client);
     return new Client(this, clientId);
   }
@@ -77,7 +89,7 @@ public class Driver {
    */
   public Campaign createCampaign(CampaignDto campaign)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     String campaignId = campaignService.create(session, conf, campaign);
     return new Campaign(this, campaign.getClientId(), campaignId);
   }
@@ -91,7 +103,7 @@ public class Driver {
    */
   public JobGroup createJobGroup(JobGroupDto jobGroup)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     String jobGroupId = jobGroupService.create(session, conf, jobGroup);
     return new JobGroup(this, jobGroup.getClientId(), jobGroupId);
   }
@@ -105,33 +117,42 @@ public class Driver {
    */
   public Publisher createPublisher(PublisherDto publisher)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     String publisherID = publisherService.create(session, conf, publisher);
     return new Publisher(this, publisherID);
   }
 
   public Publisher getExistingPublisher(String publisherId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     return new Publisher(this, publisherId);
   }
 
   public Client getExistingClient(String clientId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     return new Client(this, clientId);
   }
 
   public Campaign getExistingCampaign(String clientId, String campaignId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     return new Campaign(this, clientId, campaignId);
   }
 
   public JobGroup getExistingJobGroup(String clientId, String jobGroupId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-          ApiRequestException {
+      ApiRequestException {
     return new JobGroup(this, clientId, jobGroupId);
+  }
+
+  public String generateInboundFeed(FeedDto feedDto)
+      throws InvalidInputException {
+    return feedService.getFeedUrl(conf, awsService, feedDto);
+  }
+
+  public void deleteInboundFeed(String feedUrl) throws InvalidInputException {
+    feedService.deleteFeedUrl(conf, awsService, feedUrl);
   }
 
   private void setup(String username, String password)

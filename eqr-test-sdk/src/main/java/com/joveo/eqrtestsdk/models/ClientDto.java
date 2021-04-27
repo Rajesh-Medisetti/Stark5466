@@ -186,7 +186,7 @@ public class ClientDto {
   }
 
   @JsonIgnore
-  public List<ClientParams.Feeds> getFeeds() {
+  public List<ClientParams.Feeds>   getFeeds() {
     return params.feeds;
   }
 

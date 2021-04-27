@@ -52,10 +52,10 @@ public class ClientService extends BaseService {
   /**
    * client service constructor.
    *
-   * @param executor Http executor
+   * @param executor         Http executor
    * @param schedulerService Instance of scheduler service
-   * @param validator Validator object
-   * @param objectMapper ObjectMapper instance
+   * @param validator        Validator object
+   * @param objectMapper     ObjectMapper instance
    */
   @Inject
   public ClientService(
@@ -76,32 +76,32 @@ public class ClientService extends BaseService {
   /**
    * running scheduler.
    *
-   * @param session session details
-   * @param conf configuration details
+   * @param session  session details
+   * @param conf     configuration details
    * @param clientId clientId as a string
-   * @param timeout duration timeout
-   * @throws TimeoutException timeout exception
-   * @throws InterruptWaitException Interrupt wait Exception
-   * @throws ApiRequestException something wrong with request
+   * @param timeout  duration timeout
+   * @throws TimeoutException            timeout exception
+   * @throws InterruptWaitException      Interrupt wait Exception
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
-   * @throws MojoException throws custom mojo exception
+   * @throws MojoException               throws custom mojo exception
    */
   public void runScheduler(Session session, Config conf, String clientId, Duration timeout)
       throws TimeoutException, InterruptWaitException, ApiRequestException,
-          UnexpectedResponseException, MojoException {
+      UnexpectedResponseException, MojoException {
     new SchedulerRunner(
-            clientId,
-            conf.getString("MojoBaseUrl"),
-            session,
-            this.schedulerService,
-            timeout,
-            conf.getDuration("SchedulerRefreshInterval"))
+        clientId,
+        conf.getString("MojoBaseUrl"),
+        session,
+        this.schedulerService,
+        timeout,
+        conf.getDuration("SchedulerRefreshInterval"))
         .run();
   }
 
   public void runScheduler(Session session, Config config, String clientId)
       throws TimeoutException, InterruptWaitException, ApiRequestException,
-          UnexpectedResponseException, MojoException {
+      UnexpectedResponseException, MojoException {
     this.runScheduler(session, config, clientId, config.getDuration("SchedulerTimeout"));
   }
 
@@ -109,9 +109,9 @@ public class ClientService extends BaseService {
    * populating feed.
    *
    * @param session session details
-   * @param config config details
-   * @param feed Instance of feeds object
-   * @throws ApiRequestException something wrong with request
+   * @param config  config details
+   * @param feed    Instance of feeds object
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
@@ -202,12 +202,12 @@ public class ClientService extends BaseService {
    * creating client.
    *
    * @param session session details
-   * @param conf configuration details
-   * @param client client Dto
+   * @param conf    configuration details
+   * @param client  client Dto
    * @return string
    * @throws UnexpectedResponseException The API response was not as expected
-   * @throws ApiRequestException something wrong with request
-   * @throws InvalidInputException invalid input provided
+   * @throws ApiRequestException         something wrong with request
+   * @throws InvalidInputException       invalid input provided
    */
   public String create(Session session, Config conf, ClientDto client)
       throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
@@ -248,12 +248,12 @@ public class ClientService extends BaseService {
    * edit client.
    *
    * @param session session details
-   * @param conf configuration details
-   * @param client client Dto
+   * @param conf    configuration details
+   * @param client  client Dto
    * @return string
    * @throws UnexpectedResponseException The API response was not as expected
-   * @throws ApiRequestException something wrong with request
-   * @throws InvalidInputException invalid input provided
+   * @throws ApiRequestException         something wrong with request
+   * @throws InvalidInputException       invalid input provided
    */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public String edit(Session session, Config conf, ClientDto client)
@@ -324,7 +324,7 @@ public class ClientService extends BaseService {
 
     if (client.getFeeds() != null) {
       for (ClientDto.ClientParams.Feeds feed : client.getFeeds()) {
-        if (feed.deleted == false) {
+        if (!feed.deleted) {
           populateFeed(session, conf, feed);
         } else {
           String feedId = getFeedId(feeds, feed);
@@ -352,7 +352,8 @@ public class ClientService extends BaseService {
 
     List<ClientGetResponse> dataList = new ArrayList<>();
     MojoResponse<ClientGetResponse> mojoResponse =
-        response.toMojoResponse(new TypeReference<MojoResponse<ClientGetResponse>>() {});
+        response.toMojoResponse(new TypeReference<MojoResponse<ClientGetResponse>>() {
+        });
 
     for (MojoData<ClientGetResponse> data : mojoResponse.getData()) {
       dataList.add(data.getFields());
@@ -363,7 +364,7 @@ public class ClientService extends BaseService {
   /**
    * get feed id.
    *
-   * @param feeds Instance of feeds objects
+   * @param feeds     Instance of feeds objects
    * @param inputFeed Instance of Feeds object
    * @return String
    */
@@ -373,7 +374,7 @@ public class ClientService extends BaseService {
     for (ClientGetResponse.Feeds feed : feeds) {
 
       if (feed.deleted != null
-          && feed.deleted == false
+          && !feed.deleted
           && feed.xmlFeedUrl.equals(inputFeed.xmlFeedUrl)) {
         return feed.id;
       }
@@ -384,10 +385,10 @@ public class ClientService extends BaseService {
   /**
    * set client status inactive.
    *
-   * @param session session details
-   * @param config config details
+   * @param session  session details
+   * @param config   config details
    * @param clientId clientId as a string
-   * @throws ApiRequestException something wrong with request
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   public void removeClient(Session session, Config config, String clientId)
@@ -417,9 +418,9 @@ public class ClientService extends BaseService {
   /**
    * validation.
    *
-   * @param entity entity field
+   * @param entity    entity field
    * @param validator Validator object
-   * @param <T> generic param generic param
+   * @param <T>       generic param generic param
    * @return generics
    */
   public <T> String validateEditEntity(T entity, Validator validator) {
@@ -449,16 +450,16 @@ public class ClientService extends BaseService {
   /**
    * get client jobs.
    *
-   * @param driver Instance of driver
+   * @param driver     Instance of driver
    * @param jobService Instance of Job service
-   * @param clientId clientId as a string
-   * @param page page number on Mojo
-   * @param limit limit within the page
-   * @param startDate start date in local date format
-   * @param endDate end date in local date format
+   * @param clientId   clientId as a string
+   * @param page       page number on Mojo
+   * @param limit      limit within the page
+   * @param startDate  start date in local date format
+   * @param endDate    end date in local date format
    * @return list of job
-   * @throws MojoException throws custom mojo exception
-   * @throws ApiRequestException something wrong with request
+   * @throws MojoException               throws custom mojo exception
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   public List<Job> getJobs(
@@ -479,15 +480,15 @@ public class ClientService extends BaseService {
   /**
    * get job detail.
    *
-   * @param driver Instance of driver
+   * @param driver     Instance of driver
    * @param jobService Instance of Job service
-   * @param clientId clientId as a string
-   * @param reqId Ref number
-   * @param startDate start date in local date format
-   * @param endDate end date in local date format
+   * @param clientId   clientId as a string
+   * @param reqId      Ref number
+   * @param startDate  start date in local date format
+   * @param endDate    end date in local date format
    * @return optional of job stats
-   * @throws MojoException throws custom mojo exception
-   * @throws ApiRequestException something wrong with request
+   * @throws MojoException               throws custom mojo exception
+   * @throws ApiRequestException         something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
   public Optional<JobStats> getJobDetails(
@@ -512,10 +513,10 @@ public class ClientService extends BaseService {
     String bucketName =
         "joveo-"
             + getmd5Hash(
-                JoveoEnvironment.Staging.toString().toLowerCase()
-                    + "-"
-                    + agencyName
-                    + "-xml"); // 116ccdfb
+            JoveoEnvironment.Staging.toString().toLowerCase()
+                + "-"
+                + agencyName
+                + "-xml"); // 116ccdfb
     String key = getmd5Hash(publisherId) + "/" + clientId + ".xml";
     return "https://" + bucketName + ".s3-accelerate.amazonaws.com/" + key;
   }
@@ -524,13 +525,13 @@ public class ClientService extends BaseService {
    * get outbound feed data.
    *
    * @param publisherId Mojo publisher Id
-   * @param clientId clientId as a string
-   * @param session session details
-   * @param conf configuration details
+   * @param clientId    clientId as a string
+   * @param session     session details
+   * @param conf        configuration details
    * @return outbound feed
-   * @throws InvalidInputException invalid input provided
+   * @throws InvalidInputException       invalid input provided
    * @throws UnexpectedResponseException The API response was not as expected
-   * @throws ApiRequestException something wrong with request
+   * @throws ApiRequestException         something wrong with request
    */
   public OutboundFeed getOutboundFeedData(
       String publisherId, String clientId, Session session, Config conf)
