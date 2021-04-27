@@ -481,9 +481,10 @@ public class JobGroupDto {
     @AssertTrue(
         message = "one of placements budget is more than the budgetCap",
         groups = {Default.class, EditJobGroup.class})
+    @JsonIgnore
     public boolean isValidPlacements() {
 
-      if (placements == null || budgetCap == null) {
+      if (placements == null || budgetCap == null || budgetCap.value == null) {
         return true;
       }
 
@@ -500,13 +501,14 @@ public class JobGroupDto {
     @AssertTrue(
         message = "total locked budget of placements is greater than the budgetCap",
         groups = {Default.class, EditJobGroup.class})
+    @JsonIgnore
     public boolean isValidLockedPlacements() {
 
-      if (placements == null || budgetCap == null) {
+      if (placements == null || budgetCap == null || budgetCap.value == null) {
         return true;
       }
 
-      int totalLockedBudget = 0;
+      Double totalLockedBudget = 0.0;
 
       for (Placements placement : placements) {
         if (placement.budget != null && placement.budget.locked) {

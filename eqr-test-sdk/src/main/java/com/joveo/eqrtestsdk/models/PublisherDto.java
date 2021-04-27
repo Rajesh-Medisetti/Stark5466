@@ -144,7 +144,6 @@ public class PublisherDto {
     @Min(value = 0, message = "minBid must be a positive number")
     public Double minBid;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer feedIndexLatency;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -165,6 +164,7 @@ public class PublisherDto {
 
     /** Validating Publisher Name. */
     @AssertTrue(message = "publisher Name can't contain spaces")
+    @JsonIgnore
     public boolean isValidName() {
       return name == null || !name.contains(" ");
     }
