@@ -286,6 +286,9 @@ public class ClientDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean sjCreate;
 
+    @Null(
+        message = "industry is not editable in client",
+        groups = {EditClient.class})
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String industry;
 
