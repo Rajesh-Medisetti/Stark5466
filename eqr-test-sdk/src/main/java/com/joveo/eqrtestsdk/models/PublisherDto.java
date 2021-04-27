@@ -26,7 +26,6 @@ public class PublisherDto {
 
   public void setName(String name) {
     this.placement.name = name;
-    this.placement.value = name;
   }
 
   public void setMinBid(Double number) {
@@ -96,7 +95,7 @@ public class PublisherDto {
     if (this.placement.country == null) {
       this.placement.country = "United States";
     }
-
+    this.setValue(this.placement.name);
     this.placement.clickDefinitions = new Placement.ClickDefinitions();
     this.placement.feedIndexLatency = null;
   }
@@ -143,7 +142,6 @@ public class PublisherDto {
     @Min(value = 0, message = "minBid must be a positive number")
     public Double minBid;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer feedIndexLatency;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

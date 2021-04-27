@@ -126,7 +126,7 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    // @NullSource
+    @NullSource
     @ValueSource(ints = {1, 31, 100, -1, 0, -231})
     @DisplayName("Testing client creation with invalid apply conversion window")
     public void ClientCreationWithInValidApplyConversionWindow_ClientService_ThrowsNotNULL(
@@ -396,6 +396,8 @@ public class ValidationsTest {
           (input == null)
               ? null
               : LocalDate.parse(input, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+      System.out.println(startDate);
+      System.out.println(jobGroupDTO.getEndDate());
       jobGroupDTO.setStartDate(startDate);
       System.out.println(
           testServices.jobGroupService.validateEntity(
@@ -628,7 +630,7 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"04/28/2020"})
+    @ValueSource(strings = {"04/28/2020", "02/29/2020"})
     public void JobGroupCreationValidDateFormats_JobGroupService_ThrowsNULL(String date) {
       GroupingJobFilter groupingJobFilter =
           JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
@@ -660,7 +662,8 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-1", "0,23", ".123", "fourdays"})
+    @ValueSource(
+        strings = {"-1", "0,23", ".123", "fourdays", "04/28/199", "02/29/2021", "01/01/101"})
     public void
         JobGroupCreationInvalidFormatForDatePostedMoreThanLessThan_JobGroupService_ThrowsNULL(
             String days) {
@@ -679,7 +682,7 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"28April2020"})
+    @ValueSource(strings = {"28April2020", "12/32/2020", "02/29/2021", "04/31/2021"})
     public void JobGroupCreationInvalidDateFormats_JobGroupService_ThrowsNULL(String date) {
       GroupingJobFilter groupingJobFilter =
           JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
