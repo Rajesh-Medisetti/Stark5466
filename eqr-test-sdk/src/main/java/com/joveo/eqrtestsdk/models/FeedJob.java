@@ -22,7 +22,7 @@ public class FeedJob {
   private int referenceNumber;
   private String url;
 
-  @JsonIgnore public Map<String, Object> additionalFeedNode = new HashMap<>();
+  @JsonIgnore public Map<String, String> additionalFeedNode = new HashMap<>();
 
   @JsonSerialize(using = LocalDateSerializer.class)
   @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -248,11 +248,11 @@ public class FeedJob {
   }
 
   @JsonAnyGetter
-  public Map<String, Object> getAdditionalFeedNode() {
+  public Map<String, String> getAdditionalFeedNode() {
     return additionalFeedNode;
   }
 
-  public void setAdditionalFeedNode(Map<String, Object> extraParams) {
+  public void setAdditionalFeedNode(Map<String, String> extraParams) {
     this.additionalFeedNode = extraParams;
   }
 
@@ -263,14 +263,14 @@ public class FeedJob {
    * @param value value of additional feed
    * @param cdata enable cdata for field
    */
-  public void addAdditionalFeedNode(String key, Object value, boolean cdata) {
+  public void addAdditionalFeedNode(String key, String value, boolean cdata) {
     this.additionalFeedNode.put(key, value);
     if (cdata) {
-      this.additionalFeedNode.put(key, getCdataField(value.toString()));
+      this.additionalFeedNode.put(key, getCdataField(value));
     }
   }
 
-  public void addAdditionalFeedNode(String key, Object value) {
+  public void addAdditionalFeedNode(String key, String value) {
     this.additionalFeedNode.put(key, value);
   }
 

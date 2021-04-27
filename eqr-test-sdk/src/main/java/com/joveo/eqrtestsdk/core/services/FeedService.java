@@ -2,8 +2,10 @@ package com.joveo.eqrtestsdk.core.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
+import com.joveo.eqrtestsdk.exception.S3IoException;
 import com.joveo.eqrtestsdk.models.FeedDto;
 import com.typesafe.config.Config;
 import java.time.LocalDate;
@@ -34,8 +36,9 @@ public class FeedService {
     try {
       String xml = xmlMapper.writeValueAsString(feed);
       String path = "inbound-feeds/" + LocalDate.now() + "/" + UUID.randomUUID() + ".xml";
-      return awsService.uploadXmlFeed(config.getString("BucketName"), path, xml);
-    } catch (JsonProcessingException e) {
+      return awsService.uploadFile(
+          config.getString("BucketName"), path, xml, MediaType.APPLICATION_XML_UTF_8);
+    } catch (JsonProcessingException | S3IoException e) {
       logger.error("Unable to serialize feed to xml: " + e.getMessage());
       throw new InvalidInputException("Unable to serialize feed to xml: " + e.getMessage());
     }

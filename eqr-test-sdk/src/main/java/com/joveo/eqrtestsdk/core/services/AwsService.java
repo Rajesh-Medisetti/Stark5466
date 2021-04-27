@@ -16,7 +16,9 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.google.common.net.MediaType;
 import com.google.inject.Inject;
+import com.joveo.eqrtestsdk.exception.S3IoException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -62,35 +64,40 @@ public class AwsService {
   }
 
   /**
-   * upload xml feed in s3 bucket.
+   * Upload file in s3.
    *
-   * @param xml xml feed in string format
-   * @return url of xml feed
+   * @param bucketName s3 bucket name
+   * @param awsFilePath file path in s3
+   * @param file file content as string
+   * @param contentType content type for metadata
+   * @return File url
+   * @throws S3IoException IoException in S3
    */
-  public String uploadXmlFeed(String bucketName, String awsFilePath, String xml)
-      throws AmazonServiceException, SdkClientException {
+  public String uploadFile(
+      String bucketName, String awsFilePath, String file, MediaType contentType)
+      throws S3IoException {
 
     try {
       ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType("text/xml");
-      InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+      metadata.setContentType(contentType.toString());
+      InputStream inputStream = new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8));
       PutObjectRequest request =
           new PutObjectRequest(bucketName, awsFilePath, inputStream, metadata)
               .withCannedAcl(CannedAccessControlList.PublicRead);
       s3.putObject(request);
       String objectUrl = s3.getUrl(bucketName, awsFilePath).toString();
 
-      logger.info("feed url: " + objectUrl);
+      logger.info("File Url: " + objectUrl);
       return objectUrl;
 
     } catch (AmazonServiceException e) {
       logger.error("S3 couldn't process the request: " + e.getMessage());
-      throw new AmazonServiceException("S3 couldn't process the request: " + e.getMessage());
+      throw new S3IoException("S3 couldn't process the request: " + e.getMessage());
     } catch (SdkClientException e) {
       logger.error(
           "S3 couldn't be contacted for response or couldn't parse the response: "
               + e.getMessage());
-      throw new SdkClientException(
+      throw new S3IoException(
           "S3 couldn't be contacted for response or couldn't parse the response: "
               + e.getMessage());
     }
