@@ -87,7 +87,7 @@ public class ClientDto {
     this.params.frequency = (frequency == null) ? null : frequency.getValue();
   }
 
-  public void setApplyConvWindow(int applyConvWindow) {
+  public void setApplyConvWindow(Integer applyConvWindow) {
     this.params.applyConvWindow = applyConvWindow;
   }
 

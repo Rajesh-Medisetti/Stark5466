@@ -75,7 +75,6 @@ public class ValidationsTest {
       feed.schemaMappings.schemaMappingsRefNumber = "referencenumber";
 
       clientDTO.setBudget(2000.0);
-      clientDTO.setDefaultValues();
     }
 
     @Test
@@ -127,6 +126,7 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
+    @NullSource
     @ValueSource(ints = {1, 31, 100, -1, 0, -231})
     @DisplayName("Testing client creation with invalid apply conversion window")
     public void ClientCreationWithInValidApplyConversionWindow_ClientService_ThrowsNotNULL(
@@ -148,6 +148,7 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
+    @NullSource
     @ValueSource(doubles = {-12, -234})
     @DisplayName("Testing client creation with invalid budget")
     public void ClientCreationWithInValidBudget_ClientService_ThrowsNotNULL(Double budget) {
@@ -185,6 +186,30 @@ public class ValidationsTest {
       assertNotNull(
           testServices.campaignService.validateEntity(
               clientDTO, testServices.campaignService.validator));
+    }
+
+    @Nested
+    class clientCreationEmptyFeed {
+      @Test
+      @DisplayName("Creating client with empty list of feeds")
+      public void ClientCreationEmptyListOfFeed_ClientService_ThrowsNotNull() {
+        ClientDto clientDTO = new ClientDto();
+        clientDTO.setName("sdk_check_03");
+        clientDTO.setAts("Zoho");
+        clientDTO.setApplyConvWindow(30);
+        clientDTO.setBudget(5000.0);
+        clientDTO.setStartDate(LocalDate.now());
+        clientDTO.setEndDate(LocalDate.now().plusWeeks(4));
+        clientDTO.setFrequency(Frequency._1_Hours);
+        clientDTO.setTimezone(TimeZone.UTC_plus_05_30);
+        clientDTO.setBudget(2000.0);
+        System.out.println(
+            testServices.clientService.validateEntity(
+                clientDTO, testServices.clientService.validator));
+        assertNotNull(
+            testServices.clientService.validateEntity(
+                clientDTO, testServices.clientService.validator));
+      }
     }
   }
 
@@ -371,6 +396,8 @@ public class ValidationsTest {
           (input == null)
               ? null
               : LocalDate.parse(input, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+      System.out.println(startDate);
+      System.out.println(jobGroupDTO.getEndDate());
       jobGroupDTO.setStartDate(startDate);
       System.out.println(
           testServices.jobGroupService.validateEntity(
@@ -451,6 +478,18 @@ public class ValidationsTest {
     public void JobGroupCreationInvalidBudgetCap_JobGroupService_ThrowsNotNULL(
         Boolean pacing, String frequency, Double threshold, Double value) {
       jobGroupDTO.setBudgetCap(pacing, Freq.valueOf(frequency), threshold, value);
+      System.out.println(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+      assertNotNull(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    public void JobGroupCreationInvalidBudgetCapvalue_JobGroupService_ThrowsNotNULL(Double value) {
+      jobGroupDTO.setBudgetCap(false, Freq.Weekly, 80.0, value);
       System.out.println(
           testServices.jobGroupService.validateEntity(
               jobGroupDTO, testServices.jobGroupService.validator));
@@ -559,17 +598,6 @@ public class ValidationsTest {
               jobGroupDTO, testServices.jobGroupService.validator));
     }
 
-    // @ParameterizedTest
-    // @NullSource
-    // @DisplayName("Testing job group creation with invalid overspendCap")
-    /*public void JobGroupCreationInvalidOverspendCap_JobGroupService_ThrowsNotNULL(
-        OverspendCap overspendCap) {
-      jobGroupDTO.params.overspendCap = overspendCap;
-      assertNotNull(
-          testServices.jobGroupService.validateEntity(
-              jobGroupDTO, testServices.jobGroupService.validator));
-    }*/
-
     @ParameterizedTest
     @NullSource
     @DisplayName("Testing jon group creation with Group Filter as NULL.")
@@ -602,22 +630,10 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"04/28/2020"})
+    @ValueSource(strings = {"04/28/2020", "02/29/2020"})
     public void JobGroupCreationValidDateFormats_JobGroupService_ThrowsNULL(String date) {
       GroupingJobFilter groupingJobFilter =
-          JobFilter.and(JobFilter.greaterThan(JobFilterFields.postedDate, date));
-      jobGroupDTO.setJobFilter(groupingJobFilter);
-      assertNull(
-          testServices.jobGroupService.validateEntity(
-              jobGroupDTO, testServices.jobGroupService.validator));
-
-      groupingJobFilter = JobFilter.and(JobFilter.lessThan(JobFilterFields.postedDate, date));
-      jobGroupDTO.setJobFilter(groupingJobFilter);
-      assertNull(
-          testServices.jobGroupService.validateEntity(
-              jobGroupDTO, testServices.jobGroupService.validator));
-
-      groupingJobFilter = JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
+          JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
       jobGroupDTO.setJobFilter(groupingJobFilter);
       assertNull(
           testServices.jobGroupService.validateEntity(
@@ -646,22 +662,30 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"28April2020"})
+    @ValueSource(
+        strings = {"-1", "0,23", ".123", "fourdays", "04/28/199", "02/29/2021", "01/01/101"})
+    public void
+        JobGroupCreationInvalidFormatForDatePostedMoreThanLessThan_JobGroupService_ThrowsNULL(
+            String days) {
+      GroupingJobFilter groupingJobFilter =
+          JobFilter.and(JobFilter.greaterThan(JobFilterFields.postedDate, days));
+      jobGroupDTO.setJobFilter(groupingJobFilter);
+      assertNotNull(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+
+      groupingJobFilter = JobFilter.and(JobFilter.lessThan(JobFilterFields.postedDate, days));
+      jobGroupDTO.setJobFilter(groupingJobFilter);
+      assertNotNull(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"28April2020", "12/32/2020", "02/29/2021", "04/31/2021"})
     public void JobGroupCreationInvalidDateFormats_JobGroupService_ThrowsNULL(String date) {
       GroupingJobFilter groupingJobFilter =
-          JobFilter.and(JobFilter.greaterThan(JobFilterFields.postedDate, date));
-      jobGroupDTO.setJobFilter(groupingJobFilter);
-      assertNotNull(
-          testServices.jobGroupService.validateEntity(
-              jobGroupDTO, testServices.jobGroupService.validator));
-
-      groupingJobFilter = JobFilter.and(JobFilter.lessThan(JobFilterFields.postedDate, date));
-      jobGroupDTO.setJobFilter(groupingJobFilter);
-      assertNotNull(
-          testServices.jobGroupService.validateEntity(
-              jobGroupDTO, testServices.jobGroupService.validator));
-
-      groupingJobFilter = JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
+          JobFilter.and(JobFilter.on(JobFilterFields.postedDate, date));
       jobGroupDTO.setJobFilter(groupingJobFilter);
       assertNotNull(
           testServices.jobGroupService.validateEntity(
@@ -696,7 +720,33 @@ public class ValidationsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"onehundred", "1.24k"})
+    @CsvSource({"04/28/2019, 03/20/1998", "01/01/7070, 01/01/8080", "04/01/1990, 03/01/1990"})
+    public void JobGroupJobFilterBetweenInvalidDates__JobGroupService_ThrowsNotNull(
+        String startDate, String endDate) {
+      List<String> dates = new ArrayList<>();
+      dates.add(startDate);
+      dates.add(endDate);
+      GroupingJobFilter groupingJobFilter =
+          JobFilter.and(JobFilter.between(JobFilterFields.postedDate, dates));
+      jobGroupDTO.setJobFilter(groupingJobFilter);
+      assertNotNull(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"0.0", "132.98", "23"})
+    public void JobGroupValidCPCBid_JobGroupService_ThrowsNotNull(String cpcBid) {
+      GroupingJobFilter groupingJobFilter =
+          JobFilter.and(JobFilter.greaterThan(JobFilterFields.cpcBid, cpcBid));
+      jobGroupDTO.setJobFilter(groupingJobFilter);
+      assertNull(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"onehundred", "1.24k", "-12.0", "1.2.3", ".23"})
     public void JobGroupCreationInvalidCPCBid_JobGroupService_ThrowsNotNULL(String cpcBid) {
       GroupingJobFilter groupingJobFilter =
           JobFilter.and(JobFilter.greaterThan(JobFilterFields.cpcBid, cpcBid));
@@ -707,6 +757,9 @@ public class ValidationsTest {
 
       groupingJobFilter = JobFilter.and(JobFilter.lessThan(JobFilterFields.cpcBid, cpcBid));
       jobGroupDTO.setJobFilter(groupingJobFilter);
+      System.out.println(
+          testServices.jobGroupService.validateEntity(
+              jobGroupDTO, testServices.jobGroupService.validator));
       assertNotNull(
           testServices.jobGroupService.validateEntity(
               jobGroupDTO, testServices.jobGroupService.validator));
@@ -750,6 +803,40 @@ public class ValidationsTest {
       assertNotNull(
           testServices.jobGroupService.validateEntity(
               jobGroupDTO, testServices.jobGroupService.validator));
+    }
+
+    @Nested
+    class JobGroupCreationEmptyPlacementList {
+      @Test
+      @DisplayName("Testing Job group creation with empty list of placements")
+      public void JobGroupCreationEmptyListOfPlacements_JobGroupService_ThrowsNotNull() {
+        JobGroupDto jobGroupDTO = new JobGroupDto();
+
+        jobGroupDTO.setName("JG00");
+        jobGroupDTO.setClientId("2d3zx3r1");
+        jobGroupDTO.setCampaignId("s15f3d13e");
+        jobGroupDTO.setStartDate(LocalDate.now());
+        jobGroupDTO.setEndDate(LocalDate.now().plusWeeks(4));
+
+        GroupingJobFilter groupingJobFilter =
+            JobFilter.and(
+                JobFilter.eq(JobFilterFields.state, "Telangana"),
+                JobFilter.notEq(JobFilterFields.category, "Recruitment"),
+                JobFilter.or(JobFilter.eq(JobFilterFields.city, "Hyderabad")));
+
+        jobGroupDTO.setJobFilter(groupingJobFilter);
+
+        jobGroupDTO.addIoDetail("123x", 200, LocalDate.now(), LocalDate.now().plusWeeks(4));
+
+        jobGroupDTO.setBudgetCap(200.0);
+
+        System.out.println(
+            testServices.jobGroupService.validateEntity(
+                jobGroupDTO, testServices.jobGroupService.validator));
+        assertNotNull(
+            testServices.jobGroupService.validateEntity(
+                jobGroupDTO, testServices.jobGroupService.validator));
+      }
     }
   }
 

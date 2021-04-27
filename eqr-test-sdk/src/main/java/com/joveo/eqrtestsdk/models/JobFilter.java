@@ -1,7 +1,13 @@
 package com.joveo.eqrtestsdk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.models.validationgroups.EditJobGroup;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.validation.constraints.AssertTrue;
@@ -213,5 +219,73 @@ public class JobFilter<T> implements Filter {
       }
     }
     return true;
+  }
+
+  /** . Validating Date Format. */
+  @SuppressWarnings("checkstyle:CyclomaticComplexity")
+  @AssertTrue(
+      message =
+          "Invalid Date format or startDate>EndDate for between Operator,"
+              + " date format must be MM/dd/yyyy in JobFilter")
+  @JsonIgnore
+  public boolean isValidDate() throws InvalidInputException {
+    if (field != JobFilterFields.postedDate) {
+      return true;
+    }
+    if (operator == RuleOperator.ON
+        || operator == RuleOperator.BEFORE
+        || operator == RuleOperator.AFTER) {
+      return isValidDateFormat((String) data);
+    }
+    if (operator == RuleOperator.BETWEEN) {
+      List<String> list = (ArrayList) data;
+      return (list.size() == 2
+          && isValidDateFormat(list.get(0))
+          && isValidDateFormat(list.get(1))
+          && compareDates(list.get(0), list.get(1)));
+    }
+    return isNumberValid((String) data);
+  }
+
+  @JsonIgnore
+  private boolean isValidDateFormat(String dateStr) throws InvalidInputException {
+    DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    boolean status;
+    dateFormat.setLenient(false);
+    try {
+      dateFormat.parse(dateStr);
+      status = true;
+    } catch (Exception e) {
+      status = false;
+    }
+    return status;
+  }
+
+  @JsonIgnore
+  private boolean compareDates(String start, String end) {
+    LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+    LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+    return (startDate.compareTo(endDate) <= 0 && endDate.compareTo(LocalDate.now()) <= 0);
+  }
+
+  @AssertTrue(message = "InvalidCpc in JobFilter")
+  @JsonIgnore
+  private boolean isCpcValid() {
+    if (field != JobFilterFields.cpcBid) {
+      return true;
+    }
+    if (operator != RuleOperator.BETWEEN) {
+      String number = (String) data;
+      return isNumberValid(number);
+    } else {
+      List<String> list = (ArrayList) data;
+      return list.size() == 2 && isNumberValid(list.get(0)) && isNumberValid(list.get(1));
+    }
+  }
+
+  @JsonIgnore
+  private boolean isNumberValid(String number) {
+    String regex = "\\d+(\\.\\d+)?";
+    return number.matches(regex);
   }
 }

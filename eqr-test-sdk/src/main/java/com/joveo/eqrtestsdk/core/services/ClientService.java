@@ -324,7 +324,7 @@ public class ClientService extends BaseService {
 
     if (client.getFeeds() != null) {
       for (ClientDto.ClientParams.Feeds feed : client.getFeeds()) {
-        if (feed.deleted == false) {
+        if (!feed.deleted) {
           populateFeed(session, conf, feed);
         } else {
           String feedId = getFeedId(feeds, feed);
@@ -372,9 +372,7 @@ public class ClientService extends BaseService {
 
     for (ClientGetResponse.Feeds feed : feeds) {
 
-      if (feed.deleted != null
-          && feed.deleted == false
-          && feed.xmlFeedUrl.equals(inputFeed.xmlFeedUrl)) {
+      if (feed.deleted != null && !feed.deleted && feed.xmlFeedUrl.equals(inputFeed.xmlFeedUrl)) {
         return feed.id;
       }
     }
@@ -518,6 +516,45 @@ public class ClientService extends BaseService {
                     + "-xml"); // 116ccdfb
     String key = getmd5Hash(publisherId) + "/" + clientId + ".xml";
     return "https://" + bucketName + ".s3-accelerate.amazonaws.com/" + key;
+  }
+
+  /**
+   * To fetch Inbound Feeds of a client.
+   *
+   * @param clientId ClientId which uniquely identifies client
+   * @param session Session Details
+   * @param conf Configuration Details
+   * @return List of inbound feeds
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException Something wrong with request
+   */
+  public List<String> getInboundFeedData(String clientId, Session session, Config conf)
+      throws UnexpectedResponseException, ApiRequestException {
+    RestResponse getResponse =
+        executor.get(session, conf.getString("MojoBaseUrl") + "/flash/api/clients/" + clientId);
+
+    if (!getResponse.isSuccess()) {
+      String errorMessage =
+          "Unable to make getClient Request , check clientId " + getResponse.toString();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    List<ClientGetResponse> fields = this.getResponseData(getResponse);
+    List<String> feedUrls = new ArrayList<>();
+
+    if (fields.isEmpty()) {
+      return feedUrls;
+    }
+
+    ClientGetResponse getResponseData = fields.get(0);
+
+    for (ClientGetResponse.Feeds feed : getResponseData.getFeeds()) {
+      if (!feed.deleted) {
+        feedUrls.add(feed.xmlFeedUrl);
+      }
+    }
+    return feedUrls;
   }
 
   /**
