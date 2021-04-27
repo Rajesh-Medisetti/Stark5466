@@ -521,6 +521,45 @@ public class ClientService extends BaseService {
   }
 
   /**
+   * To fetch Inbound Feeds of a client.
+   *
+   * @param clientId ClientId which uniquely identifies client
+   * @param session Session Details
+   * @param conf Configuration Details
+   * @return List of inbound feeds
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException Something wrong with request
+   */
+  public List<String> getInboundFeedData(String clientId, Session session, Config conf)
+      throws UnexpectedResponseException, ApiRequestException {
+    RestResponse getResponse =
+        executor.get(session, conf.getString("MojoBaseUrl") + "/flash/api/clients/" + clientId);
+
+    if (!getResponse.isSuccess()) {
+      String errorMessage =
+          "Unable to make getClient Request , check clientId " + getResponse.toString();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    List<ClientGetResponse> fields = this.getResponseData(getResponse);
+    List<String> feedUrls = new ArrayList<>();
+
+    if (fields.isEmpty()) {
+      return feedUrls;
+    }
+
+    ClientGetResponse getResponseData = fields.get(0);
+
+    for (ClientGetResponse.Feeds feed : getResponseData.getFeeds()) {
+      if (!feed.deleted) {
+        feedUrls.add(feed.xmlFeedUrl);
+      }
+    }
+    return feedUrls;
+  }
+
+  /**
    * get outbound feed data.
    *
    * @param publisherId Mojo publisher Id
