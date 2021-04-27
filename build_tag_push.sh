@@ -21,7 +21,7 @@ COMMAND=$2
 
 if [[ $ENVIRONMENT = "staging" ]]
 then
-  echo "setting up for SNAPSHOT deployment"
+  echo "Setting up for SNAPSHOT deployment"
   # shellcheck disable=SC2091
 elif [[ $ENVIRONMENT = "production" ]]
 then
@@ -34,7 +34,7 @@ fi
 
 if [[ $COMMAND = "all" ]]
 then
-  mvn deploy -X
+  docker build -f eqr-test-sdk/Dockerfile .
 else
   echo "${COMMAND} not supported"
   exit 1
