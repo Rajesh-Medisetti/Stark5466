@@ -24,7 +24,7 @@ public class FeedService {
    * get feed url hosted in aws s3.
    *
    * @param awsService aws service instance
-   * @param feed       feedDto instance
+   * @param feed feedDto instance
    * @return xml feed url
    * @throws InvalidInputException throws invalid input exception
    */
@@ -40,7 +40,6 @@ public class FeedService {
       throw new InvalidInputException("Unable to serialize feed to xml: " + e.getMessage());
     }
   }
-
 
   public void deleteFeedUrl(Config config, AwsService awsService, String feedUrl)
       throws InvalidInputException {

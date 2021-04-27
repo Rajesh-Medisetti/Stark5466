@@ -31,26 +31,19 @@ public class Driver {
   public Session session;
   public Config conf;
 
-  @Inject
-  ClientService clientService;
-  @Inject
-  CampaignService campaignService;
-  @Inject
-  JobGroupService jobGroupService;
-  @Inject
-  PublisherService publisherService;
-  @Inject
-  JobService jobService;
-  @Inject
-  FeedService feedService;
-  @Inject
-  AwsService awsService;
+  @Inject ClientService clientService;
+  @Inject CampaignService campaignService;
+  @Inject JobGroupService jobGroupService;
+  @Inject PublisherService publisherService;
+  @Inject JobService jobService;
+  @Inject FeedService feedService;
+  @Inject AwsService awsService;
 
   /**
    * Start an instance of Driver.
    *
-   * @param username  Mojo username
-   * @param password  Mojo passwords
+   * @param username Mojo username
+   * @param password Mojo passwords
    * @param JOVEO_ENV Joveo environment
    * @return Driver
    * @throws MojoException throws custom mojo exception On unexpected behaviour
@@ -75,7 +68,7 @@ public class Driver {
    */
   public Client createClient(ClientDto client)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     String clientId = clientService.create(session, conf, client);
     return new Client(this, clientId);
   }
@@ -89,7 +82,7 @@ public class Driver {
    */
   public Campaign createCampaign(CampaignDto campaign)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     String campaignId = campaignService.create(session, conf, campaign);
     return new Campaign(this, campaign.getClientId(), campaignId);
   }
@@ -103,7 +96,7 @@ public class Driver {
    */
   public JobGroup createJobGroup(JobGroupDto jobGroup)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     String jobGroupId = jobGroupService.create(session, conf, jobGroup);
     return new JobGroup(this, jobGroup.getClientId(), jobGroupId);
   }
@@ -117,37 +110,36 @@ public class Driver {
    */
   public Publisher createPublisher(PublisherDto publisher)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     String publisherID = publisherService.create(session, conf, publisher);
     return new Publisher(this, publisherID);
   }
 
   public Publisher getExistingPublisher(String publisherId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     return new Publisher(this, publisherId);
   }
 
   public Client getExistingClient(String clientId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     return new Client(this, clientId);
   }
 
   public Campaign getExistingCampaign(String clientId, String campaignId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     return new Campaign(this, clientId, campaignId);
   }
 
   public JobGroup getExistingJobGroup(String clientId, String jobGroupId)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
-      ApiRequestException {
+          ApiRequestException {
     return new JobGroup(this, clientId, jobGroupId);
   }
 
-  public String generateInboundFeed(FeedDto feedDto)
-      throws InvalidInputException {
+  public String generateInboundFeed(FeedDto feedDto) throws InvalidInputException {
     return feedService.getFeedUrl(conf, awsService, feedDto);
   }
 

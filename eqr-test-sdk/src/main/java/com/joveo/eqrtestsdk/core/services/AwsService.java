@@ -32,23 +32,17 @@ public class AwsService {
   AmazonEC2 ec2;
   AmazonS3 s3;
 
-  /**
-   * constructor to get aws ec2 and s3 instance.
-   */
+  /** constructor to get aws ec2 and s3 instance. */
   @Inject
   public AwsService() {
-    this.ec2 =
-        AmazonEC2ClientBuilder.standard()
-            .build();
-    this.s3 = AmazonS3ClientBuilder.standard()
-        .build();
-
+    this.ec2 = AmazonEC2ClientBuilder.standard().build();
+    this.s3 = AmazonS3ClientBuilder.standard().build();
   }
 
   /**
    * get tags.
    *
-   * @param tag   AWS Tag
+   * @param tag AWS Tag
    * @param value AWS tag value
    * @return List of IP addresses
    */
@@ -81,8 +75,8 @@ public class AwsService {
       metadata.setContentType("text/xml");
       InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
       PutObjectRequest request =
-          new PutObjectRequest(bucketName, awsFilePath, inputStream, metadata).withCannedAcl(
-              CannedAccessControlList.PublicRead);
+          new PutObjectRequest(bucketName, awsFilePath, inputStream, metadata)
+              .withCannedAcl(CannedAccessControlList.PublicRead);
       s3.putObject(request);
       String objectUrl = s3.getUrl(bucketName, awsFilePath).toString();
 

@@ -22,8 +22,7 @@ public class FeedJob {
   private int referenceNumber;
   private String url;
 
-  @JsonIgnore
-  public Map<String, Object> additionalFeedNode  = new HashMap<>();
+  @JsonIgnore public Map<String, Object> additionalFeedNode = new HashMap<>();
 
   @JsonSerialize(using = LocalDateSerializer.class)
   @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -45,8 +44,9 @@ public class FeedJob {
 
   /**
    * set tile.
-   * @param title  title
-   * @param cdata  enable cdata for field
+   *
+   * @param title title
+   * @param cdata enable cdata for field
    */
   public void setTitle(String title, boolean cdata) {
     this.title = title;
@@ -65,8 +65,9 @@ public class FeedJob {
 
   /**
    * set city.
+   *
    * @param city city
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setCity(String city, boolean cdata) {
     this.city = city;
@@ -85,8 +86,9 @@ public class FeedJob {
 
   /**
    * set state.
+   *
    * @param state state
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setState(String state, boolean cdata) {
     this.state = state;
@@ -105,8 +107,9 @@ public class FeedJob {
 
   /**
    * set country.
+   *
    * @param country country
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setCountry(String country, boolean cdata) {
     this.country = country;
@@ -125,8 +128,9 @@ public class FeedJob {
 
   /**
    * set description.
+   *
    * @param description description
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setDescription(String description, boolean cdata) {
     this.description = description;
@@ -153,8 +157,9 @@ public class FeedJob {
 
   /**
    * set url.
+   *
    * @param url url
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setUrl(String url, boolean cdata) {
     this.url = url;
@@ -181,8 +186,9 @@ public class FeedJob {
 
   /**
    * set category.
+   *
    * @param category category
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setCategory(String category, boolean cdata) {
     this.category = category;
@@ -201,8 +207,9 @@ public class FeedJob {
 
   /**
    * set career level.
+   *
    * @param careerLevel career level
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setCareerLevel(String careerLevel, boolean cdata) {
     this.careerLevel = careerLevel;
@@ -221,8 +228,9 @@ public class FeedJob {
 
   /**
    * set department.
+   *
    * @param department department
-   * @param cdata  enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void setDepartment(String department, boolean cdata) {
     this.department = department;
@@ -250,9 +258,10 @@ public class FeedJob {
 
   /**
    * adding custom feed node.
-   * @param key  name of additional feed
+   *
+   * @param key name of additional feed
    * @param value value of additional feed
-   * @param cdata   enable cdata for field
+   * @param cdata enable cdata for field
    */
   public void addAdditionalFeedNode(String key, Object value, boolean cdata) {
     this.additionalFeedNode.put(key, value);
