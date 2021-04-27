@@ -243,4 +243,3 @@ public class SerializationTests {
     JSONAssert.assertEquals(expectedValue, actualValue, JSONCompareMode.STRICT);
   }
 }
-
