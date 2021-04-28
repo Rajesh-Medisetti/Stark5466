@@ -57,7 +57,9 @@ pipeline {
     }
    }
    steps {
-    sh './build_tag_push.sh production all'
+   withCredentials([usernamePassword(credentialsId: 'jenkins_user_for_github_admin', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]){
+        sh './build_tag_push.sh production all'
+    }
    }
   }
  }

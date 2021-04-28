@@ -9,6 +9,15 @@ public class JobGroupGetResponse {
   private List<Placement> placements;
   private String startDate;
   private String campaignId;
+  private Placement.CapDto budgetCap;
+
+  public Placement.CapDto getBudgetCap() {
+    return budgetCap;
+  }
+
+  public void setBudgetCap(Placement.CapDto budgetCap) {
+    this.budgetCap = budgetCap;
+  }
 
   public String getCampaignId() {
     return campaignId;
@@ -78,6 +87,19 @@ public class JobGroupGetResponse {
       public Boolean pacing;
       public Double threshold;
       public Double value;
+      public Boolean locked;
+
+      public void setPacing(Boolean pacing) {
+        this.pacing = pacing;
+      }
+
+      public Boolean getLocked() {
+        return locked;
+      }
+
+      public void setLocked(Boolean locked) {
+        this.locked = locked;
+      }
 
       public void setValue(Double value) {
         this.value = value;
@@ -85,10 +107,6 @@ public class JobGroupGetResponse {
 
       public Double getValue() {
         return this.value;
-      }
-
-      public void setPacing(boolean pacing) {
-        this.pacing = pacing;
       }
 
       public boolean getPacing() {

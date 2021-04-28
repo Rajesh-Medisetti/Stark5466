@@ -197,7 +197,7 @@ public class SerializationTests {
     // jobGroupDto.setOverspendCap();
     // jobGroupDto.addPlacementWithBudgetAndBid("Naukri", 1.5, 100.0, Freq.Monthly, false, 80.0,
     // true);
-    jobGroupDto.addPlacementWithBudgetAndBid("Naukri", 1.5, 100.0, Freq.Monthly, false, 80.0);
+    jobGroupDto.addPlacementWithBudgetAndBid("Naukri", 1.5, 100.0, Freq.Monthly, false, 80.0, true);
     jobGroupDto.setDefaultValues();
     String actualValue = objectMapper.writeValueAsString(jobGroupDto);
 

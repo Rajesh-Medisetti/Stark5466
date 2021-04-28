@@ -14,6 +14,9 @@ public class CapDto {
   public Freq freq;
   public Boolean pacing;
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean locked;
+
   @Max(
       value = 100,
       message = "threshold can't be greater than 100 check caps",
@@ -36,11 +39,25 @@ public class CapDto {
   }
 
   /** Setting the Budget . */
-  public CapDto(Boolean pacing, Freq frequency, Double threshold, Double value) {
+  public CapDto(Boolean pacing, Freq freq, Double threshold, Double value) {
     this.pacing = pacing;
-    this.freq = frequency;
+    this.freq = freq;
     this.threshold = threshold;
     this.value = value;
+  }
+
+  /**
+   * Setting the Budget with locking option.
+   *
+   * @param pacing pacing
+   * @param freq freq
+   * @param threshold threshold
+   * @param value value
+   * @param locked locked
+   */
+  public CapDto(Boolean pacing, Freq freq, Double threshold, Double value, Boolean locked) {
+    this(pacing, freq, threshold, value);
+    this.locked = locked;
   }
 
   @AssertTrue(
