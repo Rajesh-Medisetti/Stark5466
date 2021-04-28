@@ -26,7 +26,7 @@ then
 elif [[ $ENVIRONMENT = "production" ]]
 then
   # shellcheck disable=SC2091
-  ./eqr-test-sdk/increment_tag.sh
+  ./eqr-test-sdk/increment_push_checkout_tag.sh
 else
   echo "${ENVIRONMENT} not supported"
   exit 1
