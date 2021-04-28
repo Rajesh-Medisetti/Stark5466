@@ -30,7 +30,9 @@ NEEDS_TAG=`git describe --contains $GIT_COMMIT`
 if [ -z "$NEEDS_TAG" ]; then
     echo "Tagged with $NEW_TAG (Ignoring fatal:cannot describe - this means commit is untagged) "
     git tag -a -m "release- $NEW_TAG" $NEW_TAG
-    URL=https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/joveo/eqr-test-sdk.git
+    ENCODED_USER=$(jq -rn --arg x ${GIT_USERNAME} '$x|@uri')
+    ENCODED_PASS=$(jq -rn --arg x ${GIT_PASSWORD} '$x|@uri')
+    URL=https://${ENCODED_USER}:${ENCODED_PASS}@github.com/joveo/eqr-test-sdk.git
     git push $URL $NEW_TAG
     git checkout $NEW_TAG
 else
