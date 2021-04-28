@@ -212,7 +212,6 @@ public class JobFilter<T> implements Filter {
 
     if (operator.equals(RuleOperator.BETWEEN)) {
       if (((List<?>) data).size() == 2) {
-        // validation for date
         return true;
       } else {
         return false;
@@ -226,18 +225,20 @@ public class JobFilter<T> implements Filter {
   @AssertTrue(
       message =
           "Invalid Date format or startDate>EndDate for between Operator,"
-              + " date format must be MM/dd/yyyy in JobFilter")
+              + " date format must be MM/dd/yyyy in JobFilter, for MoreThan,"
+              + "LessThan Input will be Numeric")
   @JsonIgnore
   public boolean isValidDate() throws InvalidInputException {
+
     if (field != JobFilterFields.postedDate) {
       return true;
     }
+
     if (operator == RuleOperator.ON
         || operator == RuleOperator.BEFORE
         || operator == RuleOperator.AFTER) {
       return isValidDateFormat((String) data);
-    }
-    if (operator == RuleOperator.BETWEEN) {
+    } else if (operator == RuleOperator.BETWEEN) {
       List<String> list = (ArrayList) data;
       return (list.size() == 2
           && isValidDateFormat(list.get(0))
@@ -248,7 +249,7 @@ public class JobFilter<T> implements Filter {
   }
 
   @JsonIgnore
-  private boolean isValidDateFormat(String dateStr) throws InvalidInputException {
+  private boolean isValidDateFormat(String dateStr) {
     DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     boolean status;
     dateFormat.setLenient(false);
@@ -263,17 +264,23 @@ public class JobFilter<T> implements Filter {
 
   @JsonIgnore
   private boolean compareDates(String start, String end) {
+
     LocalDate startDate = LocalDate.parse(start, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+
     LocalDate endDate = LocalDate.parse(end, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-    return (startDate.compareTo(endDate) <= 0 && endDate.compareTo(LocalDate.now()) <= 0);
+
+    return startDate.compareTo(endDate) <= 0 && endDate.compareTo(LocalDate.now()) <= 0;
   }
 
+  /** . Vlidating cpcBid in JobFilter */
   @AssertTrue(message = "InvalidCpc in JobFilter")
   @JsonIgnore
   private boolean isCpcValid() {
+
     if (field != JobFilterFields.cpcBid) {
       return true;
     }
+
     if (operator != RuleOperator.BETWEEN) {
       String number = (String) data;
       return isNumberValid(number);

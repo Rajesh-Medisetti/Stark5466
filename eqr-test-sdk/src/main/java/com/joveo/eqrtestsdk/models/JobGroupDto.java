@@ -152,7 +152,7 @@ public class JobGroupDto {
     params.tradingGoals.addPerformanceTargets(type, value);
   }
 
-  /** constructor for placements. */
+  /** add placement with id. */
   public void addPlacement(String placementId) {
 
     if (params.placements == null) {
@@ -160,6 +160,17 @@ public class JobGroupDto {
     }
 
     JobGroupParams.Placements placementValue = new JobGroupParams.Placements(placementId);
+    params.placements.add(placementValue);
+  }
+
+  /** add placement with bid. */
+  public void addPlacementWithBid(String placementId, Double bid) {
+
+    if (params.placements == null) {
+      params.placements = new ArrayList<>();
+    }
+    JobGroupParams.Placements placementValue = new JobGroupParams.Placements(placementId);
+    placementValue.setBid(bid);
     params.placements.add(placementValue);
   }
 

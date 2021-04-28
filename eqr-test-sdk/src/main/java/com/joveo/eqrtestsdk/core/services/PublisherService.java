@@ -10,7 +10,10 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
 import com.joveo.eqrtestsdk.models.PublisherDto;
+import com.joveo.eqrtestsdk.models.validationgroups.EditPublisher;
 import com.typesafe.config.Config;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,13 +121,21 @@ public class PublisherService extends BaseService {
       throw new UnexpectedResponseException(errorMessage);
     }
     String bidType = getResponse.extractByPath("placement", "bidType", "name").replace("\"", "");
-    ;
 
     String url = getResponse.extractByPath("placement", "url").replace("\"", "");
-    ;
+
+    String name = getResponse.extractByPath("placement", "name").replace("\"", "");
 
     publisher.setBidType(bidType);
     publisher.setPublisherUrl(url);
+    publisher.setName(name);
+
+    String validationErrors = validateEditEntity(publisher, validator);
+
+    if (validationErrors != null) {
+      logger.error(validationErrors);
+      throw new InvalidInputException(validationErrors);
+    }
 
     RestResponse response =
         executor.put(
@@ -140,6 +151,22 @@ public class PublisherService extends BaseService {
       logger.error("Unable to update Publisher: " + response.toString());
       throw new UnexpectedResponseException("Unable to update Publisher " + response.toString());
     }
+  }
+
+  /**
+   * . validation.
+   *
+   * @param entity entity field
+   * @param validator Validator object
+   * @param <T> generic param generic param
+   * @return generics
+   */
+  public <T> String validateEditEntity(T entity, Validator validator) {
+
+    Set<ConstraintViolation<T>> constraintViolations =
+        validator.validate(entity, EditPublisher.class);
+
+    return validationMessages(constraintViolations);
   }
 
   @Override
