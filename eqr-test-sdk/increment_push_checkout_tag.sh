@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git fetch
+set -e
 
 #get highest tag number
 VERSION=`git describe --abbrev=0 --tags`
@@ -45,8 +45,9 @@ NEEDS_TAG=`git describe --contains $GIT_COMMIT`
 #only tag if no tag already (would be better if the git describe command above could have a silent option)
 if [ -z "$NEEDS_TAG" ]; then
     echo "Tagged with $NEW_TAG (Ignoring fatal:cannot describe - this means commit is untagged) "
-    git tag -a -m "new release" $NEW_TAG
-    git push origin $NEW_TAG
+    git tag -a -m "release- $NEW_TAG" $NEW_TAG
+    URL=https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/joveo/eqr-test-sdk.git
+    git push $URL $NEW_TAG
     git checkout $NEW_TAG
 else
     echo "Already a tag on this commit"
