@@ -255,7 +255,6 @@ public class ClientService extends BaseService {
    * @throws ApiRequestException something wrong with request
    * @throws InvalidInputException invalid input provided
    */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public String edit(Session session, Config conf, ClientDto client)
       throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
 
@@ -263,12 +262,10 @@ public class ClientService extends BaseService {
         executor.get(
             session, conf.getString("MojoBaseUrl") + "/flash/api/clients/" + client.getClientId());
 
-    if (!getResponse.isSuccess()) {
-      String errorMessage =
-          "Unable to make getClient Request , check clientId " + getResponse.toString();
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    String errorMessage =
+        "Unable to make getClient Request , check clientId " + getResponse.toString();
+
+    checkResponse(getResponse, errorMessage);
 
     List<ClientGetResponse> fields = this.getResponseData(getResponse);
     ClientGetResponse getResponseData = fields.get(0);
@@ -301,11 +298,8 @@ public class ClientService extends BaseService {
             conf.getString("MojoBaseUrl") + "/thor/api/clients/" + client.getClientId(),
             client);
 
-    if (!response.isSuccess()) {
-      String errorMessage = "Unable to edit Client: " + response.getJoveoUpdateErrorMeesage();
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    errorMessage = "Unable to edit Client: " + response.getJoveoUpdateErrorMeesage();
+    checkResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 

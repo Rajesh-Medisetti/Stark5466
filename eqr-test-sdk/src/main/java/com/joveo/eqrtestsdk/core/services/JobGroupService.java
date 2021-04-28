@@ -131,7 +131,6 @@ public class JobGroupService extends BaseService {
     }
   }
 
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   private boolean isValidPublisher(
       JobGroupDto.JobGroupParams.Placements placement,
       List<PlacementGetResponse> getResponsePlacements)
@@ -140,7 +139,7 @@ public class JobGroupService extends BaseService {
     for (PlacementGetResponse responsePlacement : getResponsePlacements) {
 
       if (responsePlacement.getPublisher().equals(placement.publisher)
-          && (placement.bid == null || responsePlacement.getMinBid() <= placement.bid)) {
+          && isValidBid(placement.bid, responsePlacement.getMinBid())) {
         return true;
       }
       if (responsePlacement.getPublisher().equals(placement.publisher)) {
@@ -157,6 +156,11 @@ public class JobGroupService extends BaseService {
     return false;
   }
 
+  private boolean isValidBid(Double bid, Double minBid) {
+
+    return bid == null || minBid <= bid;
+  }
+
   /**
    * edit job group.
    *
@@ -168,7 +172,6 @@ public class JobGroupService extends BaseService {
    * @throws ApiRequestException something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public String edit(Session session, Config config, JobGroupDto jobGroup)
       throws InvalidInputException, ApiRequestException, UnexpectedResponseException {
 
@@ -181,15 +184,12 @@ public class JobGroupService extends BaseService {
                 + "?clientIds="
                 + jobGroup.getClientId());
 
-    if (!getResponse.isSuccess()) {
-      String errorMessage =
-          "Unable to make getJobGroup Request ,"
-              + " check clientId,campaignId,JobGroupId "
-              + getResponse;
+    String errorMessage =
+        "Unable to make getJobGroup Request ,"
+            + " check clientId,campaignId,JobGroupId "
+            + getResponse;
 
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    checkResponse(getResponse, errorMessage);
 
     String validationErrors = this.validateEditEntity(jobGroup, validator);
 
@@ -201,7 +201,7 @@ public class JobGroupService extends BaseService {
     String startDate = responseData.getStartDate();
 
     if (!isValidDate(startDate, endDate)) {
-      String errorMessage = " Invalid endDate, startDate is " + startDate + ", ";
+      errorMessage = " Invalid endDate, startDate is " + startDate + ", ";
 
       if (validationErrors != null) {
         validationErrors += errorMessage;
@@ -210,10 +210,7 @@ public class JobGroupService extends BaseService {
       }
     }
 
-    if (validationErrors != null) {
-      logger.error(validationErrors);
-      throw new InvalidInputException(validationErrors);
-    }
+    checkValidationErrors(validationErrors);
 
     jobGroup.setCampaignId(responseData.getCampaignId());
     checkPlacementsMinBid(session, config, jobGroup);
@@ -226,11 +223,8 @@ public class JobGroupService extends BaseService {
             config.getString("MojoBaseUrl") + "/thor/api/jobgroups/" + jobGroup.getJobGroupId(),
             jobGroup);
 
-    if (!response.isSuccess()) {
-      String errorMessage = "Unable to create Job Group: " + response.getJoveoUpdateErrorMeesage();
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    errorMessage = "Unable to edit Job Group: " + response.getJoveoUpdateErrorMeesage();
+    checkResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 
@@ -239,6 +233,14 @@ public class JobGroupService extends BaseService {
     } catch (IndexOutOfBoundsException e) {
       logger.error(e.getMessage());
       throw new UnexpectedResponseException("data at first index missing in response " + response);
+    }
+  }
+
+  private void checkValidationErrors(String validationErrors) throws InvalidInputException {
+
+    if (validationErrors != null) {
+      logger.error(validationErrors);
+      throw new InvalidInputException(validationErrors);
     }
   }
 
@@ -327,8 +329,7 @@ public class JobGroupService extends BaseService {
     return false;
   }
 
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  void copyTradingGoals(
+  private void copyTradingGoals(
       JobGroupDto jobGroup, JobGroupGetResponse.TradingGoals responseTradingGoals) {
 
     JobGroupDto.JobGroupParams.TradingGoals tradingGoals = jobGroup.getTradingGoals();
@@ -342,26 +343,20 @@ public class JobGroupService extends BaseService {
       ioDetails = tradingGoals.ioDetails;
       performanceTargets = tradingGoals.performanceTargets;
 
-      if (ioDetails == null && performanceTargets != null) {
-        jobGroup.setIoDetails(new ArrayList<>());
-        copyIoDetails(jobGroup, responseTradingGoals);
-      }
+      copyIoDetails(ioDetails, jobGroup, responseTradingGoals);
 
-      if (performanceTargets == null || performanceTargets.size() == 1) {
+      List<JobGroupGetResponse.TradingGoals.IoDetails.PerformanceTargets> performanceTargetsList =
+          responseTradingGoals.getPerformanceTargets();
 
-        List<JobGroupGetResponse.TradingGoals.IoDetails.PerformanceTargets> performanceTargetsList =
-            responseTradingGoals.getPerformanceTargets();
-
-        if (performanceTargets == null) {
-          copyPerformanceTargets(jobGroup, performanceTargetsList);
+      if (performanceTargets == null) {
+        copyPerformanceTargets(jobGroup, performanceTargetsList);
+      } else if (performanceTargets.size() == 1) {
+        if (!performanceTargets.get(0).type.equals(performanceTargetsList.get(0).type)) {
+          tradingGoals.addPerformanceTargets(
+              performanceTargetsList.get(0).type, performanceTargetsList.get(0).value);
         } else {
-          if (!performanceTargets.get(0).type.equals(performanceTargetsList.get(0).type)) {
-            tradingGoals.addPerformanceTargets(
-                performanceTargetsList.get(0).type, performanceTargetsList.get(0).value);
-          } else {
-            tradingGoals.addPerformanceTargets(
-                performanceTargetsList.get(1).type, performanceTargetsList.get(1).value);
-          }
+          tradingGoals.addPerformanceTargets(
+              performanceTargetsList.get(1).type, performanceTargetsList.get(1).value);
         }
       }
     }
@@ -381,7 +376,13 @@ public class JobGroupService extends BaseService {
   }
 
   private void copyIoDetails(
-      JobGroupDto jobGroup, JobGroupGetResponse.TradingGoals responseTradingGoals) {
+      List<JobGroupDto.JobGroupParams.TradingGoals.IoDetails> ioDetails,
+      JobGroupDto jobGroup,
+      JobGroupGetResponse.TradingGoals responseTradingGoals) {
+
+    if (ioDetails != null) {
+      return;
+    }
 
     List<JobGroupGetResponse.TradingGoals.IoDetails> ioDetailsList = responseTradingGoals.ioDetails;
 
@@ -431,17 +432,12 @@ public class JobGroupService extends BaseService {
    * @param <T> generic param
    * @return generic
    */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   private <T> String getValidationMessages(
       Set<ConstraintViolation<T>> constraintViolations, T entity) {
 
     JobGroupDto jobGroupDto = (JobGroupDto) entity;
 
-    Boolean isValidJobFilter = true;
-
-    if (jobGroupDto.getFilter() != null) {
-      isValidJobFilter = jobGroupDto.isValidJobFilter(jobGroupDto.getFilter(), 1);
-    }
+    Boolean isValidJobFilter = isJobFilterValid(jobGroupDto);
 
     StringBuilder message = new StringBuilder();
     if (!isValidJobFilter) {
@@ -456,6 +452,12 @@ public class JobGroupService extends BaseService {
       return message.toString();
     }
     return null;
+  }
+
+  private Boolean isJobFilterValid(JobGroupDto jobGroupDto) {
+
+    return (jobGroupDto.getFilter() == null
+        || jobGroupDto.isValidJobFilter(jobGroupDto.getFilter(), 1));
   }
 
   /**
