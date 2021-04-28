@@ -89,6 +89,22 @@ public abstract class BaseService {
   }
 
   /**
+   * .
+   *
+   * @param response response from Api Call
+   * @param errorMessage errorMessage
+   * @throws UnexpectedResponseException on UnexpectedResponse.
+   */
+  public void checkResponse(RestResponse response, String errorMessage)
+      throws UnexpectedResponseException {
+
+    if (!response.isSuccess()) {
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+  }
+
+  /**
    * getting statistics.
    *
    * @param session session details

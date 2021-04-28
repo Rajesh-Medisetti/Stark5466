@@ -29,7 +29,6 @@ public class Publisher {
     PublisherDto publisher = new PublisherDto();
 
     publisher.setId(this.id);
-    publisher.setName(this.id);
     publisher.setValue(this.id);
     publisher.setMinBid(minBid);
 

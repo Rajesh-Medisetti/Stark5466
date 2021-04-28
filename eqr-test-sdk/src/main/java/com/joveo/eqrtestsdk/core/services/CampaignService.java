@@ -100,7 +100,6 @@ public class CampaignService extends BaseService {
    * @throws UnexpectedResponseException The API response was not as expected
    * @throws ApiRequestException something wrong with request
    */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public String edit(Session session, Config conf, CampaignDto campaign)
       throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
 
@@ -115,13 +114,9 @@ public class CampaignService extends BaseService {
                 + "&campaignIds="
                 + campaign.getCampaignId());
 
-    if (!getResponse.isSuccess()) {
-      String errorMessage =
-          "Unable to make getCampaign Request , check clientId,campaignId" + getResponse.toString();
-
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    String errorMessage =
+        "Unable to make getCampaign Request , check clientId,campaignId" + getResponse.toString();
+    checkResponse(getResponse, errorMessage);
 
     String validationErrors = this.validatEditEntity(campaign, validator);
 
@@ -152,11 +147,8 @@ public class CampaignService extends BaseService {
             conf.getString("MojoBaseUrl") + "/thor/api/campaigns/" + campaign.getCampaignId(),
             campaign);
 
-    if (!response.isSuccess()) {
-      String errorMessage = "Unable to edit Campaign: " + response.getJoveoUpdateErrorMeesage();
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
-    }
+    errorMessage = "Unable to edit Campaign: " + response.getJoveoUpdateErrorMeesage();
+    checkResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 
@@ -169,7 +161,6 @@ public class CampaignService extends BaseService {
     }
   }
 
-  @SuppressWarnings("checkstyle:WhitespaceAround")
   private void copyNameEndDateBudgetCap(CampaignDto campaign, CampaignGetResponse responseData) {
 
     if (campaign.getName() == null) {

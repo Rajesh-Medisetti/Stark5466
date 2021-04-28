@@ -84,6 +84,24 @@ public class RestResponse {
   /**
    * .
    *
+   * @param entity entity field
+   * @param <T> generic param
+   * @return Data
+   * @throws UnexpectedResponseException The API response was not as expected
+   */
+  public <T> T toEntity(Class<T> entity) throws UnexpectedResponseException {
+    try {
+      return objectMapper.readValue(result, entity);
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new UnexpectedResponseException(
+          "Expected " + entity.getName() + " ,request: " + this.toString());
+    }
+  }
+
+  /**
+   * .
+   *
    * @param key key
    * @return JsonNode
    * @throws UnexpectedResponseException On unexpected Response
