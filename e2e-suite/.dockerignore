@@ -1,4 +1,6 @@
 **
+!suite.xml
+!settings.xml
 !src
 !pom.xml
 !entry.sh
