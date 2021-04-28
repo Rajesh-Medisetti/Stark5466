@@ -249,7 +249,7 @@ public class JobFilter<T> implements Filter {
   }
 
   @JsonIgnore
-  private boolean isValidDateFormat(String dateStr) throws InvalidInputException {
+  private boolean isValidDateFormat(String dateStr) {
     DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     boolean status;
     dateFormat.setLenient(false);

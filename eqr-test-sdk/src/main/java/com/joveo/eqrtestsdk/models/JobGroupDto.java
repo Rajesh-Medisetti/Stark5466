@@ -163,7 +163,6 @@ public class JobGroupDto {
     params.placements.add(placementValue);
   }
 
-
   /** add placement with bid. */
   public void addPlacementWithBid(String placementId, Double bid) {
 
