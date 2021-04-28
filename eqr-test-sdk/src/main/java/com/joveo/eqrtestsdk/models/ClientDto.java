@@ -87,7 +87,7 @@ public class ClientDto {
     this.params.frequency = (frequency == null) ? null : frequency.getValue();
   }
 
-  public void setApplyConvWindow(int applyConvWindow) {
+  public void setApplyConvWindow(Integer applyConvWindow) {
     this.params.applyConvWindow = applyConvWindow;
   }
 
@@ -286,6 +286,9 @@ public class ClientDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public Boolean sjCreate;
 
+    @Null(
+        message = "industry is not editable in client",
+        groups = {EditClient.class})
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String industry;
 

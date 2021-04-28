@@ -71,10 +71,8 @@ public class JobGroupService extends BaseService {
     jobGroup.setDefaultValues();
 
     String validationErrors = this.validateEntity(jobGroup, validator);
-    if (validationErrors != null) {
-      logger.error(validationErrors);
-      throw new InvalidInputException(validationErrors);
-    }
+
+    checkValidationErrors(validationErrors);
 
     checkPlacementsMinBid(session, conf, jobGroup);
 
@@ -212,10 +210,14 @@ public class JobGroupService extends BaseService {
 
     checkValidationErrors(validationErrors);
 
+    jobGroup.setBudgetCap(responseData.getBudgetCap().value);
     jobGroup.setCampaignId(responseData.getCampaignId());
     checkPlacementsMinBid(session, config, jobGroup);
     deleteAndCopyActivePlacements(jobGroup, responseData);
     copyTradingGoals(jobGroup, responseData.getTradingGoals());
+
+    validationErrors = this.validateEditEntity(jobGroup, validator);
+    checkValidationErrors(validationErrors);
 
     RestResponse response =
         executor.put(
@@ -297,7 +299,7 @@ public class JobGroupService extends BaseService {
 
     for (JobGroupGetResponse.Placement placement : responsePlacements) {
 
-      if (placement.getActive()) {
+      if (placement.getActive() && !isPlacementEdited(placements, placement.publisher)) {
         String placementValue = placement.getPublisher();
         Double bid = placement.getBid();
 
@@ -306,8 +308,9 @@ public class JobGroupService extends BaseService {
           Freq freq = placement.getBudget().getFreq();
           Double threshold = placement.getBudget().getThreshold();
           Boolean pacing = placement.getBudget().getPacing();
+          Boolean locked = placement.getBudget().getLocked();
 
-          CapDto budget = new CapDto(pacing, freq, threshold, value);
+          CapDto budget = new CapDto(pacing, freq, threshold, value, locked);
 
           placements.add(new JobGroupDto.JobGroupParams.Placements(placementValue, bid, budget));
         } else {
@@ -315,6 +318,17 @@ public class JobGroupService extends BaseService {
         }
       }
     }
+  }
+
+  private boolean isPlacementEdited(
+      List<JobGroupDto.JobGroupParams.Placements> placements, String publisher) {
+
+    for (JobGroupDto.JobGroupParams.Placements placement : placements) {
+      if ((placement.publisher).equals(publisher)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean containsPlacement(

@@ -163,12 +163,6 @@ public class JobGroupDto {
     params.placements.add(placementValue);
   }
 
-  /** add placement with budget and id. */
-  public void addPlacementWithBudget(
-      String placementId, Double budgetCap, Freq freq, Boolean pacing, Double threshold) {
-
-    this.addPlacementWithBudgetAndBid(placementId, null, budgetCap, freq, pacing, threshold);
-  }
 
   /** add placement with bid. */
   public void addPlacementWithBid(String placementId, Double bid) {
@@ -181,6 +175,19 @@ public class JobGroupDto {
     params.placements.add(placementValue);
   }
 
+  /** adding Placement with Budget. */
+  public void addPlacementWithBudget(
+      String placementId,
+      Double budgetCap,
+      Freq freq,
+      Boolean pacing,
+      Double threshold,
+      Boolean locked) {
+
+    this.addPlacementWithBudgetAndBid(
+        placementId, null, budgetCap, freq, pacing, threshold, locked);
+  }
+
   /** Adding placements with budget and Bid. */
   public void addPlacementWithBudgetAndBid(
       String placementId,
@@ -188,7 +195,8 @@ public class JobGroupDto {
       Double budgetCap,
       Freq freq,
       Boolean pacing,
-      Double threshold) {
+      Double threshold,
+      Boolean locked) {
 
     if (params.placements == null) {
       params.placements = new ArrayList<>();
@@ -196,7 +204,7 @@ public class JobGroupDto {
 
     JobGroupParams.Placements placementValue = new JobGroupParams.Placements(placementId);
     placementValue.setBid(bid);
-    placementValue.setBudget(new CapDto(pacing, freq, threshold, budgetCap));
+    placementValue.setBudget(new CapDto(pacing, freq, threshold, budgetCap, locked));
     params.placements.add(placementValue);
   }
 
@@ -478,6 +486,48 @@ public class JobGroupDto {
         }
       }
       return true;
+    }
+
+    /** checking if an individual placement's budget is more than budgetCap or not. */
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
+    @AssertTrue(
+        message = "one of placements budget is more than the budgetCap",
+        groups = {Default.class, EditJobGroup.class})
+    @JsonIgnore
+    public boolean isValidPlacements() {
+
+      if (placements == null || budgetCap == null || budgetCap.value == null) {
+        return true;
+      }
+
+      for (Placements placement : placements) {
+        if (placement.budget != null && placement.budget.value > budgetCap.value) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /** checking if total Locked Budget is more than budgetCap or not. */
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
+    @AssertTrue(
+        message = "total locked budget of placements is greater than the budgetCap",
+        groups = {Default.class, EditJobGroup.class})
+    @JsonIgnore
+    public boolean isValidLockedPlacements() {
+
+      if (placements == null || budgetCap == null || budgetCap.value == null) {
+        return true;
+      }
+
+      Double totalLockedBudget = 0.0;
+
+      for (Placements placement : placements) {
+        if (placement.budget != null && placement.budget.locked) {
+          totalLockedBudget += placement.budget.value;
+        }
+      }
+      return totalLockedBudget <= budgetCap.value;
     }
 
     /** setting DefaultValues. */

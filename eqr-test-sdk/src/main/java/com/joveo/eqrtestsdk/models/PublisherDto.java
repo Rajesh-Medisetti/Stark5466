@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -98,7 +99,7 @@ public class PublisherDto {
     if (this.placement.country == null) {
       this.placement.country = "United States";
     }
-
+    this.setValue(this.placement.name);
     this.placement.clickDefinitions = new Placement.ClickDefinitions();
     this.placement.feedIndexLatency = null;
   }
@@ -169,6 +170,13 @@ public class PublisherDto {
     @Valid
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ClickDefinitions clickDefinitions;
+
+    /** Validating Publisher Name. */
+    @AssertTrue(message = "publisher Name can't contain spaces")
+    @JsonIgnore
+    public boolean isValidName() {
+      return name == null || !name.contains(" ");
+    }
 
     public static class PublisherContactDetailsRevamp {
       public String email;

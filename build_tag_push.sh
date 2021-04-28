@@ -21,12 +21,12 @@ COMMAND=$2
 
 if [[ $ENVIRONMENT = "staging" ]]
 then
-  echo "setting up for SNAPSHOT deployment"
+  echo "Setting up for SNAPSHOT deployment"
   # shellcheck disable=SC2091
 elif [[ $ENVIRONMENT = "production" ]]
 then
   # shellcheck disable=SC2091
-  ./eqr-test-sdk/increment_tag.sh
+  ./eqr-test-sdk/increment_push_checkout_tag.sh
 else
   echo "${ENVIRONMENT} not supported"
   exit 1
@@ -34,7 +34,7 @@ fi
 
 if [[ $COMMAND = "all" ]]
 then
-  mvn deploy -X
+  docker build -f eqr-test-sdk/Dockerfile .
 else
   echo "${COMMAND} not supported"
   exit 1

@@ -5,8 +5,10 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
+import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
 import com.joveo.eqrtestsdk.core.services.ClientService;
+import com.joveo.eqrtestsdk.core.services.FeedService;
 import com.joveo.eqrtestsdk.core.services.JobGroupService;
 import com.joveo.eqrtestsdk.core.services.JobService;
 import com.joveo.eqrtestsdk.core.services.PublisherService;
@@ -17,6 +19,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
 import com.joveo.eqrtestsdk.models.PublisherDto;
@@ -33,6 +36,8 @@ public class Driver {
   @Inject JobGroupService jobGroupService;
   @Inject PublisherService publisherService;
   @Inject JobService jobService;
+  @Inject FeedService feedService;
+  @Inject AwsService awsService;
 
   /**
    * Start an instance of Driver.
@@ -132,6 +137,14 @@ public class Driver {
       throws MojoException, UnexpectedResponseException, InvalidInputException,
           ApiRequestException {
     return new JobGroup(this, clientId, jobGroupId);
+  }
+
+  public String generateInboundFeed(FeedDto feedDto) throws InvalidInputException {
+    return feedService.getFeedUrl(conf, awsService, feedDto);
+  }
+
+  public void deleteInboundFeed(String feedUrl) throws InvalidInputException {
+    feedService.deleteFeedUrl(conf, awsService, feedUrl);
   }
 
   private void setup(String username, String password)
