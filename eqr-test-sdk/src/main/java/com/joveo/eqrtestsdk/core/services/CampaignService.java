@@ -114,9 +114,8 @@ public class CampaignService extends BaseService {
                 + "&campaignIds="
                 + campaign.getCampaignId());
 
-    String errorMessage =
-        "Unable to make getCampaign Request , check clientId,campaignId" + getResponse.toString();
-    checkResponse(getResponse, errorMessage);
+    String errorMessage = "Unable to make getCampaign Request , check clientId,campaignId";
+    checkGetResponse(getResponse, errorMessage);
 
     String validationErrors = this.validatEditEntity(campaign, validator);
 
@@ -147,8 +146,8 @@ public class CampaignService extends BaseService {
             conf.getString("MojoBaseUrl") + "/thor/api/campaigns/" + campaign.getCampaignId(),
             campaign);
 
-    errorMessage = "Unable to edit Campaign: " + response.getJoveoUpdateErrorMeesage();
-    checkResponse(response, errorMessage);
+    errorMessage = "Unable to edit Campaign: ";
+    checkUpdateResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 

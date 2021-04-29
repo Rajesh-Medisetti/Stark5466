@@ -288,6 +288,11 @@ public class JobGroupDto {
     return this.params.tradingGoals;
   }
 
+  @JsonIgnore
+  public CapDto getBudget() {
+    return params.budgetCap;
+  }
+
   public static class JobGroupParams {
 
     @NotEmpty(message = "JobGroup name can't be null/empty")
@@ -488,14 +493,13 @@ public class JobGroupDto {
     }
 
     /** checking if an individual placement's budget is more than budgetCap or not. */
-    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     @AssertTrue(
         message = "one of placements budget is more than the budgetCap",
         groups = {Default.class, EditJobGroup.class})
     @JsonIgnore
     public boolean isValidPlacements() {
 
-      if (placements == null || budgetCap == null || budgetCap.value == null) {
+      if (isInvalidPlacementBudgetCap(placements, budgetCap)) {
         return true;
       }
 
@@ -507,15 +511,19 @@ public class JobGroupDto {
       return true;
     }
 
+    @JsonIgnore
+    private boolean isInvalidPlacementBudgetCap(List<Placements> placements, CapDto budgetCap) {
+      return placements == null || budgetCap == null || budgetCap.value == null;
+    }
+
     /** checking if total Locked Budget is more than budgetCap or not. */
-    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     @AssertTrue(
         message = "total locked budget of placements is greater than the budgetCap",
         groups = {Default.class, EditJobGroup.class})
     @JsonIgnore
     public boolean isValidLockedPlacements() {
 
-      if (placements == null || budgetCap == null || budgetCap.value == null) {
+      if (isInvalidPlacementBudgetCap(placements, budgetCap)) {
         return true;
       }
 
@@ -530,7 +538,6 @@ public class JobGroupDto {
     }
 
     /** setting DefaultValues. */
-    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     public void setDefaultValues() {
 
       if (priority == null) {
@@ -555,19 +562,29 @@ public class JobGroupDto {
 
       this.isPpc = true;
 
-      if (startDate == null) {
-        this.startDate = LocalDate.now();
-      }
+      setDefaultDates();
 
-      if (endDate == null) {
-        this.endDate = LocalDate.now().plusYears(2);
-      }
+      setDefaultBids();
+    }
+
+    private void setDefaultBids() {
 
       if (cpaBid == null) {
         cpaBid = 0.00;
       }
       if (cpcBid == null) {
         cpcBid = 0.00;
+      }
+    }
+
+    private void setDefaultDates() {
+
+      if (startDate == null) {
+        this.startDate = LocalDate.now();
+      }
+
+      if (endDate == null) {
+        this.endDate = LocalDate.now().plusYears(1);
       }
     }
 

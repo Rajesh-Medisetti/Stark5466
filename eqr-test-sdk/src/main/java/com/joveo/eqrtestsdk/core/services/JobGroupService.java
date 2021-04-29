@@ -116,6 +116,7 @@ public class JobGroupService extends BaseService {
         Arrays.asList(getResponse.toEntity(PlacementGetResponse[].class).clone());
 
     List<JobGroupDto.JobGroupParams.Placements> placementsList = jobGroup.getPlacements();
+
     for (JobGroupDto.JobGroupParams.Placements placement : placementsList) {
 
       if (placement.delete) {
@@ -183,11 +184,9 @@ public class JobGroupService extends BaseService {
                 + jobGroup.getClientId());
 
     String errorMessage =
-        "Unable to make getJobGroup Request ,"
-            + " check clientId,campaignId,JobGroupId "
-            + getResponse;
+        "Unable to make getJobGroup Request ," + " check clientId,campaignId,JobGroupId ";
 
-    checkResponse(getResponse, errorMessage);
+    checkGetResponse(getResponse, errorMessage);
 
     String validationErrors = this.validateEditEntity(jobGroup, validator);
 
@@ -210,9 +209,12 @@ public class JobGroupService extends BaseService {
 
     checkValidationErrors(validationErrors);
 
-    jobGroup.setBudgetCap(responseData.getBudgetCap().value);
     jobGroup.setCampaignId(responseData.getCampaignId());
-    checkPlacementsMinBid(session, config, jobGroup);
+
+    copyBudget(jobGroup, responseData);
+    if (jobGroup.getPlacements() != null) {
+      checkPlacementsMinBid(session, config, jobGroup);
+    }
     deleteAndCopyActivePlacements(jobGroup, responseData);
     copyTradingGoals(jobGroup, responseData.getTradingGoals());
 
@@ -225,8 +227,8 @@ public class JobGroupService extends BaseService {
             config.getString("MojoBaseUrl") + "/thor/api/jobgroups/" + jobGroup.getJobGroupId(),
             jobGroup);
 
-    errorMessage = "Unable to edit Job Group: " + response.getJoveoUpdateErrorMeesage();
-    checkResponse(response, errorMessage);
+    errorMessage = "Unable to edit Job Group: ";
+    checkUpdateResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 
@@ -236,6 +238,16 @@ public class JobGroupService extends BaseService {
       logger.error(e.getMessage());
       throw new UnexpectedResponseException("data at first index missing in response " + response);
     }
+  }
+
+  private void copyBudget(JobGroupDto jobGroup, JobGroupGetResponse responseData) {
+
+    if (jobGroup.getBudget() != null) {
+      return;
+    }
+    JobGroupGetResponse.Placement.CapDto budget = responseData.getBudgetCap();
+
+    jobGroup.setBudgetCap(budget.pacing, budget.freq, budget.threshold, budget.value);
   }
 
   private void checkValidationErrors(String validationErrors) throws InvalidInputException {
