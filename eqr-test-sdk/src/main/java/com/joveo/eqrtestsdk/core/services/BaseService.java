@@ -192,8 +192,7 @@ public abstract class BaseService {
       throw new UnexpectedResponseException(
           "failed to get client's stats " + response.getJoveoErrorMessage());
     }
-    MojoResponse<Stats> mojoResponse =
-        response.toMojoResponse(new TypeReference<MojoResponse<Stats>>() {});
+    MojoResponse<Stats> mojoResponse = response.toMojoResponse(getMojoStatsTypeReference());
 
     for (MojoData<Stats> data : mojoResponse.getData()) {
       if (data.getId().equals(entityId)) {
@@ -205,6 +204,10 @@ public abstract class BaseService {
   }
 
   public abstract String getEntity();
+
+  public TypeReference getMojoStatsTypeReference() {
+    return new TypeReference<MojoResponse<Stats>>() {};
+  }
 
   public PlatformFiltersDto enrichFiltersWithEntityId(
       PlatformFiltersDto platformFiltersDto, String id) {

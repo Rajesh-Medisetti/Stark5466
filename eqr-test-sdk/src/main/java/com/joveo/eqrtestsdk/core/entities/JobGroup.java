@@ -7,8 +7,8 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JobStats;
-import com.joveo.eqrtestsdk.models.Stats;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -104,19 +104,29 @@ public class JobGroup {
    * @return Stats object
    * @throws MojoException throws custom mojo exception On unexpected behaviour
    */
-  public Stats getStats() throws MojoException {
-    return driver.jobGroupService.getStats(
-        driver.session,
-        driver.conf,
-        this.clientId,
-        this.id,
-        startOfMonth(LocalDate.now()),
-        LocalDate.now());
+  public JobGroupStats getStats() throws MojoException {
+    return (JobGroupStats)
+        driver.jobGroupService.getStats(
+            driver.session,
+            driver.conf,
+            this.clientId,
+            this.id,
+            startOfMonth(LocalDate.now()),
+            LocalDate.now());
   }
 
-  public Stats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
-    return driver.jobGroupService.getStats(
-        driver.session, driver.conf, this.clientId, this.id, startDate, endDate);
+  /**
+   * Fetches Stats of a JobGroup.
+   *
+   * @param startDate Start Date
+   * @param endDate End Date
+   * @return Job group stats
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public JobGroupStats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
+    return (JobGroupStats)
+        driver.jobGroupService.getStats(
+            driver.session, driver.conf, this.clientId, this.id, startDate, endDate);
   }
 
   /**
@@ -126,21 +136,32 @@ public class JobGroup {
    * @return Stats object
    * @throws MojoException throws custom mojo exception On unexpected behaviour
    */
-  public Stats getStats(Publisher publisher) throws MojoException {
-    return driver.jobGroupService.getStats(
-        driver.session,
-        driver.conf,
-        this.clientId,
-        this.id,
-        publisher.id,
-        startOfMonth(LocalDate.now()),
-        LocalDate.now());
+  public JobGroupStats getStats(Publisher publisher) throws MojoException {
+    return (JobGroupStats)
+        driver.jobGroupService.getStats(
+            driver.session,
+            driver.conf,
+            this.clientId,
+            this.id,
+            publisher.id,
+            startOfMonth(LocalDate.now()),
+            LocalDate.now());
   }
 
-  public Stats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
+  /**
+   * Fetches Job group stats for a given publisher.
+   *
+   * @param publisher Publisher
+   * @param startDate Start Date
+   * @param endDate End Date
+   * @return Job group stats
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public JobGroupStats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
       throws MojoException {
-    return driver.jobGroupService.getStats(
-        driver.session, driver.conf, this.clientId, this.id, publisher.id, startDate, endDate);
+    return (JobGroupStats)
+        driver.jobGroupService.getStats(
+            driver.session, driver.conf, this.clientId, this.id, publisher.id, startDate, endDate);
   }
 
   @Override

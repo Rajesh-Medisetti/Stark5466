@@ -31,6 +31,8 @@ public class CapDto {
       groups = {EditJobGroup.class, Default.class})
   public Double value;
 
+  public CapDto() {}
+
   /** Setting the budget for Campaign. */
   public CapDto(Double value) {
     this.value = value;

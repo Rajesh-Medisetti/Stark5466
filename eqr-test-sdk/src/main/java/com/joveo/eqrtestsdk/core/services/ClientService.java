@@ -19,6 +19,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.TimeoutException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.ClientStats;
 import com.joveo.eqrtestsdk.models.FeedUrl;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
@@ -573,6 +574,11 @@ public class ClientService extends BaseService {
   @Override
   public String getEntity() {
     return JoveoEntity.clients.toString();
+  }
+
+  @Override
+  public TypeReference getMojoStatsTypeReference() {
+    return new TypeReference<MojoResponse<ClientStats>>() {};
   }
 
   @Override
