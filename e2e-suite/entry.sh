@@ -8,4 +8,4 @@ ls
 mvn test -s settings.xml
 
 echo "completed"
-sleep 300
+sleep 100

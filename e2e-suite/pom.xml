@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.joveo</groupId>
   <artifactId>e2e-tests</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>eqr-test-runner</name>
   <description>Mojo SDK</description>
   <properties>
@@ -17,7 +17,7 @@
       <url>http://artifactory.joveo.com/artifactory/libs-release-local</url> </repository> -->
     <repository>
       <id>snapshots</id>
-      <name>c07108d0a783-releasess</name>
+      <name>c07108d0a783-release</name>
       <url>http://artifactory.joveo.com/artifactory/libs-release-local</url>
     </repository>
   </repositories>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.joveo</groupId>
       <artifactId>eqr-test-sdk</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <build>

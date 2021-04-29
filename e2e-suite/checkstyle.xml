@@ -321,7 +321,7 @@
         </module>
 
         <module name="CyclomaticComplexity">
-            <property name="max" value="6"/>
+            <property name="max" value="7"/>
         </module>
     </module>
 </module>
