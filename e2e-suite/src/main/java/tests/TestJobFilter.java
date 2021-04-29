@@ -32,7 +32,8 @@ public class TestJobFilter extends TestRunnerBase {
   Client globalClient;
   Campaign globalCampaign;
   String feed = "https://joveo-samplefeed.s3.amazonaws.com/abhinay/AbSample.xml";
-  String placements = "PbTest";
+  String placements = "Test1";
+  boolean ifSchedulerRan = true;
   Set<Client> clientSet = new HashSet<Client>();
   static Object[][] arr;
   static List<List<Object>> dpList = new ArrayList<>();
@@ -65,7 +66,7 @@ public class TestJobFilter extends TestRunnerBase {
       if (null != clientDto1) {
         myClient = driver.createClient(clientDto);
       }
-      if (null == campaignDto1) {
+      if (null != campaignDto1) {
         campaignDto.setClientId(globalClient.id);
         myCampaign = driver.createCampaign(campaignDto);
       }
@@ -85,7 +86,11 @@ public class TestJobFilter extends TestRunnerBase {
         e.printStackTrace();
       }
     }
-    // runScheduler(clientSet);
+    try {
+      runScheduler(clientSet);
+    } catch (Exception e) {
+      ifSchedulerRan = false;
+    }
   }
 
   /**
@@ -129,6 +134,7 @@ public class TestJobFilter extends TestRunnerBase {
     // refreshJobFeed();
     System.out.println("refreshh");
     // Thread.sleep(30000);
+    Assert.assertTrue(ifSchedulerRan, "Scheduler run failed");
     Assert.assertEquals(
         jobGroupObj.getStats().getJobCount(),
         6,
