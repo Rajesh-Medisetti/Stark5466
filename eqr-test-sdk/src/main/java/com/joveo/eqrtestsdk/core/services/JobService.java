@@ -100,7 +100,6 @@ public class JobService extends BaseService {
    * @throws ApiRequestException something wrong with request
    * @throws UnexpectedResponseException The API response was not as expected
    */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public List<Job> getJobs(
       Driver driver,
       PlatformFiltersDto platformFiltersDto,
@@ -110,7 +109,7 @@ public class JobService extends BaseService {
       LocalDate startDate,
       LocalDate endDate)
       throws MojoException, ApiRequestException, UnexpectedResponseException {
-    if (page < 0 || limit < 0 || limit > 2000) {
+    if (isInValidPageParameteres(page, limit)) {
       logger.error(
           "Invalid page or limit, page should be positive number and limit in range of 0-2000! ");
       throw new ApiRequestException("Invalid page or limit in request");
@@ -139,6 +138,10 @@ public class JobService extends BaseService {
           new Job(driver, clientId, data.getFields().getId(), data.getFields().getRefNumber()));
     }
     return jobs;
+  }
+
+  private boolean isInValidPageParameteres(int page, int limit) {
+    return page < 0 || limit < 0 || limit > 2000;
   }
 
   @Override
