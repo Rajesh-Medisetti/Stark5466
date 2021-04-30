@@ -109,6 +109,11 @@ public class JobGroupDto {
     params.budgetCap = new CapDto(pacing, frequency, threshold, value);
   }
 
+  @JsonIgnore
+  public CapDto getBudgetcap() {
+    return this.params.budgetCap;
+  }
+
   public void setClickCap(Boolean pacing, Freq frequency, Double threshold, int value) {
     params.clicksCap = new CapDto(pacing, frequency, threshold, (double) value);
   }

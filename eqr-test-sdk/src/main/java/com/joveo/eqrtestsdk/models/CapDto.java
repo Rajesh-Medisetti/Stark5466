@@ -17,6 +17,10 @@ public class CapDto {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public Boolean locked;
 
+  public Boolean getLocked() {
+    return locked;
+  }
+
   @Max(
       value = 100,
       message = "threshold can't be greater than 100 check caps",
