@@ -23,13 +23,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AwsService {
-  private static Logger logger = LoggerFactory.getLogger(ClientService.class);
+  private static Logger logger = LoggerFactory.getLogger(AwsService.class);
 
   AmazonEC2 ec2;
   AmazonS3 s3;
@@ -50,8 +50,9 @@ public class AwsService {
    */
   public List<String> getIpByTags(String tag, String value) {
     DescribeInstancesRequest request = new DescribeInstancesRequest();
-    Filter filter = new Filter("tag:" + tag, Arrays.asList(value));
-    DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter));
+    Filter filter = new Filter("tag:" + tag, Collections.singletonList(value));
+    Filter activeIps = new Filter("instance-state-name", Collections.singletonList("running"));
+    DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter, activeIps));
     List<Reservation> reservations = result.getReservations();
     ArrayList<String> ipList = new ArrayList<>();
     for (Reservation reservation : reservations) {
