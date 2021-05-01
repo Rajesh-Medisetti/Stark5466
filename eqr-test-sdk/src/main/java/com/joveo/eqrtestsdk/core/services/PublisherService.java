@@ -154,6 +154,38 @@ public class PublisherService extends BaseService {
   }
 
   /**
+   * Gets min bid of a given publisher.
+   *
+   * @param session Session
+   * @param conf Configuration
+   * @param publisherId Publisher ID
+   * @return MinBid of given publisher
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException something wrong with request
+   */
+  public Double getMinBid(Session session, Config conf, String publisherId)
+      throws UnexpectedResponseException, ApiRequestException {
+    String agencyId = session.getInstanceIdentifier();
+    RestResponse getResponse =
+        executor.get(
+            session,
+            conf.getString("MojoBaseUrl")
+                + "/api/admin/publishers/perPublisher?agency="
+                + agencyId
+                + "&placementValue="
+                + publisherId);
+
+    if (getResponse.getResponseCode() != 200) {
+      String errorMessage = "Unable to make GET API call to Publisher: " + getResponse.toString();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    Double minBid = Double.parseDouble(getResponse.extractByPath("placement", "minBid"));
+    return minBid;
+  }
+
+  /**
    * . validation.
    *
    * @param entity entity field

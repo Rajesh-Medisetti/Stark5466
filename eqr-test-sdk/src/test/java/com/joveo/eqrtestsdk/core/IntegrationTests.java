@@ -4,6 +4,7 @@ import com.joveo.eqrtestsdk.core.entities.Campaign;
 import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
+import com.joveo.eqrtestsdk.core.entities.Publisher;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.CampaignStats;
@@ -16,6 +17,7 @@ import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
+import com.joveo.eqrtestsdk.models.PublisherDto;
 import com.joveo.eqrtestsdk.models.TimeZone;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -43,6 +45,8 @@ public class IntegrationTests {
   private static JobGroup jobGroup;
   private static JobGroupDto jobGroupCreationDto;
   private static JobGroupDto jobGroupEditDto;
+  private static Publisher publisher;
+  private static PublisherDto publisherDto;
   private static Integer oldNumber;
   private static Integer newNumber;
   private static Random random;
@@ -56,6 +60,7 @@ public class IntegrationTests {
     campaignEditDto = new CampaignDto();
     jobGroupCreationDto = new JobGroupDto();
     jobGroupEditDto = new JobGroupDto();
+    publisherDto = new PublisherDto();
     random = new Random();
     oldNumber = random.nextInt(2000);
     newNumber = oldNumber + 17;
@@ -119,7 +124,7 @@ public class IntegrationTests {
         5000.0, stats.getBudgetCap().getValue(), "Monthly budget mismatch in client");
     Assertions.assertEquals("IN", stats.getCountry(), "Country mismatch in client");
 
-    logger.info("Client edit flow succeeded..." + clientEditDto.getClientId());
+    logger.info("Client edit flow succeeded...");
   }
 
   public void campaignEditFlowTest() throws MojoException {
@@ -358,13 +363,30 @@ public class IntegrationTests {
         stats.getPlacements().get(0).getBudget().getLocked(),
         "Placement budget locked mismatch in job group");
 
-    logger.info("Job Group edit flow Succeeded");
+    logger.info("Job Group edit flow succeeded");
+  }
+
+  void publisherEditFlowTest() throws MojoException {
+    logger.info("Placement Creation Started...");
+    publisherDto.setName("pb_test_" + oldNumber);
+    publisherDto.setPublisherUrl("www.publisher.com/");
+    publisherDto.setBidType("CPC");
+    publisherDto.setMinBid(1.0);
+
+    publisher = driver.createPublisher(publisherDto);
+    driver.refreshEntityCache();
+
+    publisher.editMinBid(1.2);
+
+    Assertions.assertEquals(1.2, publisher.getMinBid(), "MinBid mismatch in Placement");
+    logger.info("Placement edit flow succeeded..");
   }
 
   @Test
   public void editFlowTest() throws MojoException, ParseException {
     clientEditFlowTest();
     campaignEditFlowTest();
+    publisherEditFlowTest();
     jobGroupEditFlowTest();
   }
 }
