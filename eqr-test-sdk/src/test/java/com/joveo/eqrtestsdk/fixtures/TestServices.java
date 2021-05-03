@@ -1,6 +1,7 @@
 package com.joveo.eqrtestsdk.fixtures;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -24,7 +25,7 @@ public class TestServices {
     return injector
         .getInstance(TestServices.class)
         .setConfigAndSession(
-            new TestSession(), ConfigFactory.load(JOVEO_ENV.toString().toLowerCase() + ".conf"));
+            new TestSession(), ConfigFactory.load(JOVEO_ENV.toLowerCase() + ".conf"));
   }
 
   public TestServices setConfigAndSession(Session session, Config config) {
@@ -35,5 +36,9 @@ public class TestServices {
 
   public ObjectMapper getObjectMapper() {
     return clientService.objectMapper;
+  }
+
+  public XmlMapper getXmlMapper() {
+    return new XmlMapper();
   }
 }
