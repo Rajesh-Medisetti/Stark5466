@@ -91,16 +91,33 @@ public abstract class BaseService {
   /**
    * .
    *
-   * @param response response from Api Call
+   * @param response response from Get Api Call
    * @param errorMessage errorMessage
    * @throws UnexpectedResponseException on UnexpectedResponse.
    */
-  public void checkResponse(RestResponse response, String errorMessage)
+  public void checkGetResponse(RestResponse response, String errorMessage)
       throws UnexpectedResponseException {
 
     if (!response.isSuccess()) {
-      logger.error(errorMessage);
-      throw new UnexpectedResponseException(errorMessage);
+      logger.error(errorMessage + "," + response.toString());
+      throw new UnexpectedResponseException(errorMessage + "," + response.toString());
+    }
+  }
+
+  /**
+   * .
+   *
+   * @param response response from Put Api Call
+   * @param errorMessage errorMessage
+   * @throws UnexpectedResponseException on UnexpectedResponse.
+   */
+  public void checkUpdateResponse(RestResponse response, String errorMessage)
+      throws UnexpectedResponseException {
+
+    if (!response.isSuccess()) {
+      logger.error(errorMessage + "," + response.getJoveoUpdateErrorMeesage());
+      throw new UnexpectedResponseException(
+          errorMessage + "," + response.getJoveoUpdateErrorMeesage());
     }
   }
 
