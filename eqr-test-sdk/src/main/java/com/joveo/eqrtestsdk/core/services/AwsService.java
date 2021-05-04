@@ -58,7 +58,7 @@ public class AwsService {
     for (Reservation reservation : reservations) {
       List<Instance> instances = reservation.getInstances();
       for (Instance instance : instances) {
-        ipList.add(instance.getPrivateIpAddress());
+        ipList.add(instance.getPublicIpAddress());
       }
     }
     return ipList;
