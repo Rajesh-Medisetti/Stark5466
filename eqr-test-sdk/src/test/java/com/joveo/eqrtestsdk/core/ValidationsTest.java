@@ -1,12 +1,25 @@
 package com.joveo.eqrtestsdk.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.joveo.eqrtestsdk.fixtures.TestServices;
-import com.joveo.eqrtestsdk.models.*;
+import com.joveo.eqrtestsdk.models.CampaignDto;
+import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.FeedDto;
+import com.joveo.eqrtestsdk.models.FeedJob;
+import com.joveo.eqrtestsdk.models.Freq;
+import com.joveo.eqrtestsdk.models.Frequency;
+import com.joveo.eqrtestsdk.models.GroupingJobFilter;
+import com.joveo.eqrtestsdk.models.JobFilter;
+import com.joveo.eqrtestsdk.models.JobFilterFields;
+import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.MandatoryFields;
+import com.joveo.eqrtestsdk.models.PublisherDto;
 import com.joveo.eqrtestsdk.models.TimeZone;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -904,6 +917,86 @@ public class ValidationsTest {
       assertNotNull(
           testServices.publisherService.validateEntity(
               publisherDTO, testServices.publisherService.validator));
+    }
+  }
+
+  @Nested
+  class FeedCreation {
+    FeedDto feedDto;
+    FeedJob feedJob1;
+    FeedJob feedJob2;
+
+    @BeforeEach
+    public void FeedDto_Object() {
+      feedDto = new FeedDto();
+      feedJob1 = new FeedJob();
+      feedJob2 = new FeedJob();
+      feedJob1.setTitle("job1");
+      feedJob1.setCity("Hyderabad");
+      feedJob1.setState("Telangana");
+      feedJob1.setCountry("India");
+      feedJob1.setDescription("Full time Job");
+      feedJob1.setReferenceNumber(1);
+      feedJob1.setUrl("https://www.joveo.com/");
+      feedJob1.setCategory("Software developer");
+      feedJob1.setCpc(12);
+
+      feedJob2.setTitle("job2");
+      feedJob2.setCity("Bengaluru");
+      feedJob2.setState("Karnataka");
+      feedJob2.setCountry("India");
+      feedJob2.setDescription("Full time Job");
+      feedJob2.setReferenceNumber(2);
+      feedJob2.setUrl("https://www.joveo.com/");
+      feedJob2.setCategory("Software developer 2");
+      feedJob2.setCpc(16);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"job34", "job24"})
+    @DisplayName("Testing feed creation with valid node value")
+    public void JobCreationJobTitle_FeedService_Assertions(String title)
+        throws JsonProcessingException {
+      feedJob1.setTitle(title);
+      feedDto.addJob(feedJob1);
+      String generatedXml = testServices.getXmlMapper().writeValueAsString(feedDto);
+      String expectedXml =
+          "<jobs><job><title>"
+              + title
+              + "</title><city>Hyderabad</city><state>Telangana</state><country>India</country><description>Full time Job</description><referenceNumber>1</referenceNumber><url>https://www.joveo.com/</url><category>Software developer</category><cpc>12</cpc></job></jobs>";
+      assertEquals(expectedXml, generatedXml);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"additional1,ad1", "additional2,ad2", "additional3,ad3"})
+    @DisplayName("Testing feed creation with additional node")
+    public void JobCreationJobAdditionalNode_FeedService_Assertions(String key, String value)
+        throws JsonProcessingException {
+      feedJob1.addAdditionalFeedNode(key, value);
+      feedDto.addJob(feedJob1);
+      String generatedXml = testServices.getXmlMapper().writeValueAsString(feedDto);
+      String expectedXml =
+          "<jobs><job><title>job1</title><city>Hyderabad</city><state>Telangana</state><country>India</country><description>Full time Job</description><referenceNumber>1</referenceNumber><url>https://www.joveo.com/</url><category>Software developer</category><cpc>12</cpc><"
+              + key
+              + ">"
+              + value
+              + "</"
+              + key
+              + "></job></jobs>";
+      assertEquals(expectedXml, generatedXml);
+    }
+
+    @Test
+    @DisplayName("Testing feed creation with cdata validation")
+    public void JobCreationCdataNode_FeedService_Assertions() throws JsonProcessingException {
+      feedJob1.setDescription(feedJob1.getDescription(), true);
+      feedJob2.setDescription(feedJob2.getDescription(), true);
+      feedDto.addJob(feedJob1);
+      feedDto.addJob(feedJob2);
+      String generatedXml = testServices.getXmlMapper().writeValueAsString(feedDto);
+      String expectedXml =
+          "<jobs><job><title>job1</title><city>Hyderabad</city><state>Telangana</state><country>India</country><description>&lt;![CDATA[Full time Job]]&gt;</description><referenceNumber>1</referenceNumber><url>https://www.joveo.com/</url><category>Software developer</category><cpc>12</cpc></job><job><title>job2</title><city>Bengaluru</city><state>Karnataka</state><country>India</country><description>&lt;![CDATA[Full time Job]]&gt;</description><referenceNumber>2</referenceNumber><url>https://www.joveo.com/</url><category>Software developer 2</category><cpc>16</cpc></job></jobs>";
+      assertEquals(expectedXml, generatedXml);
     }
   }
 }
