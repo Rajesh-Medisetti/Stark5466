@@ -15,6 +15,7 @@ public class TestServices {
   @Inject public CampaignService campaignService;
   @Inject public JobGroupService jobGroupService;
   @Inject public PublisherService publisherService;
+  private XmlMapper xmlMapper = new XmlMapper();
 
   public Session session;
 
@@ -39,6 +40,6 @@ public class TestServices {
   }
 
   public XmlMapper getXmlMapper() {
-    return new XmlMapper();
+    return xmlMapper;
   }
 }
