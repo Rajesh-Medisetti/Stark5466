@@ -134,6 +134,9 @@ public class TestJobFilter extends TestRunnerBase {
     // refreshJobFeed();
     System.out.println("refreshh");
     // Thread.sleep(30000);
+    driver.refreshEntityCache();
+    driver.refreshJobCount();
+    Thread.sleep(3000);
     Assert.assertTrue(ifSchedulerRan, "Scheduler run failed");
     Assert.assertEquals(
         jobGroupObj.getStats().getJobCount(),

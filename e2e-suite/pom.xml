@@ -13,13 +13,13 @@
     <java.version>9</java.version>
   </properties>
   <repositories>
-    <!-- <repository> <id>central</id> <name>c07108d0a783-releases</name>
-      <url>http://artifactory.joveo.com/artifactory/libs-release-local</url> </repository> -->
-    <repository>
+    <repository> <id>central</id> <name>c07108d0a783-releases</name>
+      <url>http://artifactory.joveo.com/artifactory/libs-release-local</url> </repository>
+    <!-- <repository>
       <id>snapshots</id>
       <name>c07108d0a783-release</name>
       <url>http://artifactory.joveo.com/artifactory/libs-release-local</url>
-    </repository>
+    </repository> -->
   </repositories>
   <dependencies>
     <dependency>
