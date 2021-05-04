@@ -262,10 +262,9 @@ public class ClientService extends BaseService {
         executor.get(
             session, conf.getString("MojoBaseUrl") + "/flash/api/clients/" + client.getClientId());
 
-    String errorMessage =
-        "Unable to make getClient Request , check clientId " + getResponse.toString();
+    String errorMessage = "Unable to make getClient Request , check clientId ";
 
-    checkResponse(getResponse, errorMessage);
+    checkGetResponse(getResponse, errorMessage);
 
     List<ClientGetResponse> fields = this.getResponseData(getResponse);
     ClientGetResponse getResponseData = fields.get(0);
@@ -298,8 +297,8 @@ public class ClientService extends BaseService {
             conf.getString("MojoBaseUrl") + "/thor/api/clients/" + client.getClientId(),
             client);
 
-    errorMessage = "Unable to edit Client: " + response.getJoveoUpdateErrorMeesage();
-    checkResponse(response, errorMessage);
+    errorMessage = "Unable to edit Client: ";
+    checkUpdateResponse(response, errorMessage);
 
     MojoResponse mojoResponse = response.toEntityWithData(MojoResponse.class);
 

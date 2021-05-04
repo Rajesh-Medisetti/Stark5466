@@ -12,11 +12,12 @@ import com.joveo.eqrtestsdk.exception.TimeoutException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SchedulerRunner implements Waitable {
-  private LocalDateTime previousRunTime;
+  private LocalDateTime triggeredTime;
   private String clientId;
   private String baseUrl;
   private Session session;
@@ -49,7 +50,7 @@ public class SchedulerRunner implements Waitable {
     this.schedulerService = schedulerService;
     this.timeout = timeout;
     this.refreshInterval = refreshInterval;
-    this.previousRunTime = null;
+    this.triggeredTime = null;
   }
 
   /**
@@ -65,6 +66,7 @@ public class SchedulerRunner implements Waitable {
       throws TimeoutException, InterruptWaitException, ApiRequestException,
           UnexpectedResponseException, MojoException {
     logger.info("Scheduler run is triggered at: " + LocalDateTime.now());
+    this.triggeredTime = LocalDateTime.now(ZoneOffset.UTC);
 
     schedulerService.schedule(session, baseUrl, clientId);
 
@@ -83,11 +85,7 @@ public class SchedulerRunner implements Waitable {
     SchedulerRunMetadata getLatestRunData =
         schedulerService.getLatestRunMetadata(this.session, this.clientId, this.baseUrl);
 
-    if (this.previousRunTime == null && getLatestRunData != null) {
-      this.previousRunTime = getLatestRunData.getTime();
-    }
-
-    if (getLatestRunData != null && getLatestRunData.getTime().isAfter(this.previousRunTime)) {
+    if (getLatestRunData != null && getLatestRunData.getTime().isAfter(this.triggeredTime)) {
       return true;
     }
     logger.info("Last scheduled service is not executed yet");

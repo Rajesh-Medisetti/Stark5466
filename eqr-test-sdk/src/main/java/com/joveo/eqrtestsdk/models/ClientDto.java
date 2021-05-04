@@ -140,7 +140,6 @@ public class ClientDto {
   }
 
   /** Sets the Default Value before Client Create. */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public void setDefaultValues() {
 
     if (this.params.country == null) {
@@ -163,6 +162,25 @@ public class ClientDto {
 
     this.params.excludedPublishers = "";
 
+    setDefaultDates();
+
+    this.params.markdown = "";
+
+    createDefaultFeed();
+
+    this.params.sjCreate = false;
+    this.params.globallyExcludedPublishers = "";
+  }
+
+  private void createDefaultFeed() {
+
+    if (this.params.feeds == null) {
+      this.params.feeds = new ArrayList<ClientParams.Feeds>(0);
+    }
+  }
+
+  private void setDefaultDates() {
+
     if (this.params.startDate == null) {
       this.params.startDate = LocalDate.now();
     }
@@ -170,14 +188,6 @@ public class ClientDto {
     if (this.params.endDate == null) {
       this.params.endDate = LocalDate.now().plusWeeks(1);
     }
-
-    this.params.markdown = "";
-
-    if (this.params.feeds == null) {
-      this.params.feeds = new ArrayList<ClientParams.Feeds>(0);
-    }
-    this.params.sjCreate = false;
-    this.params.globallyExcludedPublishers = "";
   }
 
   @JsonIgnore

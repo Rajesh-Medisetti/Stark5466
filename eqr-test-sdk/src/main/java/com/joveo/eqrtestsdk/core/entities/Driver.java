@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
 import com.joveo.eqrtestsdk.core.services.AwsService;
+import com.joveo.eqrtestsdk.core.services.CacheRefreshService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
 import com.joveo.eqrtestsdk.core.services.ClientService;
 import com.joveo.eqrtestsdk.core.services.FeedService;
@@ -38,6 +39,7 @@ public class Driver {
   @Inject JobService jobService;
   @Inject FeedService feedService;
   @Inject AwsService awsService;
+  @Inject CacheRefreshService cacheRefreshService;
 
   /**
    * Start an instance of Driver.
@@ -145,6 +147,16 @@ public class Driver {
 
   public void deleteInboundFeed(String feedUrl) throws InvalidInputException {
     feedService.deleteFeedUrl(conf, awsService, feedUrl);
+  }
+
+  public void refreshJobCount() throws ApiRequestException, UnexpectedResponseException {
+    cacheRefreshService.refreshCache(
+        session, awsService, conf.getString("InstanceTag"), conf.getString("FlashRefreshUrl"));
+  }
+
+  public void refreshEntityCache() throws ApiRequestException, UnexpectedResponseException {
+    cacheRefreshService.refreshCache(
+        session, awsService, conf.getString("InstanceTag"), conf.getString("AragonRefreshUrl"));
   }
 
   private void setup(String username, String password)

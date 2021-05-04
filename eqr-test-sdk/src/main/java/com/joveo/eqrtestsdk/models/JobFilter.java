@@ -1,7 +1,6 @@
 package com.joveo.eqrtestsdk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.models.validationgroups.EditJobGroup;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -151,7 +150,7 @@ public class JobFilter<T> implements Filter {
       groups = {EditJobGroup.class, Default.class})
   public boolean isValidRule() {
 
-    if (field == null || data == null) {
+    if (isInvalidFieldData()) {
       return false;
     }
 
@@ -180,7 +179,7 @@ public class JobFilter<T> implements Filter {
             RuleOperator.ENDS_WITH,
             RuleOperator.NOT_ENDS_WITH);
 
-    if (jobFilterFields.contains(field) && !ruleOperatorsForJobFilterFields.contains(operator)) {
+    if (isInvalidFieldOperator(jobFilterFields, ruleOperatorsForJobFilterFields)) {
       return false;
     }
 
@@ -193,7 +192,7 @@ public class JobFilter<T> implements Filter {
             RuleOperator.AFTER,
             RuleOperator.BETWEEN);
 
-    if (field.equals(JobFilterFields.postedDate) && !ruleOperatorsForDate.contains(operator)) {
+    if (isInvalidPostedDate(ruleOperatorsForDate)) {
       return false;
     }
 
@@ -206,46 +205,77 @@ public class JobFilter<T> implements Filter {
             RuleOperator.GREATER_THAN_EQUAL,
             RuleOperator.LESS_THAN_EQUAL);
 
-    if (field.equals(JobFilterFields.cpcBid) && !ruleOperatorsForCpc.contains(operator)) {
+    if (isInvalidCpc(ruleOperatorsForCpc)) {
       return false;
     }
 
     if (operator.equals(RuleOperator.BETWEEN)) {
-      if (((List<?>) data).size() == 2) {
-        return true;
-      } else {
-        return false;
-      }
+      return (((List<String>) data).size() == 2);
     }
     return true;
   }
 
+  @JsonIgnore
+  private boolean isInvalidCpc(List<RuleOperator> ruleOperatorsForCpc) {
+    return field.equals(JobFilterFields.cpcBid) && !ruleOperatorsForCpc.contains(operator);
+  }
+
+  @JsonIgnore
+  private boolean isInvalidPostedDate(List<RuleOperator> ruleOperatorsForDate) {
+
+    return field.equals(JobFilterFields.postedDate) && !ruleOperatorsForDate.contains(operator);
+  }
+
+  @JsonIgnore
+  private boolean isInvalidFieldOperator(
+      List<JobFilterFields> jobFilterFields, List<RuleOperator> ruleOperatorsForJobFilterFields) {
+
+    return jobFilterFields.contains(field) && !ruleOperatorsForJobFilterFields.contains(operator);
+  }
+
+  @JsonIgnore
+  private boolean isInvalidFieldData() {
+    return field == null || data == null;
+  }
+
   /** . Validating Date Format. */
-  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   @AssertTrue(
       message =
           "Invalid Date format or startDate>EndDate for between Operator,"
               + " date format must be MM/dd/yyyy in JobFilter, for MoreThan,"
               + "LessThan Input will be Numeric")
   @JsonIgnore
-  public boolean isValidDate() throws InvalidInputException {
+  public boolean isValidDate() {
 
     if (field != JobFilterFields.postedDate) {
       return true;
     }
 
-    if (operator == RuleOperator.ON
-        || operator == RuleOperator.BEFORE
-        || operator == RuleOperator.AFTER) {
+    if (isOperatorOnBeforeAfter()) {
       return isValidDateFormat((String) data);
     } else if (operator == RuleOperator.BETWEEN) {
       List<String> list = (ArrayList) data;
-      return (list.size() == 2
-          && isValidDateFormat(list.get(0))
-          && isValidDateFormat(list.get(1))
-          && compareDates(list.get(0), list.get(1)));
+      return isValidDates(list);
+    } else {
+      return isNumberValid((String) data);
     }
-    return isNumberValid((String) data);
+  }
+
+  @JsonIgnore
+  private boolean isValidDates(List<String> list) {
+
+    return list.size() == 2
+        && isValidDateFormat(list.get(0))
+        && isValidDateFormat(list.get(1))
+        && compareDates(list.get(0), list.get(1));
+  }
+
+  @JsonIgnore
+  private boolean isOperatorOnBeforeAfter() {
+
+    return operator == RuleOperator.ON
+        || operator == RuleOperator.BEFORE
+        || operator == RuleOperator.AFTER;
   }
 
   @JsonIgnore
