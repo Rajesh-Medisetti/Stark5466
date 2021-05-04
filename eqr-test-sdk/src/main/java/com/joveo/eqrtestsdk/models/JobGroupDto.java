@@ -109,6 +109,11 @@ public class JobGroupDto {
     params.budgetCap = new CapDto(pacing, frequency, threshold, value);
   }
 
+  @JsonIgnore
+  public CapDto getBudgetcap() {
+    return this.params.budgetCap;
+  }
+
   public void setClickCap(Boolean pacing, Freq frequency, Double threshold, int value) {
     params.clicksCap = new CapDto(pacing, frequency, threshold, (double) value);
   }
@@ -610,6 +615,16 @@ public class JobGroupDto {
           groups = {EditJobGroup.class, Default.class})
       public List<PerformanceTargets> performanceTargets;
 
+      public List<IoDetails> getIoDetails() {
+        return ioDetails;
+      }
+
+      public List<PerformanceTargets> getPerformanceTargets() {
+        return performanceTargets;
+      }
+
+      public TradingGoals() {}
+
       /** Taking IoDetails. */
       public void addIoDetails(String ioNumber, int value, LocalDate startDate, LocalDate endDate) {
         if (ioDetails == null) {
@@ -632,6 +647,24 @@ public class JobGroupDto {
         public String number;
 
         public Integer value;
+
+        public IoDetails() {}
+
+        public String getNumber() {
+          return number;
+        }
+
+        public Integer getValue() {
+          return value;
+        }
+
+        public LocalDate getStartDate() {
+          return startDate;
+        }
+
+        public LocalDate getEndDate() {
+          return endDate;
+        }
 
         @JsonFormat(pattern = "MM/dd/yyyy", shape = JsonFormat.Shape.STRING)
         @NotNull(
@@ -666,6 +699,16 @@ public class JobGroupDto {
       public static class PerformanceTargets {
         public String type;
         public Double value;
+
+        public PerformanceTargets() {}
+
+        public String getType() {
+          return type;
+        }
+
+        public Double getValue() {
+          return value;
+        }
 
         public PerformanceTargets(String type, Double value) {
           this.type = type;

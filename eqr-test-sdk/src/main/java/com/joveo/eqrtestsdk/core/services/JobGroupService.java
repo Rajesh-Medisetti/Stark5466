@@ -19,6 +19,7 @@ import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CapDto;
 import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
 import com.joveo.eqrtestsdk.models.MojoData;
@@ -622,6 +623,11 @@ public class JobGroupService extends BaseService {
   @Override
   public String getEntity() {
     return JoveoEntity.jobgroups.toString();
+  }
+
+  @Override
+  public TypeReference getMojoStatsTypeReference() {
+    return new TypeReference<MojoResponse<JobGroupStats>>() {};
   }
 
   @Override

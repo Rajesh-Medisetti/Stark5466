@@ -16,6 +16,7 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
+import com.joveo.eqrtestsdk.models.CampaignStats;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
 import com.joveo.eqrtestsdk.models.MojoData;
@@ -319,6 +320,11 @@ public class CampaignService extends BaseService {
   @Override
   public String getEntity() {
     return JoveoEntity.campaigns.toString();
+  }
+
+  @Override
+  public TypeReference getMojoStatsTypeReference() {
+    return new TypeReference<MojoResponse<CampaignStats>>() {};
   }
 
   @Override
