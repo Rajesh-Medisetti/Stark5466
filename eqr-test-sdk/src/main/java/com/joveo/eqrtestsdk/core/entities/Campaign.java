@@ -7,8 +7,8 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
+import com.joveo.eqrtestsdk.models.CampaignStats;
 import com.joveo.eqrtestsdk.models.JobStats;
-import com.joveo.eqrtestsdk.models.Stats;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -106,22 +106,32 @@ public class Campaign {
   /**
    * Get stats for the campaign.
    *
-   * @return Stats object
+   * @return Stats at Campaign level
    * @throws MojoException throws custom mojo exception On unexpected behaviour
    */
-  public Stats getStats() throws MojoException {
-    return driver.campaignService.getStats(
-        driver.session,
-        driver.conf,
-        this.clientId,
-        this.id,
-        startOfMonth(LocalDate.now()),
-        LocalDate.now());
+  public CampaignStats getStats() throws MojoException {
+    return (CampaignStats)
+        driver.campaignService.getStats(
+            driver.session,
+            driver.conf,
+            this.clientId,
+            this.id,
+            startOfMonth(LocalDate.now()),
+            LocalDate.now());
   }
 
-  public Stats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
-    return driver.campaignService.getStats(
-        driver.session, driver.conf, this.clientId, this.id, startDate, endDate);
+  /**
+   * Get stats for the campaign.
+   *
+   * @param startDate StartDate
+   * @param endDate EndDate
+   * @return Stats at Campaign level
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public CampaignStats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
+    return (CampaignStats)
+        driver.campaignService.getStats(
+            driver.session, driver.conf, this.clientId, this.id, startDate, endDate);
   }
 
   /**
@@ -131,21 +141,32 @@ public class Campaign {
    * @return Stats object
    * @throws MojoException throws custom mojo exception On unexpected behaviour
    */
-  public Stats getStats(Publisher publisher) throws MojoException {
-    return driver.campaignService.getStats(
-        driver.session,
-        driver.conf,
-        this.clientId,
-        this.id,
-        publisher.id,
-        startOfMonth(LocalDate.now()),
-        LocalDate.now());
+  public CampaignStats getStats(Publisher publisher) throws MojoException {
+    return (CampaignStats)
+        driver.campaignService.getStats(
+            driver.session,
+            driver.conf,
+            this.clientId,
+            this.id,
+            publisher.id,
+            startOfMonth(LocalDate.now()),
+            LocalDate.now());
   }
 
-  public Stats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
+  /**
+   * Fetches campaign stats for a given publisher.
+   *
+   * @param publisher Publisher
+   * @param startDate startDate
+   * @param endDate endDate
+   * @return Campaign Stats
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public CampaignStats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
       throws MojoException {
-    return driver.campaignService.getStats(
-        driver.session, driver.conf, this.clientId, this.id, publisher.id, startDate, endDate);
+    return (CampaignStats)
+        driver.campaignService.getStats(
+            driver.session, driver.conf, this.clientId, this.id, publisher.id, startDate, endDate);
   }
 
   @Override

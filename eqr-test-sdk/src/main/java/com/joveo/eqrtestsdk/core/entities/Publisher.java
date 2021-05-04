@@ -34,4 +34,8 @@ public class Publisher {
 
     driver.publisherService.edit(driver.session, driver.conf, publisher);
   }
+
+  public Double getMinBid() throws ApiRequestException, UnexpectedResponseException {
+    return driver.publisherService.getMinBid(driver.session, driver.conf, this.id);
+  }
 }

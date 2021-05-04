@@ -8,8 +8,8 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.ClientStats;
 import com.joveo.eqrtestsdk.models.JobStats;
-import com.joveo.eqrtestsdk.models.Stats;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -94,13 +94,21 @@ public class Client {
         driver, driver.jobService, this.id, reqId, startDate, endDate);
   }
 
-  public Stats getStats() throws MojoException {
-    return driver.clientService.getStats(
-        driver.session, driver.conf, this.id, startOfMonth(LocalDate.now()), LocalDate.now());
+  /**
+   * Fetches Client stats.
+   *
+   * @return Client stats
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public ClientStats getStats() throws MojoException {
+    return (ClientStats)
+        driver.clientService.getStats(
+            driver.session, driver.conf, this.id, startOfMonth(LocalDate.now()), LocalDate.now());
   }
 
-  public Stats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
-    return driver.clientService.getStats(driver.session, driver.conf, this.id, startDate, endDate);
+  public ClientStats getStats(LocalDate startDate, LocalDate endDate) throws MojoException {
+    return (ClientStats)
+        driver.clientService.getStats(driver.session, driver.conf, this.id, startDate, endDate);
   }
 
   /**
@@ -110,20 +118,31 @@ public class Client {
    * @return Stats object
    * @throws MojoException throws custom mojo exception On unexpected behaviour
    */
-  public Stats getStats(Publisher publisher) throws MojoException {
-    return driver.clientService.getStats(
-        driver.session,
-        driver.conf,
-        this.id,
-        publisher.id,
-        startOfMonth(LocalDate.now()),
-        LocalDate.now());
+  public ClientStats getStats(Publisher publisher) throws MojoException {
+    return (ClientStats)
+        driver.clientService.getStats(
+            driver.session,
+            driver.conf,
+            this.id,
+            publisher.id,
+            startOfMonth(LocalDate.now()),
+            LocalDate.now());
   }
 
-  public Stats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
+  /**
+   * fetches stats of a client based on given publisher.
+   *
+   * @param publisher Publisher
+   * @param startDate StartDate
+   * @param endDate EndDate
+   * @return Client Stats
+   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   */
+  public ClientStats getStats(Publisher publisher, LocalDate startDate, LocalDate endDate)
       throws MojoException {
-    return driver.clientService.getStats(
-        driver.session, driver.conf, this.id, publisher.id, startDate, endDate);
+    return (ClientStats)
+        driver.clientService.getStats(
+            driver.session, driver.conf, this.id, publisher.id, startDate, endDate);
   }
 
   public List<String> getInboundFeeds() throws ApiRequestException, UnexpectedResponseException {
