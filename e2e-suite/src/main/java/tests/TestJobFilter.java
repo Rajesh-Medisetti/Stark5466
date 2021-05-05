@@ -105,8 +105,8 @@ public class TestJobFilter extends TestRunnerBase {
       throws TimeoutException, InterruptWaitException, MojoException {
     System.out.println("client size is " + clientSet.size());
     for (Client client : clientSet) {
-      // System.out.println(client.getStats().getName());
-      client.runScheduler();
+      System.out.println(client.getStats().getId());
+      //      client.runScheduler();
     }
   }
 

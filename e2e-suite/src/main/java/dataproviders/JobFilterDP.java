@@ -17,12 +17,12 @@ public class JobFilterDP {
    */
   @DataProvider(name = "test-jobFilter-jobgroup")
   public static Object[][] dpMethod() {
-    // List<JobGroupDTO> jobGroupList =
-    // JobGroupCreator.dTOUsingFilter(JobGroupFilterCreator.createSingleFilterList(),
-    // GroupOperator.AND,300,1);
-    List<JobGroupDto> jobGroupList =
-        JobGroupCreator.dtoUsingFilter(
-            JobGroupFilterCreator.createOnlyOneCaseList(), GroupOperator.AND, 300, 1);
+     List<JobGroupDto> jobGroupList =
+     JobGroupCreator.dtoUsingFilter(JobGroupFilterCreator.createSingleFilterList(),
+     GroupOperator.AND,300,1);
+//    List<JobGroupDto> jobGroupList =
+//        JobGroupCreator.dtoUsingFilter(
+//            JobGroupFilterCreator.createOnlyOneCaseList(), GroupOperator.AND, 300, 1);
 
     return jobGroupList.stream()
         .map(filter -> new Object[] {null, null, filter})
