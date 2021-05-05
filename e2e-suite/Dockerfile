@@ -20,4 +20,5 @@ WORKDIR /usr/src/app
 COPY entry.sh /usr/src/app
 COPY suite.xml /usr/src/app
 COPY coveragelimits.py /usr/src/app
+#RUN mkdir -p /usr/src/app/reports
 CMD ["/usr/src/app/entry.sh"]
