@@ -60,7 +60,7 @@ then
   # shellcheck disable=SC2091
   $(aws ecr get-login --region us-east-1 --no-include-email)
   DOCKER_TAG="stable"
-  DOCKER_PREFIX="485239875118.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}"
+  DOCKER_PREFIX="997116068644.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}"
 elif [[ $ENVIRONMENT = "ci" ]]
 then
   DOCKER_TAG="ci"
