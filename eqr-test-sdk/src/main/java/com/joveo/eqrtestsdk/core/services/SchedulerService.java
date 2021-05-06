@@ -44,7 +44,8 @@ public class SchedulerService {
         executor.get(session, baseUrl + "/api/batch/dashboard/clients/stats?clientId=" + clientId);
 
     if (!response.isSuccess()) {
-      logger.error("Couldn't get last scheduler executionTime, Mongo has no docs for this client yet");
+      logger.error(
+          "Couldn't get last scheduler executionTime, Mongo has no docs for this client yet");
       // Success false is given before batch picking the request; hence, we have to avoid this
       // false-negative case.
       return null;
