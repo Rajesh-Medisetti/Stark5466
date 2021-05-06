@@ -106,7 +106,7 @@ public class TestJobFilter extends TestRunnerBase {
     System.out.println("client size is " + clientSet.size());
     for (Client client : clientSet) {
       System.out.println(client.getStats().getId());
-      //      client.runScheduler();
+      client.runScheduler();
     }
   }
 
@@ -131,12 +131,8 @@ public class TestJobFilter extends TestRunnerBase {
   public void test1To1JobFilters(Client clientObj, JobGroupDto jobGroupDto, JobGroup jobGroupObj)
       throws UnexpectedResponseException, InvalidInputException, ApiRequestException, MojoException,
           InterruptedException, IOException {
-    // refreshJobFeed();
-    System.out.println("refreshh");
-    // Thread.sleep(30000);
     driver.refreshEntityCache();
     driver.refreshJobCount();
-    Thread.sleep(3000);
     Assert.assertTrue(ifSchedulerRan, "Scheduler run failed");
     Assert.assertEquals(
         jobGroupObj.getStats().getJobCount(),
