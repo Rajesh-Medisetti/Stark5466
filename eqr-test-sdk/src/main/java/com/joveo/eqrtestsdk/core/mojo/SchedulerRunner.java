@@ -89,7 +89,7 @@ public class SchedulerRunner implements Waitable {
         return true;
       }
     }
-    logger.info("Last scheduled service is not executed as of" +  LocalDateTime.now(ZoneOffset.UTC)));
+    logger.info("Last scheduled service is not executed as of" + LocalDateTime.now(ZoneOffset.UTC));
     return false;
   }
 
