@@ -65,13 +65,11 @@ public class SchedulerRunner implements Waitable {
   public void run()
       throws TimeoutException, InterruptWaitException, ApiRequestException,
           UnexpectedResponseException, MojoException {
-    logger.info("Scheduler run is triggered at: " + LocalDateTime.now());
     this.triggeredTime = LocalDateTime.now(ZoneOffset.UTC);
-
+    logger.info("Scheduler run is triggered at: " + this.triggeredTime);
     schedulerService.schedule(session, baseUrl, clientId);
-
     Wait.until(this);
-    logger.info("Scheduler run is ended at: " + LocalDateTime.now());
+    logger.info("Scheduler run ended at: " + LocalDateTime.now(ZoneOffset.UTC));
   }
 
   /**
@@ -85,10 +83,13 @@ public class SchedulerRunner implements Waitable {
     SchedulerRunMetadata getLatestRunData =
         schedulerService.getLatestRunMetadata(this.session, this.clientId, this.baseUrl);
 
-    if (getLatestRunData != null && getLatestRunData.getTime().isAfter(this.triggeredTime)) {
-      return true;
+    if (getLatestRunData != null) {
+      logger.info("Scheduler previous success time returned as " + getLatestRunData.getTime());
+      if (getLatestRunData.getTime().isAfter(this.triggeredTime)) {
+        return true;
+      }
     }
-    logger.info("Last scheduled service is not executed yet");
+    logger.info("Scheduled run is not completed as of: " + LocalDateTime.now(ZoneOffset.UTC));
     return false;
   }
 
