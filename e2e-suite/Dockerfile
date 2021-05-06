@@ -10,6 +10,8 @@ RUN apt-get update \
         jq \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get install -y tzdata
+
 WORKDIR /usr/src/app
 
 COPY settings.xml /usr/src/app/
