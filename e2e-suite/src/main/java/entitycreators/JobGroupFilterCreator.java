@@ -47,8 +47,10 @@ public class JobGroupFilterCreator extends TestRunnerBase {
         || ro.toString().equals(RuleOperator.IN.toString())
         || ro.toString().equals(RuleOperator.NOT_IN.toString()))) {
       // indvList.add(new JobFilter<>(ro, jf, ro.toString() + "_" + jf.toString()));
-      indvList.add(new JobFilter<>(ro, jf, "Hyderabad"));
-      jfList.add(indvList);
+      if (!jf.toString().equals(JobFilterFields.postedDate.toString())) {
+        indvList.add(new JobFilter<>(ro, jf, ro.toString() + "_" + jf.toString()));
+        jfList.add(indvList);
+      }
     }
   }
 
