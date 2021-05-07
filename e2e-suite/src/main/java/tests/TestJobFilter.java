@@ -31,12 +31,16 @@ public class TestJobFilter extends TestRunnerBase {
 
   @Test(dataProvider = "test", dataProviderClass = JobFilterDP.class)
   public void test1To1JobFilters(
-      Client clientObj, JobGroupDto jobGroupDto, JobGroup jobGroupObj, JobCreator jobCreator)
+      String testCase,
+      Client clientObj,
+      JobGroupDto jobGroupDto,
+      JobGroup jobGroupObj,
+      JobCreator jobCreator)
       throws MojoException {
     Assert.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
     Assert.assertEquals(
         jobGroupObj.getStats().getJobCount(),
-        jobCreator.jobsInJobGroup.get(jobGroupDto).intValue(),
+        jobCreator.jobsInJobGroup.get(jobGroupDto).size(),
         "The job count is not correct for client "
             + clientObj.id
             + " and job group "

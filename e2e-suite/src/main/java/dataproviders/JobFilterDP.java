@@ -7,8 +7,10 @@ import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.Filter;
 import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.GroupOperator;
+import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dtos.Dtos;
 import entitycreators.CampaignEntityCreator;
@@ -34,16 +36,20 @@ public class JobFilterDP {
   static Object[][] arr;
   static List<List<Object>> dpList = new ArrayList<>();
 
-  /** . returning a list of Dtos */
+  /** . return a list of Dtos. */
   public static List<Dtos> dpMethod1() {
+    List<Dtos> dtosList = new ArrayList<>();
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
     List<JobGroupDto> jobGroupList =
         JobGroupCreator.dtoUsingFilter(
             JobGroupFilterCreator.createSingleFilterList(), GroupOperator.AND, 300, 1);
-
-    List<Dtos> dtosList = new ArrayList<>();
-
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
-
+    for (JobGroupDto jobGroupDto : jobGroupList) {
+      dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+    }
+    jobGroupList =
+        JobGroupCreator.dtoUsingFilter(
+            JobGroupFilterCreator.createSingleFilterList(), GroupOperator.OR, 300, 1);
+    clientDto = ClientEntityCreator.randomClientCreator("");
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto));
     }
@@ -66,10 +72,9 @@ public class JobFilterDP {
     return array;
   }
 
-  /** . Creating a JobFilter Data */
+  /** . creating JobFilter */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public static void createJobFilterData(Driver driver) throws MojoException {
-
     final List<Dtos> dtosList = JobFilterDP.dpMethod1();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed);
     clientDto.addFeed(feed);
@@ -82,8 +87,8 @@ public class JobFilterDP {
     Client myClient = null;
     Campaign myCampaign = null;
     for (Dtos dtos : dtosList) {
-
-      JobGroupDto jobGroupDto = dtos.getJobGroupDto();
+      JobGroupDto jobGroupDto = new JobGroupDto();
+      jobGroupDto = dtos.getJobGroupDto();
       ClientDto clientDto1 = dtos.getClientDto();
       CampaignDto campaignDto1 = dtos.getCampaignDto();
       if (clientDto1 == null) {
@@ -95,9 +100,9 @@ public class JobFilterDP {
         myClient = driver.createClient(clientDto1);
         if (campaignDto1 == null) {
           campaignDto1 = campaignDto;
-          campaignDto1.setClientId(myClient.id);
-          myCampaign = driver.createCampaign(campaignDto1);
         }
+        campaignDto1.setClientId(myClient.id);
+        myCampaign = driver.createCampaign(campaignDto1);
         clientDtoSet.add(clientDto1);
       }
       jobGroupDto.setPriority(1);
@@ -107,7 +112,9 @@ public class JobFilterDP {
           placements, 1.80, 200.00, Freq.Monthly, false, 80.00, false);
       try {
         JobGroup myJobGroup = driver.createJobGroup(jobGroupDto);
-        dpList.add(List.of(myClient, jobGroupDto, myJobGroup, jobCreator));
+        dpList.add(
+            List.of(
+                getTestCase(myClient, jobGroupDto), myClient, jobGroupDto, myJobGroup, jobCreator));
         clientSet.add(myClient);
       } catch (MojoException e) {
         // TODO Auto-generated catch block
@@ -121,7 +128,34 @@ public class JobFilterDP {
     }
   }
 
-  /** . removing client after tests */
+  /** . TestCases. */
+  public static String getTestCase(Client myClient, JobGroupDto jobGroupDto) {
+    String testCase =
+        "Testing Job Filters client id is "
+            + myClient.id
+            + " the operator field is "
+            + jobGroupDto.getFilter().getOperator();
+    List<Filter> filterList = jobGroupDto.getFilter().getRules();
+    testCase =
+        testCase
+            + " \n the number of rules are "
+            + filterList.size()
+            + ". \n Following are rules : ";
+    for (Filter fil : filterList) {
+      JobFilter jfEle = (JobFilter) fil;
+      testCase =
+          testCase
+              + "\n The filter field is "
+              + jfEle.getField()
+              + "the filter attribute is "
+              + jfEle.getOperator()
+              + "the filter data is "
+              + jfEle.getData();
+    }
+    return testCase;
+  }
+
+  /** . deleting Clients */
   public static void removeClientSet() throws MojoException {
     for (Client client : clientSet) {
       client.removeClient();

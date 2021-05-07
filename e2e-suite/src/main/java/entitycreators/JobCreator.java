@@ -17,13 +17,13 @@ import java.util.Set;
 
 public class JobCreator {
 
-  public Map<JobGroupDto, Integer> jobsInJobGroup;
+  public Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroup;
   public Map<ClientDto, List<Map<JobFilterFields, List<String>>>> clientFeedMap;
   public Map<ClientDto, String> clientUrlMap;
 
   /** Constructor for JobCreator. */
   public JobCreator(
-      Map<JobGroupDto, Integer> jobsInJobGroup,
+      Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroup,
       Map<ClientDto, List<Map<JobFilterFields, List<String>>>> clientFeedMap,
       Map<ClientDto, String> clientUrlDMap) {
     this.jobsInJobGroup = jobsInJobGroup;
@@ -37,7 +37,7 @@ public class JobCreator {
     Map<ClientDto, List<Map<JobFilterFields, List<String>>>> clientFeeds = new HashMap<>();
 
     Set<ClientDto> clientDtoSet = new HashSet<>();
-    Map<JobGroupDto, Integer> jobsInJobGroupDto = new HashMap<>();
+    Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroupDto = new HashMap<>();
 
     for (Dtos dto : dtos) {
 
@@ -79,7 +79,7 @@ public class JobCreator {
           feed = getAllJobs(prefix, suffix, jobFilter, size);
       }
 
-      jobsInJobGroupDto.put(jobGroupDto, feed.size());
+      jobsInJobGroupDto.put(jobGroupDto, new ArrayList<>(feed));
 
       if (clientDtoSet.contains(clientDto)) {
         List<Map<JobFilterFields, List<String>>> oldFeed = clientFeeds.get(clientDto);
@@ -87,7 +87,7 @@ public class JobCreator {
         clientFeeds.put(clientDto, oldFeed);
       } else {
         clientDtoSet.add(clientDto);
-        clientFeeds.put(clientDto, feed);
+        clientFeeds.put(clientDto, new ArrayList<>(feed));
       }
 
       System.out.println(feed.size());
