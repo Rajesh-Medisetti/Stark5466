@@ -21,10 +21,9 @@ public class ClientEntityCreator {
   public static ClientDto randomClientCreator(String feed) {
 
     ClientDto clientDto = new ClientDto();
-    clientDto.setName("client_name_automation" + Utils.generateRandomString());
+    clientDto.setName("JOVEO_client_name_automation" + Utils.generateRandomString());
     clientDto.setBudget((double) Utils.getRandomNumber(1000));
     clientDto.setBudget(1000.00); // this has to be random need somesdk modifications
-    clientDto.addFeed(feed);
     clientDto.setFrequency(Frequency._3_Hours);
     clientDto.setApplyConvWindow(4);
     clientDto.setTimezone(TimeZone.UTC_plus_05_30);
