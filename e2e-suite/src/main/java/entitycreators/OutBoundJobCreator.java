@@ -10,21 +10,21 @@ import java.util.Map;
 
 public class OutBoundJobCreator {
 
-    public static Map<String, OutboundJob> outBoundFeedJob(Client client, String pubId)
-            throws MojoException {
+  /** . Create Map of OutBoundJob and ReNo */
+  public static Map<String, OutboundJob> outBoundFeedJob(Client client, String pubId)
+      throws MojoException {
 
-        Map<String, OutboundJob> map = new HashMap<>();
+    Map<String, OutboundJob> map = new HashMap<>();
 
-        OutboundFeed outboundFeed = client.getOutboundFeed(pubId);
+    OutboundFeed outboundFeed = client.getOutboundFeed(pubId);
 
+    List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJob();
 
-        List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJob();
+    for (OutboundJob outboundJob : outboundJobs) {
 
-        for (OutboundJob outboundJob : outboundJobs) {
-
-            map.put(outboundJob.referencenumber, outboundJob); }
-
-
-        return map;
+      map.put(outboundJob.referencenumber, outboundJob);
     }
+
+    return map;
+  }
 }
