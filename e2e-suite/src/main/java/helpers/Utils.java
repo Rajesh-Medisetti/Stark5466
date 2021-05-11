@@ -22,6 +22,18 @@ public class Utils {
     return randStr.toString();
   }
 
+  /** . returning a random string of length size. */
+  public static String getRandomString(int size) {
+    char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    StringBuilder str = new StringBuilder(size);
+    Random random = new Random();
+    for (int i = 0; i < size; i++) {
+      char c = chars[random.nextInt(chars.length)];
+      str.append(c);
+    }
+    return str.toString();
+  }
+
   /**
    * gives a random number.
    *
@@ -37,5 +49,10 @@ public class Utils {
     } else {
       return (randomInt - 1);
     }
+  }
+
+  public static int getRandomNumber(int minimum, int maximum) {
+    Random random = new Random();
+    return minimum + random.nextInt(maximum - minimum + 1);
   }
 }
