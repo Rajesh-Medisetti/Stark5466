@@ -1,6 +1,6 @@
 package enums;
 
-public enum RuleOperatorString {
+public enum RuleOperatorStringPositive {
   EQUAL,
   // NOT_EQUAL,
   IN,

@@ -1,5 +1,6 @@
 package dataproviders;
 
+import base.TestRunnerBase;
 import com.joveo.eqrtestsdk.core.entities.Campaign;
 import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.Driver;
@@ -42,13 +43,21 @@ public class JobFilterDP {
     ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
     List<JobGroupDto> jobGroupList =
         JobGroupCreator.dtoUsingFilter(
-            JobGroupFilterCreator.createSingleFilterList(), GroupOperator.AND, 300, 1);
+            JobGroupFilterCreator.createFilterList(
+                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
+            GroupOperator.AND,
+            300,
+            1);
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto));
     }
     jobGroupList =
         JobGroupCreator.dtoUsingFilter(
-            JobGroupFilterCreator.createSingleFilterList(), GroupOperator.OR, 300, 1);
+            JobGroupFilterCreator.createFilterList(
+                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
+            GroupOperator.OR,
+            300,
+            1);
     clientDto = ClientEntityCreator.randomClientCreator("");
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto));
