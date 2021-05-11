@@ -31,7 +31,7 @@ public class JobFilterDP {
   static Client globalClient;
   static Campaign globalCampaign;
   static String feed = "https://joveo-samplefeed.s3.amazonaws.com/abhinay/AbSample.xml";
-  static String placements = "Indeed";
+  static String placements = "Naukri";
   public static boolean ifSchedulerRan = true;
   static Set<Client> clientSet = new HashSet<Client>();
   static Object[][] arr;
@@ -88,6 +88,7 @@ public class JobFilterDP {
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed);
     clientDto.addFeed(feed);
     globalClient = driver.createClient(clientDto);
+    ClientDto globalClientDto = clientDto;
     CampaignDto campaignDto = CampaignEntityCreator.randomCampaignCreator(1000);
     campaignDto.setClientId(globalClient.id);
     globalCampaign = driver.createCampaign(campaignDto);
@@ -103,6 +104,7 @@ public class JobFilterDP {
       if (clientDto1 == null) {
         myClient = globalClient;
         myCampaign = globalCampaign;
+        clientDto1 = globalClientDto;
       }
       if (clientDto1 != null && !clientDtoSet.contains(clientDto1)) {
         clientDto1.addFeed(jobCreator.clientUrlMap.get(clientDto1));
@@ -123,7 +125,13 @@ public class JobFilterDP {
         JobGroup myJobGroup = driver.createJobGroup(jobGroupDto);
         dpList.add(
             List.of(
-                getTestCase(myClient, jobGroupDto), myClient, jobGroupDto, myJobGroup, jobCreator));
+                getTestCase(myClient, jobGroupDto),
+                clientDto1,
+                myClient,
+                jobGroupDto,
+                myJobGroup,
+                jobCreator,
+                jobGroupDto.getPlacements().get(0).publisher));
         clientSet.add(myClient);
       } catch (MojoException e) {
         // TODO Auto-generated catch block
