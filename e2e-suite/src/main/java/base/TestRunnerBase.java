@@ -2,11 +2,14 @@ package base;
 
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.exception.MojoException;
+import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
-import enums.RuleOperatorString;
+import enums.RuleOperatorStringNegative;
+import enums.RuleOperatorStringPositive;
 import enums.RuleOperatorsDate;
 import enums.RuleOperatorsNumber;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TestRunnerBase {
   public static Driver driver = null;
@@ -33,9 +36,22 @@ public class TestRunnerBase {
    *
    * @return list of all operators
    */
-  public static ArrayList<String> getStringList() {
+  public static ArrayList<String> getStringPositiveList() {
     ArrayList<String> stringOperatorList = new ArrayList<String>();
-    for (RuleOperatorString r : RuleOperatorString.values()) {
+    for (RuleOperatorStringPositive r : RuleOperatorStringPositive.values()) {
+      stringOperatorList.add(r.toString());
+    }
+    return stringOperatorList;
+  }
+
+  /**
+   * creates a list of all string supported operators.
+   *
+   * @return list of all operators
+   */
+  public static ArrayList<String> getStringNegativeList() {
+    ArrayList<String> stringOperatorList = new ArrayList<String>();
+    for (RuleOperatorStringNegative r : RuleOperatorStringNegative.values()) {
       stringOperatorList.add(r.toString());
     }
     return stringOperatorList;
@@ -52,5 +68,46 @@ public class TestRunnerBase {
       dateOperatorList.add(r.toString());
     }
     return dateOperatorList;
+  }
+
+  /**
+   * creates a list of all date supported filters for string.
+   *
+   * @return list of all filters
+   */
+  public static List<JobFilterFields> getJobFilterStringList() {
+    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    stringJobFilter.add(JobFilterFields.state);
+    stringJobFilter.add(JobFilterFields.city);
+    stringJobFilter.add(JobFilterFields.title);
+    stringJobFilter.add(JobFilterFields.type);
+    stringJobFilter.add(JobFilterFields.category);
+    stringJobFilter.add(JobFilterFields.company);
+    stringJobFilter.add(JobFilterFields.zip);
+    stringJobFilter.add(JobFilterFields.country);
+    return stringJobFilter;
+  }
+
+  /**
+   * creates a list of all date supported filters for Date.
+   *
+   * @return list of all filters
+   */
+  public static List<JobFilterFields> getJobFilterDateList() {
+    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    stringJobFilter.add(JobFilterFields.postedDate);
+    return stringJobFilter;
+  }
+
+  /**
+   * creates a list of all date supported filters for Numeric.
+   *
+   * @return list of all filters
+   */
+  public static List<JobFilterFields> getJobFilterNumberList() {
+    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    stringJobFilter.add(JobFilterFields.cpcBid);
+    stringJobFilter.add(JobFilterFields.refNumber);
+    return stringJobFilter;
   }
 }
