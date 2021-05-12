@@ -4,6 +4,11 @@ public class MajorMinorVersions {
   private Integer majorVersion;
   private Integer minorVersion;
 
+  public MajorMinorVersions(Integer majorVersion, Integer minorVersion) {
+    this.majorVersion = majorVersion;
+    this.minorVersion = minorVersion;
+  }
+
   public Integer getMajorVersion() {
     return majorVersion;
   }

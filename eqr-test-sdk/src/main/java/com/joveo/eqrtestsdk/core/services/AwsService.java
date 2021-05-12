@@ -18,7 +18,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.BatchResultErrorEntry;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.SendMessageBatchResult;
@@ -26,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.joveo.eqrtestsdk.exception.S3IoException;
+import com.joveo.eqrtestsdk.exception.SqsEventFailedException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -142,8 +142,9 @@ public class AwsService {
    *
    * @param messages List of messages
    * @param url Queue URL
+   * @throws SqsEventFailedException throws when event gets failed
    */
-  public void sendSqsMessages(List<String> messages, String url) {
+  public void sendSqsMessages(List<String> messages, String url) throws SqsEventFailedException {
     logger.info("Events are getting pushed into SQS..." + url);
     List<List<String>> batches = Lists.partition(messages, 10);
     for (List<String> batch : batches) {
@@ -158,9 +159,11 @@ public class AwsService {
           new SendMessageBatchRequest(url, messageBatch);
       SendMessageBatchResult result = sqs.sendMessageBatch(sendMessageBatchRequest);
       logger.info("Successful mesaages in queue : " + result.getSuccessful().size());
-      logger.info("Failed messages in queue : " + result.getFailed().size());
-      for (BatchResultErrorEntry error : result.getFailed()) {
-        logger.info("Failed message : " + error.getMessage());
+      if (result.getFailed().size() > 0) {
+        String errorMessage =
+            "Total failed messages while pushing to SQS: " + result.getFailed().size();
+        logger.error(errorMessage);
+        throw new SqsEventFailedException(errorMessage);
       }
     }
     logger.info("All events are pushed to SQS...");

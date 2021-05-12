@@ -3,7 +3,7 @@ package com.joveo.eqrtestsdk.core.services;
 import static com.mongodb.client.model.Filters.eq;
 
 import com.joveo.eqrtestsdk.core.models.ConversionCodes;
-import com.joveo.eqrtestsdk.exception.MojoException;
+import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -26,13 +26,15 @@ public class DatabaseService {
    *
    * @param clientId Client Id
    * @return Apply Conversion codes
-   * @throws MojoException throws custom mojo exception On unexpected behaviour
+   * @throws UnexpectedResponseException The API response was not as expected
    */
-  public ConversionCodes getApplyConversionCodes(String clientId) throws MojoException {
+  public ConversionCodes getApplyConversionCodes(String clientId)
+      throws UnexpectedResponseException {
     Document document = collection.find(eq("clientId", clientId)).first();
     if (document == null) {
       logger.error("There is no apply conversion attributes for client : " + clientId);
-      throw new MojoException("There is no apply conversion attributes for client : " + clientId);
+      throw new UnexpectedResponseException(
+          "There is no apply conversion attributes for client : " + clientId);
     }
     ConversionCodes conversionCodes = new ConversionCodes();
     conversionCodes.setConversionId(document.getLong("conversionId"));

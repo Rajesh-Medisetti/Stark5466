@@ -158,21 +158,14 @@ public class OutboundFeed {
     return referenceNumbersSet.size() == 0;
   }
 
-  private void validateDates(Map<LocalDateTime, Integer> dates) {
-    Set<LocalDateTime> expiredKeys = new HashSet<>();
+  private void validateDates(Map<LocalDateTime, Integer> dates) throws InvalidInputException {
     for (LocalDateTime date : dates.keySet()) {
       if (date.getMonthValue() != LocalDateTime.now().getMonthValue()) {
-        expiredKeys.add(date);
+        String errorMessage = "Event date should not be of previous calendar months";
+        logger.error(errorMessage);
+        throw new InvalidInputException(errorMessage);
       }
     }
-    if (!expiredKeys.isEmpty()) {
-      logger.info(
-          "Dates other than current calendar month are removed because "
-              + "stats are always generated for current calendar month dates, "
-              + "dates removed are : "
-              + expiredKeys);
-    }
-    dates.keySet().removeAll(expiredKeys);
   }
 
   /**
@@ -182,9 +175,11 @@ public class OutboundFeed {
    * @param clicks Clicks
    * @param applies Applies
    * @return Stats request object
+   * @throws InvalidInputException invalid input provided
    */
   public StatsRequest createStatsRequest(
-      Map<LocalDateTime, Integer> clicks, Map<LocalDateTime, Integer> applies) {
+      Map<LocalDateTime, Integer> clicks, Map<LocalDateTime, Integer> applies)
+      throws InvalidInputException {
     StatsRequest statsRequest = new StatsRequest();
     statsRequest.setClientId(this.clientId);
     validateDates(clicks);
@@ -202,11 +197,13 @@ public class OutboundFeed {
    * @param applies Applies
    * @param refNumbers List of job reference numbers
    * @return Stats request object
+   * @throws InvalidInputException invalid input provided
    */
   public StatsRequest createStatsRequest(
       Map<LocalDateTime, Integer> clicks,
       Map<LocalDateTime, Integer> applies,
-      List<String> refNumbers) {
+      List<String> refNumbers)
+      throws InvalidInputException {
     StatsRequest statsRequest = createStatsRequest(clicks, applies);
     statsRequest.setRefNumbers(refNumbers);
     return statsRequest;

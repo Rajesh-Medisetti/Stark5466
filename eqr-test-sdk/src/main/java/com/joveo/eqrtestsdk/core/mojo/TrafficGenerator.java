@@ -309,7 +309,7 @@ public class TrafficGenerator implements Waitable {
           "Three minutes wait time for getting records into mongo failed due to an interrupt", e);
     }
 
-    trackingService.runGandalf(session);
+    trackingService.runGandalf(session, config.getString("GandalfMajorRunUrl"));
 
     Wait.until(this);
 
