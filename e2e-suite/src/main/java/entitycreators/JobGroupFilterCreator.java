@@ -65,14 +65,19 @@ public class JobGroupFilterCreator extends TestRunnerBase {
    */
   public static void putRules(
       JobFilterFields jf, RuleOperator ro, ArrayList<Filter> indvList, List<List<Filter>> jfList) {
+    String value = ro.toString() + "_" + jf.toString();
+    if (TestRunnerBase.getStringNegativeList().contains(ro.toString())) {
+      value = "NoFeedValues";
+    }
+
     if ((ro.toString().equals(RuleOperator.BETWEEN.toString())
         || ro.toString().equals(RuleOperator.IN.toString())
         || ro.toString().equals(RuleOperator.NOT_IN.toString()))) {
       List<String> tlist = new ArrayList<>();
-      tlist.add(ro.toString() + "_" + jf.toString());
+      tlist.add(value);
       indvList.add(new JobFilter<>(ro, jf, tlist));
     } else {
-      indvList.add(new JobFilter<>(ro, jf, ro.toString() + "_" + jf.toString()));
+      indvList.add(new JobFilter<>(ro, jf, value));
     }
     jfList.add(indvList);
   }

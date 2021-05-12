@@ -20,27 +20,19 @@ public class InBoundFeedCreator extends TestRunnerBase {
    * @param map map
    * @throws MojoException on MojoException.
    */
-  public static Map<ClientDto, String> feedCreator(
-      Map<ClientDto, List<Map<JobFilterFields, List<String>>>> map) throws MojoException {
+  public static Map<ClientDto, String> feedCreator(Map<ClientDto, FeedDto> map)
+      throws MojoException {
 
     if (driver == null) {
       createDriver();
     }
 
     Map<ClientDto, String> clientFeedUrlMap = new HashMap<>();
-    for (Map.Entry<ClientDto, List<Map<JobFilterFields, List<String>>>> entry : map.entrySet()) {
+    for (Map.Entry<ClientDto, FeedDto> entry : map.entrySet()) {
 
       final ClientDto clientDto = entry.getKey();
 
-      List<Map<JobFilterFields, List<String>>> jobFeed = entry.getValue();
-
-      FeedDto feedDto = new FeedDto();
-
-      for (Map<JobFilterFields, List<String>> job : jobFeed) {
-
-        FeedJob feedJob = getJob(job);
-        feedDto.addJob(feedJob);
-      }
+      FeedDto feedDto = entry.getValue();
 
       String url = driver.generateInboundFeed(feedDto);
       clientFeedUrlMap.put(clientDto, url);
@@ -50,7 +42,7 @@ public class InBoundFeedCreator extends TestRunnerBase {
 
   /** . Get a job with Fields and values. */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public static FeedJob getJob(Map<JobFilterFields, List<String>> job) {
+  public static FeedJob getJob(Map<JobFilterFields, List<String>> job, boolean notFeed) {
 
     FeedJob feedJob = new FeedJob();
 
@@ -89,9 +81,11 @@ public class InBoundFeedCreator extends TestRunnerBase {
         defaultValue = entry.getValue().get(0);
       }
     }
-
-    setDefaultValues(defaultValue, feedJob);
-
+    if (notFeed) {
+      setDefaultValues("NoFeedValues", feedJob);
+    } else {
+      setDefaultValues(defaultValue, feedJob);
+    }
     return feedJob;
   }
 
@@ -122,6 +116,7 @@ public class InBoundFeedCreator extends TestRunnerBase {
     if (feedJob.getCategory() == null) {
       feedJob.setCategory(defaultValue);
     }
+
     if (feedJob.getCareerLevel() == null) {
       feedJob.setCareerLevel(defaultValue);
     }
