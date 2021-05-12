@@ -10,10 +10,10 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.JobFilterDP;
 import entitycreators.JobCreator;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 import validations.JobFilterValidations;
 
 public class TestJobFilter extends TestRunnerBase {
@@ -41,19 +41,20 @@ public class TestJobFilter extends TestRunnerBase {
       JobCreator jobCreator,
       String pubId)
       throws MojoException {
-    Assert.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
-    Assert.assertEquals(
+    SoftAssert softAssertion = new SoftAssert();
+    softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
+    softAssertion.assertEquals(
         jobGroupObj.getStats().getJobCount(),
         jobCreator.jobsInJobGroup.get(jobGroupDto).size(),
         "The job count is not correct for client "
             + clientObj.id
             + " and job group "
             + jobGroupObj.getStats().getName());
-    Assert.assertTrue(
+    softAssertion.assertTrue(
         JobFilterValidations.checkJobWithRefNo(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "jobRefId is not present in OutBoundFeed");
-    Assert.assertTrue(
+    softAssertion.assertTrue(
         JobFilterValidations.checkJobWithFields(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "Job values is not equal in outboundJob");
