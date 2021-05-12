@@ -28,7 +28,7 @@ public class OutboundFeedDto {
     this.publisherurl = publisherurl;
   }
 
-  public List<OutboundJob> getJob() {
+  public List<OutboundJob> getJobs() {
     return job;
   }
 

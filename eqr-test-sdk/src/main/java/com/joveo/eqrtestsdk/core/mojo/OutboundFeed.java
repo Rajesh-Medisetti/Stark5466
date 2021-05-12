@@ -11,6 +11,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.OutboundFeedDto;
 import com.joveo.eqrtestsdk.models.OutboundJob;
+import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -18,6 +19,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +113,7 @@ public class OutboundFeed {
     if (Boolean.TRUE.equals(this.isStale())) {
       refreshFeed();
     }
-    return feed.getJob().size();
+    return feed.getJobs().size();
   }
 
   /**
@@ -125,7 +127,7 @@ public class OutboundFeed {
     if (referenceNumber == null) {
       throw new InvalidInputException("Reference number should not be a NULL value");
     }
-    List<OutboundJob> jobs = feed.getJob();
+    List<OutboundJob> jobs = feed.getJobs();
     for (OutboundJob job : jobs) {
       if (job.referencenumber.equals(referenceNumber)) {
         return true;
@@ -148,11 +150,65 @@ public class OutboundFeed {
     }
     Set<String> referenceNumbersSet = new HashSet<String>(referenceNumbers);
     Set<String> referenceNumbersInOutBoundFeed = new HashSet<String>();
-    List<OutboundJob> jobs = feed.getJob();
+    List<OutboundJob> jobs = feed.getJobs();
     for (OutboundJob job : jobs) {
       referenceNumbersInOutBoundFeed.add(job.referencenumber);
     }
     referenceNumbersSet.removeAll(referenceNumbersInOutBoundFeed);
     return referenceNumbersSet.size() == 0;
+  }
+
+  private void validateDates(Map<LocalDateTime, Integer> dates) {
+    Set<LocalDateTime> expiredKeys = new HashSet<>();
+    for (LocalDateTime date : dates.keySet()) {
+      if (date.getMonthValue() != LocalDateTime.now().getMonthValue()) {
+        expiredKeys.add(date);
+      }
+    }
+    if (!expiredKeys.isEmpty()) {
+      logger.info(
+          "Dates other than current calendar month are removed because "
+              + "stats are always generated for current calendar month dates, "
+              + "dates removed are : "
+              + expiredKeys);
+    }
+    dates.keySet().removeAll(expiredKeys);
+  }
+
+  /**
+   * This method creates a stats request object for valid dates. if dates provided are of previous
+   * calendar month then they are removed as gandalf don't pick previous calendar month dates.
+   *
+   * @param clicks Clicks
+   * @param applies Applies
+   * @return Stats request object
+   */
+  public StatsRequest createStatsRequest(
+      Map<LocalDateTime, Integer> clicks, Map<LocalDateTime, Integer> applies) {
+    StatsRequest statsRequest = new StatsRequest();
+    statsRequest.setClientId(this.clientId);
+    validateDates(clicks);
+    validateDates(applies);
+    statsRequest.setClicks(clicks);
+    statsRequest.setApplies(applies);
+    statsRequest.setOutboundFeed(this);
+    return statsRequest;
+  }
+
+  /**
+   * This method creates a stats request object for given list of reference numbers.
+   *
+   * @param clicks Clicks
+   * @param applies Applies
+   * @param refNumbers List of job reference numbers
+   * @return Stats request object
+   */
+  public StatsRequest createStatsRequest(
+      Map<LocalDateTime, Integer> clicks,
+      Map<LocalDateTime, Integer> applies,
+      List<String> refNumbers) {
+    StatsRequest statsRequest = createStatsRequest(clicks, applies);
+    statsRequest.setRefNumbers(refNumbers);
+    return statsRequest;
   }
 }

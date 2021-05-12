@@ -5,15 +5,19 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
+import com.joveo.eqrtestsdk.core.mojo.TrafficGenerator;
 import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.CacheRefreshService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
 import com.joveo.eqrtestsdk.core.services.ClientService;
+import com.joveo.eqrtestsdk.core.services.DatabaseService;
 import com.joveo.eqrtestsdk.core.services.FeedService;
 import com.joveo.eqrtestsdk.core.services.JobGroupService;
 import com.joveo.eqrtestsdk.core.services.JobService;
 import com.joveo.eqrtestsdk.core.services.PublisherService;
+import com.joveo.eqrtestsdk.core.services.TrackingService;
 import com.joveo.eqrtestsdk.exception.ApiRequestException;
+import com.joveo.eqrtestsdk.exception.InterruptWaitException;
 import com.joveo.eqrtestsdk.exception.InvalidCredentialsException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
@@ -24,8 +28,10 @@ import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
 import com.joveo.eqrtestsdk.models.PublisherDto;
+import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.util.List;
 
 public class Driver {
 
@@ -40,6 +46,8 @@ public class Driver {
   @Inject FeedService feedService;
   @Inject AwsService awsService;
   @Inject CacheRefreshService cacheRefreshService;
+  @Inject TrackingService trackingService;
+  @Inject DatabaseService databaseService;
 
   /**
    * Start an instance of Driver.
@@ -58,6 +66,13 @@ public class Driver {
     Driver driver = injector.getInstance(Driver.class);
     driver.conf = config;
     driver.setup(username, password);
+    driver.databaseService.setup(
+        config.getString("MongoHost_Name"),
+        config.getString("MongoDB_Name"),
+        config.getString("MongoCollection_Name"),
+        config.getString("Mongo_Username"),
+        config.getString("Mongo_Password"));
+    driver.trackingService.setup(config.getString("RedisUrl"), config.getString("RedisMapName"));
     return driver;
   }
 
@@ -147,6 +162,22 @@ public class Driver {
 
   public void deleteInboundFeed(String feedUrl) throws InvalidInputException {
     feedService.deleteFeedUrl(conf, awsService, feedUrl);
+  }
+
+  /**
+   * This method will generate click and apply stats for the a given list of stats requests.
+   *
+   * @param statsRequests List of Stats Requests
+   * @throws MojoException throws custom mojo exception Something went wrong
+   * @throws InterruptWaitException on Interrupt
+   */
+  public void generateStats(List<StatsRequest> statsRequests)
+      throws MojoException, InterruptWaitException {
+
+    TrafficGenerator trafficGenerator =
+        new TrafficGenerator(session, conf, awsService, trackingService, databaseService);
+
+    trafficGenerator.run(statsRequests);
   }
 
   public void refreshJobCount() throws ApiRequestException, UnexpectedResponseException {
