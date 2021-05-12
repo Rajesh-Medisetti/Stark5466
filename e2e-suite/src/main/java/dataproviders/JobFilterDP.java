@@ -13,6 +13,7 @@ import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.GroupOperator;
 import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.RuleOperator;
 import dtos.Dtos;
 import entitycreators.CampaignEntityCreator;
 import entitycreators.ClientEntityCreator;
@@ -27,13 +28,13 @@ import java.util.Set;
 import org.testng.annotations.DataProvider;
 
 public class JobFilterDP {
+  public static boolean ifSchedulerRan = true;
   static JobCreator jobCreator;
   static Client globalClient;
   static Campaign globalCampaign;
   static String feed = "https://joveo-samplefeed.s3.amazonaws.com/abhinay/AbSample.xml";
   static String placements = "Naukri";
-  public static boolean ifSchedulerRan = true;
-  static Set<Client> clientSet = new HashSet<Client>();
+  static Set<Client> clientSet = new HashSet<>();
   static Object[][] arr;
   static List<List<Object>> dpList = new ArrayList<>();
 
@@ -62,6 +63,17 @@ public class JobFilterDP {
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto));
     }
+
+    for (List<RuleOperator> rules : TestRunnerBase.getDateGroups()) {
+      jobGroupList =
+          JobGroupCreator.dtoUsingFilter(
+              JobGroupFilterCreator.createDateFilterList(rules), GroupOperator.OR, 300, 1);
+      clientDto = ClientEntityCreator.randomClientCreator("");
+      for (JobGroupDto jobGroupDto : jobGroupList) {
+        dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+      }
+    }
+
     return dtosList;
   }
 
@@ -97,8 +109,7 @@ public class JobFilterDP {
     Client myClient = null;
     Campaign myCampaign = null;
     for (Dtos dtos : dtosList) {
-      JobGroupDto jobGroupDto = new JobGroupDto();
-      jobGroupDto = dtos.getJobGroupDto();
+      JobGroupDto jobGroupDto = dtos.getJobGroupDto();
       ClientDto clientDto1 = dtos.getClientDto();
       CampaignDto campaignDto1 = dtos.getCampaignDto();
       if (clientDto1 == null) {
