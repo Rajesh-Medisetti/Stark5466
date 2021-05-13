@@ -147,6 +147,7 @@ public class JobCreator {
     return feedDto;
   }
 
+  @SuppressWarnings("checkstyle:CyclomaticComplexity")
   private static List<Map<JobFilterFields, List<String>>> getAllJobs(
       JobFilter jobFilter, int size) {
 

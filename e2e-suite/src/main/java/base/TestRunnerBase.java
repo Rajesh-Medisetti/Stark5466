@@ -4,11 +4,13 @@ import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
+import com.joveo.eqrtestsdk.models.RuleOperator;
 import enums.RuleOperatorStringNegative;
 import enums.RuleOperatorStringPositive;
 import enums.RuleOperatorsDate;
 import enums.RuleOperatorsNumber;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TestRunnerBase {
@@ -24,7 +26,7 @@ public class TestRunnerBase {
    * @return list of all operators
    */
   public static ArrayList<String> getNumberList() {
-    ArrayList<String> cpcOperatorList = new ArrayList<String>();
+    ArrayList<String> cpcOperatorList = new ArrayList<>();
     for (RuleOperatorsNumber r : RuleOperatorsNumber.values()) {
       cpcOperatorList.add(r.toString());
     }
@@ -50,7 +52,7 @@ public class TestRunnerBase {
    * @return list of all operators
    */
   public static ArrayList<String> getStringNegativeList() {
-    ArrayList<String> stringOperatorList = new ArrayList<String>();
+    ArrayList<String> stringOperatorList = new ArrayList<>();
     for (RuleOperatorStringNegative r : RuleOperatorStringNegative.values()) {
       stringOperatorList.add(r.toString());
     }
@@ -63,11 +65,25 @@ public class TestRunnerBase {
    * @return list of all operators
    */
   public static ArrayList<String> getDateList() {
-    ArrayList<String> dateOperatorList = new ArrayList<String>();
+    ArrayList<String> dateOperatorList = new ArrayList<>();
     for (RuleOperatorsDate r : RuleOperatorsDate.values()) {
       dateOperatorList.add(r.toString());
     }
     return dateOperatorList;
+  }
+
+  /**
+   * return date operators as list of groups.
+   *
+   * @return list of list of date operators
+   */
+  public static List<List<RuleOperator>> getDateGroups() {
+    List<List<RuleOperator>> dateGroups =
+        Arrays.asList(
+            Arrays.asList(RuleOperator.GREATER_THAN, RuleOperator.LESS_THAN, RuleOperator.BETWEEN),
+            Arrays.asList(RuleOperator.ON, RuleOperator.BEFORE, RuleOperator.AFTER));
+
+    return dateGroups;
   }
 
   /**
@@ -76,7 +92,7 @@ public class TestRunnerBase {
    * @return list of all filters
    */
   public static List<JobFilterFields> getJobFilterStringList() {
-    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    List<JobFilterFields> stringJobFilter = new ArrayList<>();
     stringJobFilter.add(JobFilterFields.state);
     stringJobFilter.add(JobFilterFields.city);
     stringJobFilter.add(JobFilterFields.title);
@@ -94,7 +110,7 @@ public class TestRunnerBase {
    * @return list of all filters
    */
   public static List<JobFilterFields> getJobFilterDateList() {
-    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    List<JobFilterFields> stringJobFilter = new ArrayList<>();
     stringJobFilter.add(JobFilterFields.postedDate);
     return stringJobFilter;
   }
@@ -105,7 +121,7 @@ public class TestRunnerBase {
    * @return list of all filters
    */
   public static List<JobFilterFields> getJobFilterNumberList() {
-    List<JobFilterFields> stringJobFilter = new ArrayList<JobFilterFields>();
+    List<JobFilterFields> stringJobFilter = new ArrayList<>();
     stringJobFilter.add(JobFilterFields.cpcBid);
     stringJobFilter.add(JobFilterFields.refNumber);
     return stringJobFilter;
