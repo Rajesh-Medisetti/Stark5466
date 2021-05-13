@@ -41,13 +41,54 @@ public class JobFilterDP {
   public static List<Dtos> dpMethod1() {
     List<Dtos> dtosList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+    List<String> negativeStringRuleList = TestRunnerBase.getStringNegativeList();
+    for (String rule : negativeStringRuleList) {
+      clientDto = ClientEntityCreator.randomClientCreator("");
+      List<String> tempList = new ArrayList<>();
+      tempList.add(rule);
+      List<JobGroupDto> jobGroupList =
+          JobGroupCreator.dtoUsingFilter(
+              JobGroupFilterCreator.createFilterList(
+                  TestRunnerBase.getJobFilterStringList(), tempList),
+              GroupOperator.AND,
+              300,
+              1);
+      for (JobGroupDto jobGroupDto : jobGroupList) {
+        dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+      }
+
+      clientDto = ClientEntityCreator.randomClientCreator("");
+      jobGroupList =
+          JobGroupCreator.dtoUsingFilter(
+              JobGroupFilterCreator.createFilterList(
+                  TestRunnerBase.getJobFilterStringList(), tempList),
+              GroupOperator.OR,
+              300,
+              1);
+      for (JobGroupDto jobGroupDto : jobGroupList) {
+        dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+      }
+    }
+
     List<JobGroupDto> jobGroupList =
+        JobGroupCreator.dtoUsingFilter(
+            JobGroupFilterCreator.createFilterList(
+                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringNegativeList()),
+            GroupOperator.AND,
+            300,
+            1);
+    for (JobGroupDto jobGroupDto : jobGroupList) {
+      dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+    }
+    clientDto = ClientEntityCreator.randomClientCreator("");
+    jobGroupList =
         JobGroupCreator.dtoUsingFilter(
             JobGroupFilterCreator.createFilterList(
                 TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
             GroupOperator.AND,
             300,
             1);
+
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto));
     }
@@ -148,25 +189,25 @@ public class JobFilterDP {
   /** . TestCases. */
   public static String getTestCase(Client myClient, JobGroupDto jobGroupDto) {
     String testCase =
-        "Testing Job Filters client id is "
+        " Testing Job Filters client id is "
             + myClient.id
-            + " the operator field is "
+            + " xthe operator field is "
             + jobGroupDto.getFilter().getOperator();
     List<Filter> filterList = jobGroupDto.getFilter().getRules();
     testCase =
         testCase
-            + " \n the number of rules are "
+            + " \n  the number of rules are "
             + filterList.size()
-            + ". \n Following are rules : ";
+            + ". \n  Following are rules : ";
     for (Filter fil : filterList) {
       JobFilter jfEle = (JobFilter) fil;
       testCase =
           testCase
               + "\n The filter field is "
               + jfEle.getField()
-              + "the filter attribute is "
+              + " the filter attribute is "
               + jfEle.getOperator()
-              + "the filter data is "
+              + " the filter data is "
               + jfEle.getData();
     }
     return testCase;
