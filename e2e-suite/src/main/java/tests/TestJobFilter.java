@@ -10,6 +10,7 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.JobFilterDP;
 import entitycreators.JobCreator;
+import helpers.MojoUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,7 +59,6 @@ public class TestJobFilter extends TestRunnerBase {
         JobFilterValidations.checkJobWithFields(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "Job values is not equal in outboundJob");
-
     //// if sent at cpc -  priority
     //    //then
     // if(jobGroupDto.getPlacements().get(0).bid > 0 ) {}
@@ -79,6 +79,9 @@ public class TestJobFilter extends TestRunnerBase {
    */
   @AfterClass
   public void tearDown() throws MojoException {
-    JobFilterDP.removeClientSet();
+    MojoUtils.removeClientSet(JobFilterDP.clientSet);
+    for (Client client : JobFilterDP.clientSet) {
+      MojoUtils.removeInboundFeed(client.getInboundFeeds(), driver);
+    }
   }
 }
