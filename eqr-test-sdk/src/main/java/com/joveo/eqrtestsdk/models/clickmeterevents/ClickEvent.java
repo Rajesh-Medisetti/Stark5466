@@ -116,6 +116,10 @@ public class ClickEvent {
     this.request.agent.language = language;
   }
 
+  public void setAgentType(String type) {
+    this.request.agent.type = type;
+  }
+
   private void setBrowser(String browserName, String browserFamilyName) {
     if (browserName == null && browserFamilyName == null) {
       return;

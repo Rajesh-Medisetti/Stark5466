@@ -158,7 +158,7 @@ public class AwsService {
       SendMessageBatchRequest sendMessageBatchRequest =
           new SendMessageBatchRequest(url, messageBatch);
       SendMessageBatchResult result = sqs.sendMessageBatch(sendMessageBatchRequest);
-      logger.info("Successful mesaages in queue : " + result.getSuccessful().size());
+      logger.info("Successful messages in queue : " + result.getSuccessful().size());
       if (result.getFailed().size() > 0) {
         String errorMessage =
             "Total failed messages while pushing to SQS: " + result.getFailed().size();

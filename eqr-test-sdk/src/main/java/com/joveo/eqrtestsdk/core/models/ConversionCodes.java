@@ -1,22 +1,40 @@
 package com.joveo.eqrtestsdk.core.models;
 
 public class ConversionCodes {
-  private Long applyConversionId;
-  private String applyConversionCode;
+  private Long applyStartConversionId;
+  private String applyStartConversionCode;
+  private Long applyFinishConversionId;
+  private String applyFinishConversionCode;
 
-  public Long getConversionId() {
-    return applyConversionId;
+  public Long getApplyStartConversionId() {
+    return applyStartConversionId;
   }
 
-  public void setConversionId(Long applyConversionId) {
-    this.applyConversionId = applyConversionId;
+  public void setApplyStartConversionId(Long applyStartConversionId) {
+    this.applyStartConversionId = applyStartConversionId;
   }
 
-  public String getConversionCode() {
-    return applyConversionCode;
+  public String getApplyStartConversionCode() {
+    return applyStartConversionCode;
   }
 
-  public void setConversionCode(String applyConversionCode) {
-    this.applyConversionCode = applyConversionCode;
+  public void setApplyStartConversionCode(String applyStartConversionCode) {
+    this.applyStartConversionCode = applyStartConversionCode;
+  }
+
+  public Long getApplyFinishConversionId() {
+    return applyFinishConversionId;
+  }
+
+  public void setApplyFinishConversionId(Long applyFinishConversionId) {
+    this.applyFinishConversionId = applyFinishConversionId;
+  }
+
+  public String getApplyFinishConversionCode() {
+    return applyFinishConversionCode;
+  }
+
+  public void setApplyFinishConversionCode(String applyFinishConversionCode) {
+    this.applyFinishConversionCode = applyFinishConversionCode;
   }
 }
