@@ -10,6 +10,7 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.JobFilterDP;
 import entitycreators.JobCreator;
+import enums.BidLevel;
 import helpers.MojoUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -29,7 +30,7 @@ public class TestJobFilter extends TestRunnerBase {
     if (null == driver) {
       createDriver();
     }
-    JobFilterDP.createJobFilterData(driver);
+    JobFilterDP.data1to1 = JobFilterDP.createJobFilterData(driver, JobFilterDP.dpMethod1());
   }
 
   @Test(dataProvider = "test", dataProviderClass = JobFilterDP.class)
@@ -40,7 +41,8 @@ public class TestJobFilter extends TestRunnerBase {
       JobGroupDto jobGroupDto,
       JobGroup jobGroupObj,
       JobCreator jobCreator,
-      String pubId)
+      String pubId,
+      BidLevel bidLevel)
       throws MojoException {
     SoftAssert softAssertion = new SoftAssert();
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
@@ -59,15 +61,12 @@ public class TestJobFilter extends TestRunnerBase {
         JobFilterValidations.checkJobWithFields(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "Job values is not equal in outboundJob");
-    //// if sent at cpc -  priority
-    //    //then
-    // if(jobGroupDto.getPlacements().get(0).bid > 0 ) {}
-    //   //this is final bid
-    // else
-    // {
-    //   jobGroupObj.getStats().getCpcBid();
-    // }
-
+    String cpc = "0";
+    if (bidLevel.equals(BidLevel.PLACEMENT)) {
+      cpc = jobGroupDto.getPlacements().get(0).bid.toString();
+    } else {
+      cpc = jobGroupObj.getStats().getCpcBid();
+    }
   }
 
   /**

@@ -22,10 +22,10 @@ public class MojoUtils {
   public static void runSchedulerAndRefreshCache(Set<Client> clientSet, Driver driver)
       throws TimeoutException, InterruptWaitException, MojoException, InterruptedException {
     System.out.println("client size is " + clientSet.size());
-    //    for (Client client : clientSet) {
-    //      System.out.println(client.getStats().getName() + " " + client.id);
-    //      client.runScheduler();
-    //    }
+    //        for (Client client : clientSet) {
+    //          System.out.println(client.getStats().getName() + " " + client.id);
+    //          client.runScheduler();
+    //        }
 
     clientSet.parallelStream()
         .forEach(

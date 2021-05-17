@@ -12,11 +12,13 @@ import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.GroupOperator;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dtos.Dtos;
+import dtos.JobFilterData;
 import entitycreators.CampaignEntityCreator;
 import entitycreators.ClientEntityCreator;
 import entitycreators.JobCreator;
 import entitycreators.JobGroupCreator;
 import entitycreators.JobGroupFilterCreator;
+import enums.BidLevel;
 import helpers.MojoUtils;
 import helpers.TestUtils;
 import java.util.ArrayList;
@@ -34,15 +36,17 @@ public class JobFilterDP {
   static String placements = "Naukri";
   public static Set<Client> clientSet = new HashSet<>();
   static Object[][] arr;
-  static List<List<Object>> dpList = new ArrayList<>();
+  //  static List<List<Object>> dpList = new ArrayList<>();
+  public static JobFilterData data1to1;
+  public static JobFilterData dataMultiple;
 
   /** . return a list of Dtos. */
   public static List<Dtos> dpMethod1() {
     List<Dtos> dtosList = new ArrayList<>();
-    dtosList.addAll(createDtoListStringNegative(GroupOperator.AND));
-    dtosList.addAll(createDtoListStringNegative(GroupOperator.OR));
-    dtosList.addAll(createDtoListStringPositive(GroupOperator.AND));
-    dtosList.addAll(createDtoListStringPositive(GroupOperator.OR));
+    dtosList.addAll(createDtoListStringNegative(GroupOperator.AND, BidLevel.PLACEMENT));
+    dtosList.addAll(createDtoListStringNegative(GroupOperator.OR, BidLevel.JOB_GROUP));
+    dtosList.addAll(createDtoListStringPositive(GroupOperator.AND, BidLevel.JOB_GROUP));
+    dtosList.addAll(createDtoListStringPositive(GroupOperator.OR, BidLevel.PLACEMENT));
     return dtosList;
   }
 
@@ -51,8 +55,9 @@ public class JobFilterDP {
    *
    * @return 2d array
    */
-  @DataProvider(name = "test")
+  @DataProvider(name = "test", parallel = false)
   public static Object[][] dpMethod() {
+    List<List<Object>> dpList = data1to1.getDpList();
     Object[][] array = new Object[dpList.size()][dpList.get(0).size()];
     int counter = 0;
     for (List<Object> list : dpList) {
@@ -64,8 +69,9 @@ public class JobFilterDP {
 
   /** . creating JobFilter */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public static void createJobFilterData(Driver driver) throws MojoException {
-    final List<Dtos> dtosList = JobFilterDP.dpMethod1();
+  public static JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList)
+      throws MojoException {
+    List<List<Object>> dpList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed);
     clientDto.addFeed(feed);
     globalClient = driver.createClient(clientDto);
@@ -99,8 +105,12 @@ public class JobFilterDP {
       jobGroupDto.setPriority(1);
       jobGroupDto.setClientId(myClient.id);
       jobGroupDto.setCampaignId(myCampaign.id);
-      jobGroupDto.addPlacementWithBudgetAndBid(
-          placements, 1.80, 200.00, Freq.Monthly, false, 80.00, false);
+      if (dtos.getBidLevel().equals(BidLevel.PLACEMENT)) {
+        jobGroupDto.addPlacementWithBudgetAndBid(
+            placements, 1.80, 200.00, Freq.Monthly, false, 80.00, false);
+      } else {
+        jobGroupDto.addPlacementWithBudget(placements, 200.00, Freq.Monthly, false, 80.00, false);
+      }
       try {
         JobGroup myJobGroup = driver.createJobGroup(jobGroupDto);
         dpList.add(
@@ -111,7 +121,8 @@ public class JobFilterDP {
                 jobGroupDto,
                 myJobGroup,
                 jobCreator,
-                jobGroupDto.getPlacements().get(0).publisher));
+                jobGroupDto.getPlacements().get(0).publisher,
+                dtos.getBidLevel()));
         clientSet.add(myClient);
       } catch (MojoException e) {
         // TODO Auto-generated catch block
@@ -123,10 +134,11 @@ public class JobFilterDP {
     } catch (Exception e) {
       ifSchedulerRan = false;
     }
+    return new JobFilterData(clientSet, dpList, ifSchedulerRan);
   }
 
   /** . creating dtos class object for negative string rule operators */
-  public static List<Dtos> createDtoListStringNegative(GroupOperator gp) {
+  public static List<Dtos> createDtoListStringNegative(GroupOperator gp, BidLevel level) {
     List<Dtos> dtosList = new ArrayList<>();
     List<String> negativeStringRuleList = TestRunnerBase.getStringNegativeList();
     for (String rule : negativeStringRuleList) {
@@ -141,14 +153,14 @@ public class JobFilterDP {
               300,
               1);
       for (JobGroupDto jobGroupDto : jobGroupList) {
-        dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+        dtosList.add(new Dtos(clientDto, null, jobGroupDto, level));
       }
     }
     return dtosList;
   }
 
   /** . creating dtos class object for positive string rule operators */
-  public static List<Dtos> createDtoListStringPositive(GroupOperator gp) {
+  public static List<Dtos> createDtoListStringPositive(GroupOperator gp, BidLevel level) {
     List<Dtos> dtosList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
     List<JobGroupDto> jobGroupList =
@@ -159,7 +171,7 @@ public class JobFilterDP {
             300,
             1);
     for (JobGroupDto jobGroupDto : jobGroupList) {
-      dtosList.add(new Dtos(clientDto, null, jobGroupDto));
+      dtosList.add(new Dtos(clientDto, null, jobGroupDto, level));
     }
     return dtosList;
   }
