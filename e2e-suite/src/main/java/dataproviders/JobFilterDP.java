@@ -8,19 +8,19 @@ import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.ClientDto;
-import com.joveo.eqrtestsdk.models.Filter;
 import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.GroupOperator;
-import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
-import com.joveo.eqrtestsdk.models.RuleOperator;
 import dtos.Dtos;
+import dtos.JobFilterData;
 import entitycreators.CampaignEntityCreator;
 import entitycreators.ClientEntityCreator;
 import entitycreators.JobCreator;
 import entitycreators.JobGroupCreator;
 import entitycreators.JobGroupFilterCreator;
+import enums.BidLevel;
 import helpers.MojoUtils;
+import helpers.TestUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,46 +34,19 @@ public class JobFilterDP {
   static Campaign globalCampaign;
   static String feed = "https://joveo-samplefeed.s3.amazonaws.com/abhinay/AbSample.xml";
   static String placements = "Naukri";
-  static Set<Client> clientSet = new HashSet<>();
+  public static Set<Client> clientSet = new HashSet<>();
   static Object[][] arr;
-  static List<List<Object>> dpList = new ArrayList<>();
+  //  static List<List<Object>> dpList = new ArrayList<>();
+  public static JobFilterData data1to1;
+  public static JobFilterData dataMultiple;
 
   /** . return a list of Dtos. */
   public static List<Dtos> dpMethod1() {
     List<Dtos> dtosList = new ArrayList<>();
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
-    List<JobGroupDto> jobGroupList =
-        JobGroupCreator.dtoUsingFilter(
-            JobGroupFilterCreator.createFilterList(
-                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
-            GroupOperator.AND,
-            300,
-            1);
-    for (JobGroupDto jobGroupDto : jobGroupList) {
-      dtosList.add(new Dtos(clientDto, null, jobGroupDto));
-    }
-    jobGroupList =
-        JobGroupCreator.dtoUsingFilter(
-            JobGroupFilterCreator.createFilterList(
-                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
-            GroupOperator.OR,
-            300,
-            1);
-    clientDto = ClientEntityCreator.randomClientCreator("");
-    for (JobGroupDto jobGroupDto : jobGroupList) {
-      dtosList.add(new Dtos(clientDto, null, jobGroupDto));
-    }
-
-    for (List<RuleOperator> rules : TestRunnerBase.getDateGroups()) {
-      jobGroupList =
-          JobGroupCreator.dtoUsingFilter(
-              JobGroupFilterCreator.createDateFilterList(rules), GroupOperator.OR, 300, 1);
-      clientDto = ClientEntityCreator.randomClientCreator("");
-      for (JobGroupDto jobGroupDto : jobGroupList) {
-        dtosList.add(new Dtos(clientDto, null, jobGroupDto));
-      }
-    }
-
+    dtosList.addAll(createDtoListStringNegative(GroupOperator.AND, BidLevel.PLACEMENT));
+    dtosList.addAll(createDtoListStringNegative(GroupOperator.OR, BidLevel.JOB_GROUP));
+    dtosList.addAll(createDtoListStringPositive(GroupOperator.AND, BidLevel.JOB_GROUP));
+    dtosList.addAll(createDtoListStringPositive(GroupOperator.OR, BidLevel.PLACEMENT));
     return dtosList;
   }
 
@@ -82,8 +55,9 @@ public class JobFilterDP {
    *
    * @return 2d array
    */
-  @DataProvider(name = "test")
+  @DataProvider(name = "test", parallel = false)
   public static Object[][] dpMethod() {
+    List<List<Object>> dpList = data1to1.getDpList();
     Object[][] array = new Object[dpList.size()][dpList.get(0).size()];
     int counter = 0;
     for (List<Object> list : dpList) {
@@ -95,8 +69,9 @@ public class JobFilterDP {
 
   /** . creating JobFilter */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public static void createJobFilterData(Driver driver) throws MojoException {
-    final List<Dtos> dtosList = JobFilterDP.dpMethod1();
+  public static JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList)
+      throws MojoException {
+    List<List<Object>> dpList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed);
     clientDto.addFeed(feed);
     globalClient = driver.createClient(clientDto);
@@ -130,19 +105,24 @@ public class JobFilterDP {
       jobGroupDto.setPriority(1);
       jobGroupDto.setClientId(myClient.id);
       jobGroupDto.setCampaignId(myCampaign.id);
-      jobGroupDto.addPlacementWithBudgetAndBid(
-          placements, 1.80, 200.00, Freq.Monthly, false, 80.00, false);
+      if (dtos.getBidLevel().equals(BidLevel.PLACEMENT)) {
+        jobGroupDto.addPlacementWithBudgetAndBid(
+            placements, 1.80, 200.00, Freq.Monthly, false, 80.00, false);
+      } else {
+        jobGroupDto.addPlacementWithBudget(placements, 200.00, Freq.Monthly, false, 80.00, false);
+      }
       try {
         JobGroup myJobGroup = driver.createJobGroup(jobGroupDto);
         dpList.add(
             List.of(
-                getTestCase(myClient, jobGroupDto),
+                TestUtils.getTestCase(myClient, jobGroupDto),
                 clientDto1,
                 myClient,
                 jobGroupDto,
                 myJobGroup,
                 jobCreator,
-                jobGroupDto.getPlacements().get(0).publisher));
+                jobGroupDto.getPlacements().get(0).publisher,
+                dtos.getBidLevel()));
         clientSet.add(myClient);
       } catch (MojoException e) {
         // TODO Auto-generated catch block
@@ -154,39 +134,45 @@ public class JobFilterDP {
     } catch (Exception e) {
       ifSchedulerRan = false;
     }
+    return new JobFilterData(clientSet, dpList, ifSchedulerRan);
   }
 
-  /** . TestCases. */
-  public static String getTestCase(Client myClient, JobGroupDto jobGroupDto) {
-    String testCase =
-        "Testing Job Filters client id is "
-            + myClient.id
-            + " the operator field is "
-            + jobGroupDto.getFilter().getOperator();
-    List<Filter> filterList = jobGroupDto.getFilter().getRules();
-    testCase =
-        testCase
-            + " \n the number of rules are "
-            + filterList.size()
-            + ". \n Following are rules : ";
-    for (Filter fil : filterList) {
-      JobFilter jfEle = (JobFilter) fil;
-      testCase =
-          testCase
-              + "\n The filter field is "
-              + jfEle.getField()
-              + "the filter attribute is "
-              + jfEle.getOperator()
-              + "the filter data is "
-              + jfEle.getData();
+  /** . creating dtos class object for negative string rule operators */
+  public static List<Dtos> createDtoListStringNegative(GroupOperator gp, BidLevel level) {
+    List<Dtos> dtosList = new ArrayList<>();
+    List<String> negativeStringRuleList = TestRunnerBase.getStringNegativeList();
+    for (String rule : negativeStringRuleList) {
+      ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+      List<String> tempList = new ArrayList<>();
+      tempList.add(rule);
+      List<JobGroupDto> jobGroupList =
+          JobGroupCreator.dtoUsingFilter(
+              JobGroupFilterCreator.createFilterList(
+                  TestRunnerBase.getJobFilterStringList(), tempList),
+              gp,
+              300,
+              1);
+      for (JobGroupDto jobGroupDto : jobGroupList) {
+        dtosList.add(new Dtos(clientDto, null, jobGroupDto, level));
+      }
     }
-    return testCase;
+    return dtosList;
   }
 
-  /** . deleting Clients */
-  public static void removeClientSet() throws MojoException {
-    for (Client client : clientSet) {
-      client.removeClient();
+  /** . creating dtos class object for positive string rule operators */
+  public static List<Dtos> createDtoListStringPositive(GroupOperator gp, BidLevel level) {
+    List<Dtos> dtosList = new ArrayList<>();
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+    List<JobGroupDto> jobGroupList =
+        JobGroupCreator.dtoUsingFilter(
+            JobGroupFilterCreator.createFilterList(
+                TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
+            gp,
+            300,
+            1);
+    for (JobGroupDto jobGroupDto : jobGroupList) {
+      dtosList.add(new Dtos(clientDto, null, jobGroupDto, level));
     }
+    return dtosList;
   }
 }

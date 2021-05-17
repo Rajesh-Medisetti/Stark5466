@@ -18,7 +18,7 @@ public class OutBoundJobCreator {
 
     OutboundFeed outboundFeed = client.getOutboundFeed(pubId);
 
-    List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJob();
+    List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJobs();
 
     for (OutboundJob outboundJob : outboundJobs) {
 
