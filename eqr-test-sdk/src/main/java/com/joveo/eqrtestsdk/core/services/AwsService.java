@@ -16,9 +16,16 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
+import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.amazonaws.services.sqs.model.SendMessageBatchResult;
+import com.google.common.collect.Lists;
 import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.joveo.eqrtestsdk.exception.S3IoException;
+import com.joveo.eqrtestsdk.exception.SqsEventFailedException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -33,12 +40,14 @@ public class AwsService {
 
   AmazonEC2 ec2;
   AmazonS3 s3;
+  AmazonSQS sqs;
 
   /** constructor to get aws ec2 and s3 instance. */
   @Inject
   public AwsService() {
     this.ec2 = AmazonEC2ClientBuilder.standard().build();
     this.s3 = AmazonS3ClientBuilder.standard().build();
+    this.sqs = AmazonSQSClientBuilder.standard().build();
   }
 
   /**
@@ -126,5 +135,37 @@ public class AwsService {
           "S3 couldn't be contacted for response or couldn't parse the response: "
               + e.getMessage());
     }
+  }
+
+  /**
+   * This method takes a list of messages and pushes them to the given queue in a batch of 10.
+   *
+   * @param messages List of messages
+   * @param url Queue URL
+   * @throws SqsEventFailedException throws when event gets failed
+   */
+  public void sendSqsMessages(List<String> messages, String url) throws SqsEventFailedException {
+    logger.info("Events are getting pushed into SQS..." + url);
+    List<List<String>> batches = Lists.partition(messages, 10);
+    for (List<String> batch : batches) {
+      List<SendMessageBatchRequestEntry> messageBatch = new ArrayList<>();
+      for (int msgNo = 0; msgNo < batch.size(); msgNo++) {
+        messageBatch.add(
+            new SendMessageBatchRequestEntry()
+                .withId(String.valueOf(msgNo))
+                .withMessageBody(batch.get(msgNo)));
+      }
+      SendMessageBatchRequest sendMessageBatchRequest =
+          new SendMessageBatchRequest(url, messageBatch);
+      SendMessageBatchResult result = sqs.sendMessageBatch(sendMessageBatchRequest);
+      logger.info("Successful mesaages in queue : " + result.getSuccessful().size());
+      if (result.getFailed().size() > 0) {
+        String errorMessage =
+            "Total failed messages while pushing to SQS: " + result.getFailed().size();
+        logger.error(errorMessage);
+        throw new SqsEventFailedException(errorMessage);
+      }
+    }
+    logger.info("All events are pushed to SQS...");
   }
 }
