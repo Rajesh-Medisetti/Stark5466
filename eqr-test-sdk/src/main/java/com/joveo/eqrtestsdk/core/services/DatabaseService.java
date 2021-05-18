@@ -37,8 +37,10 @@ public class DatabaseService {
           "There is no apply conversion attributes for client : " + clientId);
     }
     ConversionCodes conversionCodes = new ConversionCodes();
-    conversionCodes.setConversionId(document.getLong("conversionId"));
-    conversionCodes.setConversionCode(document.getString("conversionCode"));
+    conversionCodes.setApplyStartConversionId(document.getLong("applyStartConversionId"));
+    conversionCodes.setApplyStartConversionCode(document.getString("applyStartConversionCode"));
+    conversionCodes.setApplyFinishConversionId(document.getLong("conversionId"));
+    conversionCodes.setApplyFinishConversionCode(document.getString("conversionCode"));
     return conversionCodes;
   }
 
@@ -61,5 +63,9 @@ public class DatabaseService {
         MongoClients.create("mongodb://" + username + ":" + password + "@" + mongoHostName);
     database = mongoClient.getDatabase(mongoDbName);
     collection = database.getCollection(mongoCollectionName);
+  }
+
+  public void close() {
+    mongoClient.close();
   }
 }

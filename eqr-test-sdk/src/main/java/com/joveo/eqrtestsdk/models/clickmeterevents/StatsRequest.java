@@ -9,9 +9,12 @@ import java.util.Map;
 
 public class StatsRequest {
   private String clientId;
-  private Map<LocalDateTime, Integer> clicks;
 
-  private Map<LocalDateTime, Integer> applies;
+  private Map<LocalDateTime, Integer> sponsoredClicks;
+  private Map<LocalDateTime, Integer> sponsoredBotClicks;
+  private Map<LocalDateTime, Integer> sponsoredApplyStarts;
+  private Map<LocalDateTime, Integer> sponsoredApplyFinishes;
+
   private OutboundFeed outboundFeed;
   private List<String> refNumbers;
 
@@ -25,20 +28,36 @@ public class StatsRequest {
     this.clientId = clientId;
   }
 
-  public Map<LocalDateTime, Integer> getClicks() {
-    return clicks;
+  public Map<LocalDateTime, Integer> getSponsoredClicks() {
+    return sponsoredClicks;
   }
 
-  public void setClicks(Map<LocalDateTime, Integer> clicks) {
-    this.clicks = clicks;
+  public void setSponsoredClicks(Map<LocalDateTime, Integer> sponsoredClicks) {
+    this.sponsoredClicks = sponsoredClicks;
   }
 
-  public Map<LocalDateTime, Integer> getApplies() {
-    return applies;
+  public Map<LocalDateTime, Integer> getSponsoredBotClicks() {
+    return sponsoredBotClicks;
   }
 
-  public void setApplies(Map<LocalDateTime, Integer> applies) {
-    this.applies = applies;
+  public void setSponsoredBotClicks(Map<LocalDateTime, Integer> sponsoredBotClicks) {
+    this.sponsoredBotClicks = sponsoredBotClicks;
+  }
+
+  public Map<LocalDateTime, Integer> getSponsoredApplyStarts() {
+    return sponsoredApplyStarts;
+  }
+
+  public void setSponsoredApplyStarts(Map<LocalDateTime, Integer> sponsoredApplyStarts) {
+    this.sponsoredApplyStarts = sponsoredApplyStarts;
+  }
+
+  public Map<LocalDateTime, Integer> getSponsoredApplyFinishes() {
+    return sponsoredApplyFinishes;
+  }
+
+  public void setSponsoredApplyFinishes(Map<LocalDateTime, Integer> sponsoredApplyFinishes) {
+    this.sponsoredApplyFinishes = sponsoredApplyFinishes;
   }
 
   public OutboundFeed getOutboundFeed() {

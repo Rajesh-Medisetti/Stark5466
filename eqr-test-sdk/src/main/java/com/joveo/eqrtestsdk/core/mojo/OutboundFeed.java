@@ -160,8 +160,10 @@ public class OutboundFeed {
 
   private void validateDates(Map<LocalDateTime, Integer> dates) throws InvalidInputException {
     for (LocalDateTime date : dates.keySet()) {
-      if (date.getMonthValue() != LocalDateTime.now().getMonthValue()) {
-        String errorMessage = "Event date should not be of previous calendar months";
+      if ((date.getMonthValue() != LocalDateTime.now().getMonthValue())
+          || date.compareTo(LocalDateTime.now()) > 0) {
+        String errorMessage =
+            "Event date should not be of previous calendar months " + "or should not be in future";
         logger.error(errorMessage);
         throw new InvalidInputException(errorMessage);
       }
@@ -170,22 +172,34 @@ public class OutboundFeed {
 
   /**
    * This method creates a stats request object for valid dates. if dates provided are of previous
-   * calendar month then they are removed as gandalf don't pick previous calendar month dates.
+   * calendar month then they are exception is thrown as gandalf don't pick previous calendar month
+   * dates.
    *
-   * @param clicks Clicks
-   * @param applies Applies
+   * @param sponsoredClicks Sponsored Clicks
+   * @param sponsoredBotClicks Sponsored Bot Clicks
+   * @param sponsoredApplyStarts Sponsored Apply Starts
+   * @param sponsoredApplyFinishes Sponsored Apply Finishes
    * @return Stats request object
    * @throws InvalidInputException invalid input provided
    */
   public StatsRequest createStatsRequest(
-      Map<LocalDateTime, Integer> clicks, Map<LocalDateTime, Integer> applies)
+      Map<LocalDateTime, Integer> sponsoredClicks,
+      Map<LocalDateTime, Integer> sponsoredBotClicks,
+      Map<LocalDateTime, Integer> sponsoredApplyStarts,
+      Map<LocalDateTime, Integer> sponsoredApplyFinishes)
       throws InvalidInputException {
     StatsRequest statsRequest = new StatsRequest();
     statsRequest.setClientId(this.clientId);
-    validateDates(clicks);
-    validateDates(applies);
-    statsRequest.setClicks(clicks);
-    statsRequest.setApplies(applies);
+
+    validateDates(sponsoredClicks);
+    validateDates(sponsoredBotClicks);
+    validateDates(sponsoredApplyStarts);
+    validateDates(sponsoredApplyFinishes);
+
+    statsRequest.setSponsoredClicks(sponsoredClicks);
+    statsRequest.setSponsoredBotClicks(sponsoredBotClicks);
+    statsRequest.setSponsoredApplyStarts(sponsoredApplyStarts);
+    statsRequest.setSponsoredApplyFinishes(sponsoredApplyFinishes);
     statsRequest.setOutboundFeed(this);
     return statsRequest;
   }
@@ -193,18 +207,24 @@ public class OutboundFeed {
   /**
    * This method creates a stats request object for given list of reference numbers.
    *
-   * @param clicks Clicks
-   * @param applies Applies
+   * @param sponsoredClicks Sponsored Clicks
+   * @param sponsoredBotClicks Sponsored Bot Clicks
+   * @param sponsoredApplyStarts Sponsored Apply Starts
+   * @param sponsoredApplyFinishes Sponsored Apply Finishes
    * @param refNumbers List of job reference numbers
    * @return Stats request object
    * @throws InvalidInputException invalid input provided
    */
   public StatsRequest createStatsRequest(
-      Map<LocalDateTime, Integer> clicks,
-      Map<LocalDateTime, Integer> applies,
+      Map<LocalDateTime, Integer> sponsoredClicks,
+      Map<LocalDateTime, Integer> sponsoredBotClicks,
+      Map<LocalDateTime, Integer> sponsoredApplyStarts,
+      Map<LocalDateTime, Integer> sponsoredApplyFinishes,
       List<String> refNumbers)
       throws InvalidInputException {
-    StatsRequest statsRequest = createStatsRequest(clicks, applies);
+    StatsRequest statsRequest =
+        createStatsRequest(
+            sponsoredClicks, sponsoredBotClicks, sponsoredApplyStarts, sponsoredApplyFinishes);
     statsRequest.setRefNumbers(refNumbers);
     return statsRequest;
   }
