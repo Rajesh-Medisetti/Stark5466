@@ -61,12 +61,8 @@ public class TestJobFilter extends TestRunnerBase {
         JobFilterValidations.checkJobWithFields(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "Job values is not equal in outboundJob");
-    String cpc = "0";
-    if (bidLevel.equals(BidLevel.PLACEMENT)) {
-      cpc = jobGroupDto.getPlacements().get(0).bid.toString();
-    } else {
-      cpc = jobGroupObj.getStats().getCpcBid();
-    }
+    JobFilterValidations.checkBid(
+        clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
   }
 
   /**
