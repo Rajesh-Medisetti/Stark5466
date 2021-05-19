@@ -194,4 +194,9 @@ public class Driver {
       throws UnexpectedResponseException, ApiRequestException, InvalidCredentialsException {
     session = new MojoSession(username, password, this.conf.getString("MojoBaseUrl"));
   }
+
+  public void close() {
+    databaseService.close();
+    trackingService.close();
+  }
 }

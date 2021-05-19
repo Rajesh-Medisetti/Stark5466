@@ -86,4 +86,8 @@ public class TrackingService {
     redisClient = Redisson.create(config);
     this.mapName = mapName;
   }
+
+  public void close() {
+    redisClient.shutdown();
+  }
 }

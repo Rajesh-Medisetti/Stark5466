@@ -10,8 +10,12 @@ import com.joveo.eqrtestsdk.core.models.MajorMinorVersions;
 import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.DatabaseService;
 import com.joveo.eqrtestsdk.core.services.TrackingService;
+import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InterruptWaitException;
 import com.joveo.eqrtestsdk.exception.MojoException;
+import com.joveo.eqrtestsdk.exception.RedisIoException;
+import com.joveo.eqrtestsdk.exception.SqsEventFailedException;
+import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.OutboundJob;
 import com.joveo.eqrtestsdk.models.clickmeterevents.ApplyEvent;
 import com.joveo.eqrtestsdk.models.clickmeterevents.ClickEvent;
@@ -112,11 +116,15 @@ public class TrafficGenerator implements Waitable {
     return randomIp;
   }
 
-  private String generateSingleClick(LocalDateTime eventDate, OutboundJob job)
+  private String generateSingleClick(LocalDateTime eventDate, OutboundJob job, Boolean isBot)
       throws MojoException {
     ClickEvent clickEvent = new ClickEvent();
 
     clickEvent.setDefaultValues();
+
+    if (isBot) {
+      clickEvent.setAgentType("bot");
+    }
 
     clickEvent.setId(getEventId(eventDate));
     clickEvent.setTimestamp(eventDate);
@@ -159,14 +167,15 @@ public class TrafficGenerator implements Waitable {
   }
 
   private List<String> generateClickEvents(
-      Map<LocalDateTime, Integer> clicks, List<OutboundJob> outboundJobs) throws MojoException {
+      Map<LocalDateTime, Integer> clicks, List<OutboundJob> outboundJobs, Boolean isBot)
+      throws MojoException {
     List<String> clickEvents = new ArrayList<>();
     for (OutboundJob job : outboundJobs) {
       for (Map.Entry<LocalDateTime, Integer> click : clicks.entrySet()) {
         LocalDateTime eventDate = click.getKey();
         Integer clicksCount = click.getValue();
         for (long clickItr = 0; clickItr < clicksCount; clickItr++) {
-          clickEvents.add(generateSingleClick(eventDate, job));
+          clickEvents.add(generateSingleClick(eventDate, job, isBot));
         }
       }
     }
@@ -174,7 +183,7 @@ public class TrafficGenerator implements Waitable {
   }
 
   private String generateSingleApply(
-      LocalDateTime eventDate, OutboundJob job, String clientId, ConversionCodes conversionCodes)
+      LocalDateTime eventDate, OutboundJob job, long conversionId, String conversionCode)
       throws MojoException {
     ClickEvent clickEvent = new ClickEvent();
 
@@ -217,8 +226,6 @@ public class TrafficGenerator implements Waitable {
     applyEvent.setTimestamp(eventDate);
     applyEvent.setId(getEventId(LocalDateTime.now()));
 
-    Long conversionId = conversionCodes.getConversionId();
-    String conversionCode = conversionCodes.getConversionCode();
     applyEvent.setData(
         clickEvent, conversionId, "/conversions/" + conversionId, "?id=" + conversionCode);
 
@@ -236,8 +243,8 @@ public class TrafficGenerator implements Waitable {
   private List<String> generateApplyEvents(
       Map<LocalDateTime, Integer> applies,
       List<OutboundJob> outboundJobs,
-      String clientId,
-      ConversionCodes conversionCodes)
+      long conversionId,
+      String conversionCode)
       throws MojoException {
     List<String> applyEvents = new ArrayList<>();
     for (OutboundJob job : outboundJobs) {
@@ -245,52 +252,33 @@ public class TrafficGenerator implements Waitable {
         LocalDateTime eventDate = apply.getKey();
         Integer appliesCount = apply.getValue();
         for (long applyItr = 0; applyItr < appliesCount; applyItr++) {
-          applyEvents.add(generateSingleApply(eventDate, job, clientId, conversionCodes));
+          applyEvents.add(generateSingleApply(eventDate, job, conversionId, conversionCode));
         }
       }
     }
     return applyEvents;
   }
 
-  /**
-   * This method is responsible for creating and pushing events to respective Queues and triggering
-   * Gandalf.
-   *
-   * @param statsRequestList List of Stats requests
-   * @throws MojoException throws custom mojo exception Something went wrong
-   * @throws InterruptWaitException on Interrupt
-   */
-  public void run(List<StatsRequest> statsRequestList)
-      throws MojoException, InterruptWaitException {
-    logger.info("Events generation started...");
-    List<String> allClickEvents = new ArrayList<>();
-    List<String> allApplyEvents = new ArrayList<>();
-    Map<String, ConversionCodes> clientIdToConversionCodes = new HashMap<>();
-
-    for (StatsRequest statsRequest : statsRequestList) {
-      List<OutboundJob> outboundJobs = statsRequest.getJobsInStats();
-      String clientId = statsRequest.getClientId();
-      // generateClickEvents
-      allClickEvents.addAll(generateClickEvents(statsRequest.getClicks(), outboundJobs));
-
-      if (!clientIdToConversionCodes.containsKey(clientId)) {
-        clientIdToConversionCodes.put(clientId, databaseService.getApplyConversionCodes(clientId));
-      }
-      // generateAppliesEvents();
-      allApplyEvents.addAll(
-          generateApplyEvents(
-              statsRequest.getApplies(),
-              outboundJobs,
-              clientId,
-              clientIdToConversionCodes.get(clientId)));
-    }
-
+  private void pushClickMeterEventsToSqs(
+      List<String> allSponsoredClickEvents,
+      List<String> allSponsoredBotClickEvents,
+      List<String> allSponsoredApplyStartEvents,
+      List<String> allSponsoredApplyFinishEvents)
+      throws SqsEventFailedException {
     logger.info("Click Queue URL : " + this.clicksQueue);
-    awsService.sendSqsMessages(allClickEvents, this.clicksQueue);
+    awsService.sendSqsMessages(allSponsoredClickEvents, this.clicksQueue);
+
+    awsService.sendSqsMessages(allSponsoredBotClickEvents, this.clicksQueue);
 
     logger.info("Apply Queue URL : " + this.appliesQueue);
-    awsService.sendSqsMessages(allApplyEvents, this.appliesQueue);
+    awsService.sendSqsMessages(allSponsoredApplyStartEvents, this.appliesQueue);
 
+    awsService.sendSqsMessages(allSponsoredApplyFinishEvents, this.appliesQueue);
+  }
+
+  private void populateClickMeterEventsToMojo()
+      throws MojoException, RedisIoException, InterruptWaitException, ApiRequestException,
+          UnexpectedResponseException {
     prevVersions = trackingService.getVersions();
     logger.info(
         "Previous major and minor version in redis : "
@@ -314,11 +302,65 @@ public class TrafficGenerator implements Waitable {
     Wait.until(this);
 
     logger.info("Click and Apply events are now available in Mojo UI : " + LocalDateTime.now());
-    try {
-      Thread.sleep(180000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+  }
+
+  /**
+   * This method is responsible for creating and pushing events to respective Queues and triggering
+   * Gandalf.
+   *
+   * @param statsRequestList List of Stats requests
+   * @throws MojoException throws custom mojo exception Something went wrong
+   * @throws InterruptWaitException on Interrupt
+   */
+  public void run(List<StatsRequest> statsRequestList)
+      throws MojoException, InterruptWaitException {
+    logger.info("Events generation started...");
+    List<String> allSponsoredClickEvents = new ArrayList<>();
+    List<String> allSponsoredBotClickEvents = new ArrayList<>();
+    List<String> allSponsoredApplyStartEvents = new ArrayList<>();
+    List<String> allSponsoredApplyFinishEvents = new ArrayList<>();
+    Map<String, ConversionCodes> clientIdToConversionCodes = new HashMap<>();
+
+    for (StatsRequest statsRequest : statsRequestList) {
+      List<OutboundJob> outboundJobs = statsRequest.getJobsInStats();
+      String clientId = statsRequest.getClientId();
+      // generateSponsoredClickEvents
+      allSponsoredClickEvents.addAll(
+          generateClickEvents(statsRequest.getSponsoredClicks(), outboundJobs, false));
+
+      // generateSponsoredBotClicks
+      allSponsoredBotClickEvents.addAll(
+          generateClickEvents(statsRequest.getSponsoredBotClicks(), outboundJobs, true));
+
+      if (!clientIdToConversionCodes.containsKey(clientId)) {
+        clientIdToConversionCodes.put(clientId, databaseService.getApplyConversionCodes(clientId));
+      }
+
+      ConversionCodes conversionCodes = clientIdToConversionCodes.get(clientId);
+      // generateSponsoredApplyStartsEvents
+      allSponsoredApplyStartEvents.addAll(
+          generateApplyEvents(
+              statsRequest.getSponsoredApplyStarts(),
+              outboundJobs,
+              conversionCodes.getApplyStartConversionId(),
+              conversionCodes.getApplyStartConversionCode()));
+
+      // generateSponsoredApplyFinishesEvents
+      allSponsoredApplyFinishEvents.addAll(
+          generateApplyEvents(
+              statsRequest.getSponsoredApplyFinishes(),
+              outboundJobs,
+              conversionCodes.getApplyFinishConversionId(),
+              conversionCodes.getApplyFinishConversionCode()));
     }
+
+    pushClickMeterEventsToSqs(
+        allSponsoredClickEvents,
+        allSponsoredBotClickEvents,
+        allSponsoredApplyStartEvents,
+        allSponsoredApplyFinishEvents);
+
+    populateClickMeterEventsToMojo();
   }
 
   @Override
