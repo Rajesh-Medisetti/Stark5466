@@ -50,7 +50,7 @@ public class JobFilterValidations {
       JobGroup jobGroup,
       String pubId,
       JobCreator jobCreator)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     Map<String, OutboundJob> refIdOutBoundFeedJob =
         OutBoundJobCreator.outBoundFeedJob(clientObj, pubId);
@@ -73,7 +73,7 @@ public class JobFilterValidations {
       JobGroup jobGroup,
       String pubId,
       JobCreator jobCreator)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     Map<String, OutboundJob> refIdOutBoundFeedJob =
         OutBoundJobCreator.outBoundFeedJob(clientObj, pubId);
@@ -98,7 +98,7 @@ public class JobFilterValidations {
       JobGroupDto jobGroupDto,
       JobCreator jobCreator,
       SoftAssert softAssert)
-      throws MojoException {
+      throws MojoException, InterruptedException {
     String cpc = "0";
     if (bidLevel.equals(BidLevel.PLACEMENT)) {
       cpc = jobGroupDto.getPlacements().get(0).bid.toString();

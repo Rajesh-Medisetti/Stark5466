@@ -43,7 +43,7 @@ public class TestJobFilter extends TestRunnerBase {
       JobCreator jobCreator,
       String pubId,
       BidLevel bidLevel)
-      throws MojoException {
+      throws MojoException, InterruptedException {
     SoftAssert softAssertion = new SoftAssert();
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
     softAssertion.assertEquals(
