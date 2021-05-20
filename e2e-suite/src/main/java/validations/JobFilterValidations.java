@@ -10,8 +10,10 @@ import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.OutboundJob;
 import entitycreators.JobCreator;
 import entitycreators.OutBoundJobCreator;
+import enums.BidLevel;
 import java.util.List;
 import java.util.Map;
+import org.testng.asserts.SoftAssert;
 
 public class JobFilterValidations {
   /** . checking a job Is Live. */
@@ -48,7 +50,7 @@ public class JobFilterValidations {
       JobGroup jobGroup,
       String pubId,
       JobCreator jobCreator)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     Map<String, OutboundJob> refIdOutBoundFeedJob =
         OutBoundJobCreator.outBoundFeedJob(clientObj, pubId);
@@ -71,7 +73,7 @@ public class JobFilterValidations {
       JobGroup jobGroup,
       String pubId,
       JobCreator jobCreator)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     Map<String, OutboundJob> refIdOutBoundFeedJob =
         OutBoundJobCreator.outBoundFeedJob(clientObj, pubId);
@@ -85,6 +87,40 @@ public class JobFilterValidations {
       }
     }
     return true;
+  }
+
+  /** . checking a bid Is proper or not. */
+  public static void checkBid(
+      Client clientObj,
+      String pubId,
+      BidLevel bidLevel,
+      JobGroup jobGroupObj,
+      JobGroupDto jobGroupDto,
+      JobCreator jobCreator,
+      SoftAssert softAssert)
+      throws MojoException, InterruptedException {
+    String cpc = "0";
+    if (bidLevel.equals(BidLevel.PLACEMENT)) {
+      cpc = jobGroupDto.getPlacements().get(0).bid.toString();
+    } else {
+      cpc = jobGroupObj.getStats().getCpcBid();
+    }
+    List<FeedJob> jobs = jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob();
+    for (FeedJob job : jobs) {
+      Map<String, OutboundJob> refIdOutBoundFeedJob =
+          OutBoundJobCreator.outBoundFeedJob(clientObj, pubId);
+      String actualCpc = refIdOutBoundFeedJob.get(Integer.toString(job.getReferenceNumber())).cpc;
+      softAssert.assertEquals(
+          cpc.equals(actualCpc),
+          "The cpc bid is different for level "
+              + bidLevel.toString()
+              + " The bid passed is "
+              + cpc
+              + " but the bid that is in outbound feed is  "
+              + actualCpc
+              + " The client here is "
+              + clientObj.getStats().getName());
+    }
   }
 
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
