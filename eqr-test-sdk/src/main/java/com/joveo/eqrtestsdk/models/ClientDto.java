@@ -1,10 +1,13 @@
 package com.joveo.eqrtestsdk.models;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.joveo.eqrtestsdk.models.validationgroups.EditClient;
 import java.time.LocalDate;
@@ -103,6 +106,11 @@ public class ClientDto {
     params.startDate = startDate;
   }
 
+  public void setMarkDown(Double markDown, boolean setAsMinMarkDownAcrossTheClient) {
+    this.params.markDownValue  = markDown;
+    this.params.enforceMinimumMarkdown = setAsMinMarkDownAcrossTheClient;
+  }
+
   /** Setting Industry. */
   public void setIndustry(String industry) {
 
@@ -164,12 +172,20 @@ public class ClientDto {
 
     setDefaultDates();
 
-    this.params.markdown = "";
+    setDefaultMarkDown();
 
     createDefaultFeed();
 
     this.params.sjCreate = false;
     this.params.globallyExcludedPublishers = "";
+  }
+
+  private void setDefaultMarkDown() {
+
+    if (this.params.markDownValue == null) {
+      this.params.markdownMap = new HashMap<>();
+      this.params.markdownMap.put("markdown", "");
+    }
   }
 
   private void createDefaultFeed() {
@@ -285,7 +301,28 @@ public class ClientDto {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String markdown;
+    @JsonAnyGetter
+    public Map<String,String> markdownMap;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Min(value = 0,message = "markDown can't be negative", groups = {Default.class,
+        EditClient.class})
+
+    public Double markDownValue;
+
+    @JsonGetter("markdown")
+    @JsonIgnore
+    public Double getMarkDownValue() {
+      return markDownValue;
+    }
+
+    @JsonSetter("markdown")
+    public void setMarkDownValue(Double markDownValue) {
+      this.markDownValue = markDownValue;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public  Boolean enforceMinimumMarkdown;
 
     @Size(min = 1, message = "number of feed must be at least one")
     @Valid
