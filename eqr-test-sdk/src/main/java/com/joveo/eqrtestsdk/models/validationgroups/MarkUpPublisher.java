@@ -1,4 +1,3 @@
 package com.joveo.eqrtestsdk.models.validationgroups;
 
-public class MarkUpPublisher {
-}
+public class MarkUpPublisher {}

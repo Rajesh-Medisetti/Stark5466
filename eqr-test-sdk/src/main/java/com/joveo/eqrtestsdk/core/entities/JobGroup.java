@@ -9,6 +9,7 @@ import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JobStats;
+import com.joveo.eqrtestsdk.models.MarkUp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -162,6 +163,13 @@ public class JobGroup {
     return (JobGroupStats)
         driver.jobGroupService.getStats(
             driver.session, driver.conf, this.clientId, this.id, publisher.id, startDate, endDate);
+  }
+
+  /** . setting MarkUp for JobGroup */
+  public void setMarkUp(Double value, String pubId) throws MojoException {
+
+    driver.jobGroupService.setMarkUp(
+        new MarkUp(value, clientId, id, pubId, "JobGroup"), driver.session, driver.conf, this);
   }
 
   @Override

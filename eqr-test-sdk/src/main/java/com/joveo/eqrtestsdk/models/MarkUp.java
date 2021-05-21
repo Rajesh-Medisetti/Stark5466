@@ -10,6 +10,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @JsonSerialize
@@ -25,7 +26,8 @@ public class MarkUp {
     this.entities.add(new Entity(clientId, entityId, entity));
   }
 
-  @NotEmpty(message = "agencyIdCan't be empty")
+  @NotEmpty(message = "agencyI can't be empty")
+  @NotNull(message = "agencyId can't be null")
   private String agencyId;
 
   private long effectiveFrom;
