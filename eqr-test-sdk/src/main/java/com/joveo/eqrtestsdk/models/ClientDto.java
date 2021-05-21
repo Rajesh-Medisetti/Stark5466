@@ -107,7 +107,7 @@ public class ClientDto {
   }
 
   public void setMarkDown(Double markDown, boolean setAsMinMarkDownAcrossTheClient) {
-    this.params.markDownValue  = markDown;
+    this.params.markDownValue = markDown;
     this.params.enforceMinimumMarkdown = setAsMinMarkDownAcrossTheClient;
   }
 
@@ -302,12 +302,13 @@ public class ClientDto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonAnyGetter
-    public Map<String,String> markdownMap;
+    public Map<String, String> markdownMap;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Min(value = 0,message = "markDown can't be negative", groups = {Default.class,
-        EditClient.class})
-
+    @Min(
+        value = 0,
+        message = "markDown can't be negative",
+        groups = {Default.class, EditClient.class})
     public Double markDownValue;
 
     @JsonGetter("markdown")
@@ -322,7 +323,7 @@ public class ClientDto {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public  Boolean enforceMinimumMarkdown;
+    public Boolean enforceMinimumMarkdown;
 
     @Size(min = 1, message = "number of feed must be at least one")
     @Valid
