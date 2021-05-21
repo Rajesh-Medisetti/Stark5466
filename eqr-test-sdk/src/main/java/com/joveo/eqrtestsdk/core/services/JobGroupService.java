@@ -22,6 +22,7 @@ import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
+import com.joveo.eqrtestsdk.models.MarkUp;
 import com.joveo.eqrtestsdk.models.MojoData;
 import com.joveo.eqrtestsdk.models.MojoResponse;
 import com.joveo.eqrtestsdk.models.PFfields;
@@ -30,6 +31,7 @@ import com.joveo.eqrtestsdk.models.PlatformFiltersDto;
 import com.joveo.eqrtestsdk.models.Stats;
 import com.joveo.eqrtestsdk.models.validationgroups.EditJobGroup;
 import com.joveo.eqrtestsdk.models.validationgroups.JobGroupCap;
+import com.joveo.eqrtestsdk.models.validationgroups.MarkUpPublisher;
 import com.typesafe.config.Config;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -485,6 +487,75 @@ public class JobGroupService extends BaseService {
 
     return (jobGroupDto.getFilter() == null
         || jobGroupDto.isValidJobFilter(jobGroupDto.getFilter(), 1));
+  }
+
+  /** . Setting MarkUp at JobGroup Level with specific publisher */
+  public void setMarkUp(MarkUp markUp, Session session, Config config, JobGroup jobGroup)
+      throws MojoException {
+
+    markUp.setAgencyId(session.getInstanceIdentifier());
+
+    String validationErrors = validateMarkUpEntity(markUp, validator);
+    if (validationErrors != null) {
+      logger.error(validationErrors);
+      throw new InvalidInputException(validationErrors);
+    }
+
+    if (!isPlacementIdInJobGroup(jobGroup, markUp.getEntities().get(0).placementId)) {
+      String errorMessage =
+          markUp.getEntities().get(0).placementId + ": PublisherId is not in JobGroup";
+      logger.error(errorMessage);
+      throw new InvalidInputException(errorMessage);
+    }
+
+    RestResponse response =
+        executor.put(session, config.getString("MojoBaseUrl") + "/api/markup/save", markUp);
+
+    Boolean success = response.extractByKeyWithoutData("success");
+
+    if (!Boolean.TRUE.equals(success)) {
+      logger.error("Unable to update Markup in JobGroup: " + response.toString());
+      throw new UnexpectedResponseException(
+          "Unable to update Markup in JobGroup: " + response.toString());
+    }
+  }
+
+  private boolean isPlacementIdInJobGroup(JobGroup jobGroup, String placementId)
+      throws MojoException {
+
+    List<JobGroupStats.Placement> placements = jobGroup.getStats().getPlacements();
+
+    boolean isPresent = false;
+
+    if (placements == null) {
+      return isPresent;
+    }
+
+    for (JobGroupStats.Placement placement : placements) {
+      if (placement.getpValue().equals(placementId)) {
+        isPresent = true;
+        break;
+      }
+    }
+    return isPresent;
+  }
+
+  /** . Validation for Mark-up */
+  public String validateMarkUpEntity(MarkUp entity, Validator validator) {
+
+    Set<ConstraintViolation<MarkUp>> constraintViolations =
+        validator.validate(entity, MarkUpPublisher.class, Default.class);
+
+    StringBuilder message = new StringBuilder("");
+    if (!constraintViolations.isEmpty()) {
+      for (ConstraintViolation<MarkUp> violation : constraintViolations) {
+        message.append(violation.getMessage()).append(", ");
+      }
+    }
+    if (!message.toString().equals("")) {
+      return message.toString();
+    }
+    return null;
   }
 
   /**

@@ -10,6 +10,7 @@ import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.ClientStats;
 import com.joveo.eqrtestsdk.models.JobStats;
+import com.joveo.eqrtestsdk.models.MarkUp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -167,5 +168,13 @@ public class Client {
 
     clientDto.setClientId(this.id);
     driver.clientService.edit(driver.session, driver.conf, clientDto);
+  }
+
+  /** . setting MarkUp for Client */
+  public void setMarkUp(Double markUp)
+      throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
+
+    driver.clientService.setMarkUp(
+        new MarkUp(markUp, id, id, "Client"), driver.session, driver.conf);
   }
 }

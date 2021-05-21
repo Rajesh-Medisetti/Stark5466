@@ -21,6 +21,7 @@ public class FeedJob {
   private String description;
   private int referenceNumber;
   private String url;
+  private String type;
 
   @JsonIgnore public Map<String, String> additionalFeedNode = new HashMap<>();
 
@@ -33,6 +34,27 @@ public class FeedJob {
   private String careerLevel;
   private String department;
   private int cpc;
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  /**
+   * set type.
+   *
+   * @param type type
+   * @param cdata enable cdata for field
+   */
+  public void setType(String type, boolean cdata) {
+    this.type = type;
+    if (cdata) {
+      this.type = getCdataField(type);
+    }
+  }
 
   public String getTitle() {
     return title;
