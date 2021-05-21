@@ -24,6 +24,7 @@ import com.joveo.eqrtestsdk.models.FeedUrl;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
+import com.joveo.eqrtestsdk.models.MarkUp;
 import com.joveo.eqrtestsdk.models.MojoData;
 import com.joveo.eqrtestsdk.models.MojoResponse;
 import com.joveo.eqrtestsdk.models.PFfields;
@@ -371,6 +372,30 @@ public class ClientService extends BaseService {
       }
     }
     return null;
+  }
+
+  /** . Setting MarkUp at Client Level */
+  public void setMarkUp(MarkUp markUp, Session session, Config config)
+      throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
+
+    markUp.setAgencyId(session.getInstanceIdentifier());
+
+    String validationErrors = validateEntity(markUp, validator);
+    if (validationErrors != null) {
+      logger.error(validationErrors);
+      throw new InvalidInputException(validationErrors);
+    }
+
+    RestResponse response =
+        executor.put(session, config.getString("MojoBaseUrl") + "/api/markup/save", markUp);
+
+    Boolean success = response.extractByKeyWithoutData("success");
+
+    if (!Boolean.TRUE.equals(success)) {
+      logger.error("Unable to update Markup in Client: " + response.toString());
+      throw new UnexpectedResponseException(
+          "Unable to update Markup in Client:" + response.toString());
+    }
   }
 
   /**
