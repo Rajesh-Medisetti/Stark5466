@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
 import com.joveo.eqrtestsdk.core.mojo.TrafficGenerator;
+import com.joveo.eqrtestsdk.core.services.AllStatsService;
 import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.CacheRefreshService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
@@ -28,6 +29,7 @@ import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
 import com.joveo.eqrtestsdk.models.PublisherDto;
+import com.joveo.eqrtestsdk.models.allstatsevents.AllStatsRequest;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -48,6 +50,7 @@ public class Driver {
   @Inject CacheRefreshService cacheRefreshService;
   @Inject TrackingService trackingService;
   @Inject DatabaseService databaseService;
+  @Inject AllStatsService allStatsService;
 
   /**
    * Start an instance of Driver.
@@ -69,7 +72,8 @@ public class Driver {
     driver.databaseService.setup(
         config.getString("MongoHost_Name"),
         config.getString("MongoDB_Name"),
-        config.getString("MongoCollection_Name"),
+        config.getString("MongoConversionCollection_Name"),
+        config.getString("MongoClientsCollection_Name"),
         config.getString("Mongo_Username"),
         config.getString("Mongo_Password"));
     driver.trackingService.setup(config.getString("RedisUrl"), config.getString("RedisMapName"));
@@ -180,6 +184,11 @@ public class Driver {
     trafficGenerator.run(statsRequests);
   }
 
+  public void generateAllStats(List<AllStatsRequest> allStatsRequests)
+      throws ApiRequestException, UnexpectedResponseException, InvalidInputException {
+    allStatsService.run(session, conf, trackingService, databaseService, allStatsRequests);
+  }
+
   public void refreshJobCount() throws ApiRequestException, UnexpectedResponseException {
     cacheRefreshService.refreshCache(
         session, awsService, conf.getString("InstanceTag"), conf.getString("FlashRefreshUrl"));
@@ -195,6 +204,7 @@ public class Driver {
     session = new MojoSession(username, password, this.conf.getString("MojoBaseUrl"));
   }
 
+  /** This method is used to close Database connections to Redis and MongoDB. */
   public void close() {
     databaseService.close();
     trackingService.close();
