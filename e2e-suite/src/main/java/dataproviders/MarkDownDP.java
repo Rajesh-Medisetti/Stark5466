@@ -1,17 +1,14 @@
 package dataproviders;
 
-import base.TestRunnerBase;
-import com.joveo.eqrtestsdk.core.entities.Campaign;
 import com.joveo.eqrtestsdk.core.entities.Client;
-import com.joveo.eqrtestsdk.core.entities.Driver;
-import com.joveo.eqrtestsdk.core.entities.JobGroup;
-import com.joveo.eqrtestsdk.exception.MojoException;
-import com.joveo.eqrtestsdk.models.*;
+import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.JobFilterFields;
+import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dtos.Dtos;
 import dtos.JobFilterData;
-import entitycreators.*;
+import entitycreators.ClientEntityCreator;
+import entitycreators.JobGroupCreator;
 import enums.BidLevel;
-import helpers.MojoUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,36 +30,40 @@ public class MarkDownDP {
    */
   @DataProvider(name = "MarkDown")
   public static Object[][] markDownDP() {
-    List<List<Object>>  markDownDPList = markDowndata.getDpList();
-    Object[][] array = new Object[markDownDPList.size()][markDownDPList.get(0).size()];
+    List<List<Object>> markDownDpList = markDowndata.getDpList();
+    Object[][] array = new Object[markDownDpList.size()][markDownDpList.get(0).size()];
     int counter = 0;
-    for (List<Object> list : markDownDPList) {
+    for (List<Object> list : markDownDpList) {
       array[counter] = list.toArray();
       counter++;
     }
     return array;
   }
 
-
-  public List<Dtos> getMarkDownList()
-  {
-    List<Dtos> dtosList =  new ArrayList<>();
-    for(BidLevel level:BidLevel.values()) {
+  /**
+   * the method that creates dto list and combines for all bid level.
+   *
+   * @return list of dtos.
+   */
+  public List<Dtos> getMarkDownList() {
+    List<Dtos> dtosList = new ArrayList<>();
+    for (BidLevel level : BidLevel.values()) {
       dtosList.addAll(getMarkDownList(level));
     }
-return dtosList;
+    return dtosList;
   }
 
-public List<Dtos> getMarkDownList(BidLevel level)
-{
-  List<Dtos> dtosList =  new ArrayList<>();
-  ClientDto clientDto = ClientEntityCreator.randomClientCreator("", true, markDown);
-  JobGroupDto jobGroup =
-          JobGroupCreator.markDownDtoWithEqual(JobFilterFields.country, "India",300, 1);
+  /**
+   * the method that creates dto list based on the bid level.
+   *
+   * @return list of dtos.
+   */
+  public List<Dtos> getMarkDownList(BidLevel level) {
+    List<Dtos> dtosList = new ArrayList<>();
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("", true, markDown);
+    JobGroupDto jobGroup =
+        JobGroupCreator.markDownDtoWithEqual(JobFilterFields.country, "India", 300, 1);
     dtosList.add(new Dtos(clientDto, null, jobGroup, level));
-  return dtosList;
-}
-
-
-
+    return dtosList;
+  }
 }

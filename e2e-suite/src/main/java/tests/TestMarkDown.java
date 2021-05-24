@@ -8,11 +8,9 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.JobFilterDP;
 import dataproviders.MarkDownDP;
-import entitycreators.DtosCreator;
 import entitycreators.JobCreator;
 import enums.BidLevel;
 import helpers.MojoUtils;
-import helpers.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,23 +30,21 @@ public class TestMarkDown extends TestRunnerBase {
       createDriver();
     }
     JobFilterDP jobfilterObj = new JobFilterDP();
-    MarkDownDP.markDowndata = jobfilterObj.createJobFilterData(driver,new MarkDownDP().getMarkDownList());
-    //MarkDownDP.dataProvider(driver);
+    MarkDownDP.markDowndata =
+        jobfilterObj.createJobFilterData(driver, new MarkDownDP().getMarkDownList());
+    // MarkDownDP.dataProvider(driver);
   }
-
-
 
   @Test(dataProvider = "MarkDown", dataProviderClass = MarkDownDP.class)
   public void markDownTestCases(
-          String testCase,
+      String testCase,
       ClientDto clientDto,
       Client client,
       JobGroupDto jobGroupDto,
       JobGroup jobGroupObj,
       JobCreator jobCreator,
       String Publisher,
-      BidLevel bidLevel
-  )
+      BidLevel bidLevel)
       throws MojoException, InterruptedException {
 
     String cpc = "0";
@@ -57,7 +53,7 @@ public class TestMarkDown extends TestRunnerBase {
     } else {
       cpc = jobGroupObj.getStats().getCpcBid();
     }
-  double markDown = 50; // will do clientDto.getMarkDown();
+    double markDown = 20; // will do clientDto.getMarkDown();
     Assert.assertTrue(
         new OutBoundJobCpcValidation()
             .getJobLevelCpc(
