@@ -22,7 +22,7 @@ public class DtosCreator {
 
     List<List<Filter>> listList = getJobFilters(2, RuleOperator.EQUAL, JobFilterFields.country);
 
-    final ClientDto createClientDto = ClientEntityCreator.randomClientCreator("");
+    final ClientDto createClientDto = ClientEntityCreator.randomClientCreator(false, 0.0);
 
     final CampaignDto createCampaignDto = CampaignEntityCreator.randomCampaignCreator(1000.0);
     final CampaignDto editCampaignDto = new CampaignDto();
@@ -47,8 +47,19 @@ public class DtosCreator {
     List<Dtos> dtosList = new ArrayList<>();
 
     dtosList.add(
-        new Dtos(createClientDto, createCampaignDto, createJobGroupDto, BidLevel.JOB_GROUP));
-    dtosList.add(new Dtos(createClientDto, editCampaignDto, editJobGroupDto, BidLevel.PLACEMENT));
+        new Dtos(
+            createClientDto,
+            createCampaignDto,
+            createJobGroupDto,
+            BidLevel.JOB_GROUP,
+            Utils.getRandomNumber(2, 5)));
+    dtosList.add(
+        new Dtos(
+            createClientDto,
+            editCampaignDto,
+            editJobGroupDto,
+            BidLevel.PLACEMENT,
+            Utils.getRandomNumber(2, 5)));
 
     return dtosList;
   }

@@ -30,7 +30,8 @@ public class TestJobFilter extends TestRunnerBase {
     if (null == driver) {
       createDriver();
     }
-    JobFilterDP.data1to1 = JobFilterDP.createJobFilterData(driver, JobFilterDP.dpMethod1());
+    JobFilterDP jobfilterObj = new JobFilterDP();
+    JobFilterDP.data1to1 = jobfilterObj.createJobFilterData(driver, JobFilterDP.dpMethod1());
   }
 
   @Test(dataProvider = "test", dataProviderClass = JobFilterDP.class)
