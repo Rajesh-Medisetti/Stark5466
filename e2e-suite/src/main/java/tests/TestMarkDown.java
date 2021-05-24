@@ -43,7 +43,7 @@ public class TestMarkDown extends TestRunnerBase {
       JobGroupDto jobGroupDto,
       JobGroup jobGroupObj,
       JobCreator jobCreator,
-      String Publisher,
+      String publisher,
       BidLevel bidLevel)
       throws MojoException, InterruptedException {
 
