@@ -5,7 +5,9 @@ import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import dataproviders.JobFilterDP;
 import dataproviders.MarkDownDP;
+import entitycreators.DtosCreator;
 import entitycreators.JobCreator;
 import enums.BidLevel;
 import helpers.MojoUtils;
@@ -27,7 +29,9 @@ public class TestMarkDown extends TestRunnerBase {
     if (null == driver) {
       createDriver();
     }
-    MarkDownDP.dataProvider(driver);
+    JobFilterDP jobfilterObj = new JobFilterDP();
+    MarkDownDP.markDowndata = jobfilterObj.createJobFilterData(driver,new MarkDownDP().getMarkDownList());
+    //MarkDownDP.dataProvider(driver);
   }
 
   @Test(dataProvider = "MarkDown", dataProviderClass = MarkDownDP.class)

@@ -22,7 +22,7 @@ public class DtosCreator {
 
     List<List<Filter>> listList = getJobFilters(2, RuleOperator.EQUAL, JobFilterFields.country);
 
-    final ClientDto createClientDto = ClientEntityCreator.randomClientCreator("");
+    final ClientDto createClientDto = ClientEntityCreator.randomClientCreator("", false,0.0);
 
     final CampaignDto createCampaignDto = CampaignEntityCreator.randomCampaignCreator(1000.0);
     final CampaignDto editCampaignDto = new CampaignDto();

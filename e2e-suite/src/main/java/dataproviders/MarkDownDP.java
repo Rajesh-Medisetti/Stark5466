@@ -1,17 +1,16 @@
 package dataproviders;
 
+import base.TestRunnerBase;
 import com.joveo.eqrtestsdk.core.entities.Campaign;
 import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
-import com.joveo.eqrtestsdk.models.CampaignDto;
-import com.joveo.eqrtestsdk.models.ClientDto;
-import com.joveo.eqrtestsdk.models.Freq;
-import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.*;
 import dtos.Dtos;
-import entitycreators.DtosCreator;
-import entitycreators.JobCreator;
+import dtos.JobFilterData;
+import entitycreators.*;
+import enums.BidLevel;
 import helpers.MojoUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +24,7 @@ public class MarkDownDP {
   public static Set<Client> clientSet = new HashSet<Client>();
   public static boolean ifSchedulerRan = true;
   public static Double markDown = 50.0;
-  public static List<List<Object>> markDownDPList = new ArrayList<>();
+  public static JobFilterData markDowndata;
 
   /**
    * the actual data provider for the test.
@@ -34,7 +33,7 @@ public class MarkDownDP {
    */
   @DataProvider(name = "MarkDown")
   public static Object[][] markDownDP() {
-
+    List<List<Object>>  markDownDPList = markDowndata.getDpList();
     Object[][] array = new Object[markDownDPList.size()][markDownDPList.get(0).size()];
     int counter = 0;
     for (List<Object> list : markDownDPList) {
@@ -44,56 +43,26 @@ public class MarkDownDP {
     return array;
   }
 
-  /** . Data Provider for MarkDown TestCases */
-  public static void dataProvider(Driver driver) throws MojoException {
 
-    List<Dtos> dtosList = new DtosCreator().getDtos();
-    JobCreator jobCreator = JobCreator.jobProvider(dtosList);
-
-    ClientDto clientDto = dtosList.get(0).getClientDto();
-
-    clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));
-
-    clientDto.setMarkDown(markDown, false);
-    Client client = driver.createClient(clientDto);
-    clientSet.add(client);
-
-    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
-    campaignDto.setClientId(client.id);
-
-    Campaign campaign = driver.createCampaign(campaignDto);
-
-    JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
-    jobGroupDto1.setClientId(client.id);
-    jobGroupDto1.setCampaignId(campaign.id);
-    jobGroupDto1.setCpcBid(4.0);
-
-    jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 500.0);
-    jobGroupDto1.addPlacement(publisher);
-
-    JobGroup jobGroup1 = driver.createJobGroup(jobGroupDto1);
-
-    markDownDPList.add(
-        List.of(
-            markDown, client, jobGroupDto1, jobGroup1, jobCreator, dtosList.get(0).getBidLevel()));
-
-    JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
-    jobGroupDto2.setClientId(client.id);
-    jobGroupDto2.setCampaignId(campaign.id);
-    jobGroupDto2.setCpcBid(4.0);
-
-    jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 500.0);
-    jobGroupDto2.addPlacementWithBid(publisher, 3.0);
-    JobGroup jobGroup2 = driver.createJobGroup(jobGroupDto2);
-
-    markDownDPList.add(
-        List.of(
-            markDown, client, jobGroupDto2, jobGroup2, jobCreator, dtosList.get(1).getBidLevel()));
-
-    try {
-      MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
-    } catch (Exception e) {
-      ifSchedulerRan = false;
+  public List<Dtos> getMarkDownList()
+  {
+    List<Dtos> dtosList =  new ArrayList<>();
+    for(BidLevel level:BidLevel.values()) {
+      dtosList.addAll(getMarkDownList(level));
     }
+return dtosList;
   }
+
+public List<Dtos> getMarkDownList(BidLevel level)
+{
+  List<Dtos> dtosList =  new ArrayList<>();
+  ClientDto clientDto = ClientEntityCreator.randomClientCreator("", true, markDown);
+  JobGroupDto jobGroup =
+          JobGroupCreator.markDownDtoWithEqual(JobFilterFields.country, "India",300, 1);
+    dtosList.add(new Dtos(clientDto, null, jobGroup, level));
+  return dtosList;
+}
+
+
+
 }

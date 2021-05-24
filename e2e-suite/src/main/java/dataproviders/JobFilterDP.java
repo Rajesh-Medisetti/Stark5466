@@ -72,10 +72,10 @@ public class JobFilterDP {
 
   /** . creating JobFilter */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public static JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList)
+  public JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList)
       throws MojoException {
     List<List<Object>> dpList = new ArrayList<>();
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed);
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator(feed, false, 0.0);
     clientDto.addFeed(feed);
     globalClient = driver.createClient(clientDto);
     ClientDto globalClientDto = clientDto;
@@ -145,7 +145,7 @@ public class JobFilterDP {
     List<Dtos> dtosList = new ArrayList<>();
     List<String> negativeStringRuleList = TestRunnerBase.getStringNegativeList();
     for (String rule : negativeStringRuleList) {
-      ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+      ClientDto clientDto = ClientEntityCreator.randomClientCreator("", false, 0.0);
       List<String> tempList = new ArrayList<>();
       tempList.add(rule);
       List<JobGroupDto> jobGroupList =
@@ -165,7 +165,7 @@ public class JobFilterDP {
   /** . creating dtos class object for positive string rule operators */
   public static List<Dtos> createDtoListStringPositive(GroupOperator gp, BidLevel level) {
     List<Dtos> dtosList = new ArrayList<>();
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("", false, 0.0);
     List<JobGroupDto> jobGroupList =
         JobGroupCreator.dtoUsingFilter(
             JobGroupFilterCreator.createFilterList(
@@ -183,7 +183,7 @@ public class JobFilterDP {
   public static List<Dtos> createDtoListDate(
       GroupOperator gp, BidLevel level, List<String> dateGroupList) {
     List<Dtos> dtosList = new ArrayList<>();
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("", false, 0.0);
     List<JobGroupDto> jobGroupList =
         JobGroupCreator.dtoUsingFilter(
             JobGroupFilterCreator.createDateFilterList(
