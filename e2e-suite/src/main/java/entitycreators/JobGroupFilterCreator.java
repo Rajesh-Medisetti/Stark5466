@@ -6,6 +6,7 @@ import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.RuleOperator;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,18 +38,18 @@ public class JobGroupFilterCreator extends TestRunnerBase {
   /**
    * creating date filters.
    *
-   * @param ruleOperators list of operators.
    * @return list of list of filter
    */
-  public static List<List<Filter>> createDateFilterList(List<RuleOperator> ruleOperators) {
-    Map<String, List<String>> extendedMap = createExcptionMap();
+  public static List<List<Filter>> createDateFilterList(
+      List<JobFilterFields> filterList, List<String> rulesList) {
     List<List<Filter>> jfList = new ArrayList();
     for (JobFilterFields jf : JobFilterFields.values()) {
-      List<String> rulesList = extendedMap.get(jf.toString());
-      for (RuleOperator ro : ruleOperators) {
-        if (rulesList.contains(ro.toString())) {
-          ArrayList<Filter> indvList = new ArrayList();
-          putDateRules(jf, ro, indvList, jfList);
+      for (RuleOperator ro : RuleOperator.values()) {
+        if (filterList.contains(jf)) {
+          if (rulesList.contains(ro.toString())) {
+            ArrayList<Filter> indvList = new ArrayList();
+            putDateRules(jf, ro, indvList, jfList);
+          }
         }
       }
     }
@@ -90,19 +91,33 @@ public class JobGroupFilterCreator extends TestRunnerBase {
 
     switch (ro) {
       case GREATER_THAN:
-      case AFTER:
-        indvList.add(new JobFilter<>(ro, jf, LocalDate.now().minusDays(30)));
+      case LESS_THAN:
+        indvList.add(new JobFilter<>(ro, jf, "30"));
         jfList.add(indvList);
         break;
 
-      case LESS_THAN:
+      case AFTER:
+        indvList.add(
+            new JobFilter<>(
+                ro,
+                jf,
+                LocalDate.now().minusDays(30).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))));
+        jfList.add(indvList);
+        break;
+
       case BEFORE:
-        indvList.add(new JobFilter<>(ro, jf, LocalDate.now().plusDays(30)));
+        indvList.add(
+            new JobFilter<>(
+                ro,
+                jf,
+                LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))));
         jfList.add(indvList);
         break;
 
       case ON:
-        indvList.add(new JobFilter<>(ro, jf, LocalDate.now()));
+        indvList.add(
+            new JobFilter<>(
+                ro, jf, LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))));
         jfList.add(indvList);
         break;
 

@@ -7,6 +7,7 @@ import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.FeedJob;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,8 @@ public class InBoundFeedCreator extends TestRunnerBase {
           feedJob.setReferenceNumber(Integer.parseInt(entry.getValue().get(0)));
           break;
         case "postedDate":
-          feedJob.setDate(LocalDate.parse(entry.getValue().get(0)));
+          feedJob.setDate(
+              LocalDate.parse(entry.getValue().get(0), DateTimeFormatter.ofPattern("MM/dd/yyyy")));
           break;
         case "cpcBid":
           feedJob.setCpc(Integer.parseInt(entry.getValue().get(0)));

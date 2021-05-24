@@ -11,6 +11,8 @@ import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.RuleOperator;
 import dtos.Dtos;
 import helpers.Utils;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,6 +108,14 @@ public class JobCreator {
         case "NOT_ENDS_WITH":
           feed = getAllJobs(jobFilter, size);
           noFeed = true;
+          break;
+
+        case "GREATER_THAN":
+        case "AFTER":
+        case "BEFORE":
+        case "LESS_THAN":
+        case "ON":
+          feed = getAllJobsForDate(jobFilter, size);
           break;
 
         default:
@@ -205,42 +215,6 @@ public class JobCreator {
     return feed;
   }
 
-  //
-  //  private static List<Map<JobFilterFields, List<String>>> getAllJobs(
-  //      JobFilter jobFilter, int size) {
-  //
-  //    List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
-  //
-  //    String value = (String) jobFilter.getData();
-  //    for (int i = 0; i < size; i++) {
-  //
-  //      Map<JobFilterFields, List<String>> job = new HashMap<>();
-  //      List<String> data = new ArrayList<>();
-  //
-  //      if (jobFilter.getOperator().equals(RuleOperator.CONTAINS)) {
-  //        data.add(
-  //            Utils.getRandomString(Utils.getRandomNumber(10, 20))
-  //                + value
-  //                + Utils.getRandomString(Utils.getRandomNumber(10, 20)));
-  //      } else if (jobFilter.getOperator().equals(RuleOperator.BEGINS_WITH)) {
-  //        data.add("" + value + Utils.getRandomString(Utils.getRandomNumber(10, 20)));
-  //      } else {
-  //        data.add(Utils.getRandomString(Utils.getRandomNumber(10, 20)) + value + "");
-  //      }
-  //
-  //      job.put(jobFilter.getField(), new ArrayList<>(data));
-  //
-  //      if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
-  //        data.clear();
-  //        data.add((++refNo).toString());
-  //        job.put(JobFilterFields.refNumber, new ArrayList<>(data));
-  //      }
-  //      data.clear();
-  //      feed.add(job);
-  //    }
-  //    return feed;
-  //  }
-
   private static List<Map<JobFilterFields, List<String>>> getAllJobsForIn(JobFilter jobFilter) {
 
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
@@ -257,6 +231,77 @@ public class JobCreator {
       }
 
       data.add(value);
+      job.put(jobFilter.getField(), new ArrayList<>(data));
+
+      if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
+        data.clear();
+        data.add((++refNo).toString());
+        job.put(JobFilterFields.refNumber, new ArrayList<>(data));
+      }
+      data.clear();
+      feed.add(job);
+    }
+    return feed;
+  }
+
+  private static List<Map<JobFilterFields, List<String>>> getAllJobsForDate(
+      JobFilter jobFilter, int size) {
+
+    List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
+
+    //    String value = (String) jobFilter.getData();
+    for (int i = 0; i < size; i++) {
+
+      Map<JobFilterFields, List<String>> job = new HashMap<>();
+      List<String> data = new ArrayList<>();
+      System.out.println("the filter rule operator is " + jobFilter.getOperator().toString());
+      switch (jobFilter.getOperator().toString()) {
+        case "LESS_THAN":
+          int value = Integer.parseInt((String) jobFilter.getData());
+          data.add(
+              LocalDate.now()
+                  .minusDays(value - 2)
+                  .format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+          break;
+
+        case "GREATER_THAN":
+          value = Integer.parseInt((String) jobFilter.getData());
+          data.add(
+              LocalDate.now()
+                  .minusDays(value + 2)
+                  .format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+          break;
+
+        case "BEFORE":
+          data.add(LocalDate.now().plusDays(32).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+          break;
+
+        case "AFTER":
+          data.add(LocalDate.now().minusDays(32).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+          break;
+        case "ON":
+          data.add(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+          break;
+        default:
+      }
+      //      if (jobFilter.getOperator().equals(RuleOperator.AFTER)  ||
+      //              jobFilter.getOperator().equals(RuleOperator.GREATER_THAN) ) {
+      //        data.add(LocalDate.now().plusDays(3).toString());
+      //      } else if (jobFilter.getOperator().equals(RuleOperator.NOT_CONTAINS)) {
+      //        data.add(
+      //                Utils.getRandomString(Utils.getRandomNumber(10, 20))
+      //                        + "ERR"
+      //                        + Utils.getRandomString(Utils.getRandomNumber(10, 20)));
+      //      } else if (jobFilter.getOperator().equals(RuleOperator.BEGINS_WITH)) {
+      //        data.add("" + value + Utils.getRandomString(Utils.getRandomNumber(10, 20)));
+      //      } else if (jobFilter.getOperator().equals(RuleOperator.NOT_BEGINS_WITH)) {
+      //        data.add("ERR" + value + Utils.getRandomString(Utils.getRandomNumber(10, 20)));
+      //      } else if (jobFilter.getOperator().equals(RuleOperator.ENDS_WITH)) {
+      //        data.add(Utils.getRandomString(Utils.getRandomNumber(10, 20)) + value + "");
+      //      } else {
+      //        data.add(Utils.getRandomString(Utils.getRandomNumber(10, 20)) + value + "ERR");
+      //      }
+
       job.put(jobFilter.getField(), new ArrayList<>(data));
 
       if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {

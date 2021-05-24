@@ -47,6 +47,9 @@ public class JobFilterDP {
     dtosList.addAll(createDtoListStringNegative(GroupOperator.OR, BidLevel.JOB_GROUP));
     dtosList.addAll(createDtoListStringPositive(GroupOperator.AND, BidLevel.JOB_GROUP));
     dtosList.addAll(createDtoListStringPositive(GroupOperator.OR, BidLevel.PLACEMENT));
+    for (List<String> dateList : TestRunnerBase.getDateGroups()) {
+      dtosList.addAll(createDtoListDate(GroupOperator.OR, BidLevel.PLACEMENT, dateList));
+    }
     return dtosList;
   }
 
@@ -167,6 +170,24 @@ public class JobFilterDP {
         JobGroupCreator.dtoUsingFilter(
             JobGroupFilterCreator.createFilterList(
                 TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
+            gp,
+            300,
+            1);
+    for (JobGroupDto jobGroupDto : jobGroupList) {
+      dtosList.add(new Dtos(clientDto, null, jobGroupDto, level));
+    }
+    return dtosList;
+  }
+
+  /** . creating dtos class object for DATE rule operators */
+  public static List<Dtos> createDtoListDate(
+      GroupOperator gp, BidLevel level, List<String> dateGroupList) {
+    List<Dtos> dtosList = new ArrayList<>();
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator("");
+    List<JobGroupDto> jobGroupList =
+        JobGroupCreator.dtoUsingFilter(
+            JobGroupFilterCreator.createDateFilterList(
+                TestRunnerBase.getJobFilterDateList(), dateGroupList),
             gp,
             300,
             1);

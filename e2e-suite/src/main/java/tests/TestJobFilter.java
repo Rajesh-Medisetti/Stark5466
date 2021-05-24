@@ -43,7 +43,7 @@ public class TestJobFilter extends TestRunnerBase {
       JobCreator jobCreator,
       String pubId,
       BidLevel bidLevel)
-      throws MojoException {
+      throws MojoException, InterruptedException {
     SoftAssert softAssertion = new SoftAssert();
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
     softAssertion.assertEquals(
@@ -61,12 +61,8 @@ public class TestJobFilter extends TestRunnerBase {
         JobFilterValidations.checkJobWithFields(
             clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
         "Job values is not equal in outboundJob");
-    String cpc = "0";
-    if (bidLevel.equals(BidLevel.PLACEMENT)) {
-      cpc = jobGroupDto.getPlacements().get(0).bid.toString();
-    } else {
-      cpc = jobGroupObj.getStats().getCpcBid();
-    }
+    JobFilterValidations.checkBid(
+        clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
   }
 
   /**
