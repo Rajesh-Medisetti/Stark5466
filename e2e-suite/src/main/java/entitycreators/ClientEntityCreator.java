@@ -15,10 +15,9 @@ public class ClientEntityCreator {
   /**
    * This will create the clientDTO with all random fields in specific range.
    *
-   * @param feed the feed that need to be set in dto.
    * @return the randomly created clientDto.
    */
-  public static ClientDto randomClientCreator(String feed, boolean isMarkDown, double markDown) {
+  public static ClientDto randomClientCreator(boolean isMarkDown, double markDown) {
 
     ClientDto clientDto = new ClientDto();
     clientDto.setName("SAM_JOVEO_client_name_automation" + Utils.generateRandomString());

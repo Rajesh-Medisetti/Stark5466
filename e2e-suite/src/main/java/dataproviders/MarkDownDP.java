@@ -9,6 +9,7 @@ import dtos.JobFilterData;
 import entitycreators.ClientEntityCreator;
 import entitycreators.JobGroupCreator;
 import enums.BidLevel;
+import helpers.Utils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,10 +61,9 @@ public class MarkDownDP {
    */
   public List<Dtos> getMarkDownList(BidLevel level) {
     List<Dtos> dtosList = new ArrayList<>();
-    ClientDto clientDto = ClientEntityCreator.randomClientCreator("", true, markDown);
-    JobGroupDto jobGroup =
-        JobGroupCreator.markDownDtoWithEqual(JobFilterFields.country, "India", 300, 1);
-    dtosList.add(new Dtos(clientDto, null, jobGroup, level));
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator(true, markDown);
+    JobGroupDto jobGroup = JobGroupCreator.dtoWithEqual(JobFilterFields.country, "India", 300, 1);
+    dtosList.add(new Dtos(clientDto, null, jobGroup, level, Utils.getRandomNumber(2, 5)));
     return dtosList;
   }
 }
