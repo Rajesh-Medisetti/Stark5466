@@ -121,8 +121,9 @@ public class JobCreator {
         default:
           feed = getAllJobs(jobFilter, size);
       }
+
       FeedDto localFeedDto = getFeed(feed, noFeed);
-      jobGroupFeedMap.put(jobGroupDto, localFeedDto);
+      jobGroupFeedMap.put(jobGroupDto, copyFeed(localFeedDto));
 
       jobsInJobGroupDto.put(jobGroupDto, new ArrayList<>(feed));
 
@@ -146,6 +147,18 @@ public class JobCreator {
     }
     Map<ClientDto, String> feedurl = InBoundFeedCreator.feedCreator(clientFeeds);
     return new JobCreator(jobsInJobGroupDto, clientFeeds, feedurl, jobGroupFeedMap);
+  }
+
+  private static FeedDto copyFeed(FeedDto feed) {
+
+    FeedDto feedDto = new FeedDto();
+
+    List<FeedJob> jobList = feed.getJob();
+
+    for (FeedJob job : jobList) {
+      feedDto.addJob(job);
+    }
+    return feedDto;
   }
 
   private static FeedDto getFeed(List<Map<JobFilterFields, List<String>>> feed, boolean notFeed) {
