@@ -10,7 +10,9 @@ import com.joveo.eqrtestsdk.exception.RedisIoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import java.time.LocalDateTime;
 import org.redisson.Redisson;
+import org.redisson.api.RKeys;
 import org.redisson.api.RMap;
+import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
@@ -56,6 +58,21 @@ public class TrackingService {
     return versions;
   }
 
+  public void addElementToSet(String value) {
+    RSet<String> spamIps = redisClient.getSet("spam_ips", StringCodec.INSTANCE);
+    spamIps.add(value);
+  }
+
+  public void removeElementFromSet(String value) {
+    RSet<String> spamIps = redisClient.getSet("spam_ips", StringCodec.INSTANCE);
+    spamIps.remove(value);
+  }
+
+  public void removeKey(String keyName) {
+    RKeys keys = redisClient.getKeys();
+    keys.delete(keyName);
+  }
+
   /**
    * This method is used to trigger gandalf major run.
    *
@@ -81,7 +98,7 @@ public class TrackingService {
    * @param mapName Name of hash map stored in Elastic Cache
    */
   public void setup(String redisUrl, String mapName) {
-    config = new Config();
+    Config config = new Config();
     config.useSingleServer().setAddress(redisUrl);
     redisClient = Redisson.create(config);
     this.mapName = mapName;
