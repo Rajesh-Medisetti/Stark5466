@@ -216,6 +216,11 @@ public class ClientDto {
     return params.feeds;
   }
 
+  @JsonIgnore
+  public Double getMarkDownValue() {
+    return params.markDownValue;
+  }
+
   public static class ClientParams {
 
     @NotEmpty(message = "Client name can't be null/empty")
