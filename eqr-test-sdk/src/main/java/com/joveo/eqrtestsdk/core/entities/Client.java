@@ -11,6 +11,8 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.ClientStats;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.MarkUp;
+import com.joveo.eqrtestsdk.models.allstatsevents.AllStatsEvent;
+import com.joveo.eqrtestsdk.models.allstatsevents.AllStatsRequest;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -176,5 +178,20 @@ public class Client {
 
     driver.clientService.setMarkUp(
         new MarkUp(markUp, id, id, "Client"), driver.session, driver.conf);
+  }
+
+  /**
+   * This method is used for creating all stats request object.
+   *
+   * @param conversion All stats conversion type
+   * @param count Count
+   * @return AllStatsRequest object
+   */
+  public AllStatsRequest createAllStatsRequest(AllStatsEvent conversion, int count) {
+    AllStatsRequest allStatsRequest = new AllStatsRequest();
+    allStatsRequest.setCount(count);
+    allStatsRequest.setConversionType(conversion);
+    allStatsRequest.setClientId(this.id);
+    return allStatsRequest;
   }
 }

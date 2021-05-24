@@ -1,12 +1,12 @@
 package com.joveo.eqrtestsdk.core.mojo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.api.Wait;
 import com.joveo.eqrtestsdk.api.Waitable;
 import com.joveo.eqrtestsdk.core.models.ConversionCodes;
 import com.joveo.eqrtestsdk.core.models.MajorMinorVersions;
+import com.joveo.eqrtestsdk.core.models.SponsoredEvents;
 import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.DatabaseService;
 import com.joveo.eqrtestsdk.core.services.TrackingService;
@@ -17,18 +17,10 @@ import com.joveo.eqrtestsdk.exception.RedisIoException;
 import com.joveo.eqrtestsdk.exception.SqsEventFailedException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.OutboundJob;
-import com.joveo.eqrtestsdk.models.clickmeterevents.ApplyEvent;
-import com.joveo.eqrtestsdk.models.clickmeterevents.ClickEvent;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,202 +70,21 @@ public class TrafficGenerator implements Waitable {
     this.appliesQueue = config.getString("BaseCMQueue") + config.getString("CMApplyQueue");
     this.timeout = config.getDuration("RedisTimeout");
     this.refreshInterval = config.getDuration("RedisPollingInterval");
-    this.objectMapper = new ObjectMapper();
-    random = new Random();
   }
 
-  private long getRandomNumberWithLength(int n) {
-    long numberOfLengthN;
-    numberOfLengthN =
-        (long) (Math.pow(10.0, n - 1) + random.nextInt((int) (9 * Math.pow(10.0, n - 1))));
-    return numberOfLengthN;
-  }
-
-  private String getEventId(LocalDateTime eventDate) {
-    String uniqueId = "";
-    uniqueId =
-        uniqueId
-            + eventDate.getYear()
-            + String.format("%02d", eventDate.getMonthValue())
-            + String.format("%02d", eventDate.getDayOfMonth());
-    long sevenDigit = getRandomNumberWithLength(7);
-    long eightDigit = getRandomNumberWithLength(8);
-    uniqueId = uniqueId + sevenDigit + eightDigit;
-    return uniqueId;
-  }
-
-  private String getRandomIp() {
-    String randomIp = "";
-    randomIp =
-        randomIp
-            + random.nextInt(256)
-            + "."
-            + random.nextInt(256)
-            + "."
-            + random.nextInt(256)
-            + "."
-            + random.nextInt(256);
-    return randomIp;
-  }
-
-  private String generateSingleClick(LocalDateTime eventDate, OutboundJob job, Boolean isBot)
-      throws MojoException {
-    ClickEvent clickEvent = new ClickEvent();
-
-    clickEvent.setDefaultValues();
-
-    if (isBot) {
-      clickEvent.setAgentType("bot");
-    }
-
-    clickEvent.setId(getEventId(eventDate));
-    clickEvent.setTimestamp(eventDate);
-    clickEvent.setUser(getRandomNumberWithLength(6));
-
-    clickEvent.setLocation(getRandomIp(), "in", "Visakhapatnam", 17.6868, 83.2185);
-
-    long dataPointId = getRandomNumberWithLength(9);
-
-    URL url = null;
-    try {
-      url = new URL(URLDecoder.decode(job.getUrl(), "UTF-8"));
-    } catch (MalformedURLException e) {
-      String errorMessage = "Malformed job url : " + e.getMessage();
-      logger.error(errorMessage);
-      throw new MojoException(errorMessage);
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage());
-      throw new MojoException(e.getMessage());
-    }
-
-    String encodedParams = URLEncoder.encode(url.getQuery());
-    String shortUrl = URLEncoder.encode(url.toString());
-    String destinationUrl = URLEncoder.encode("https://trk-staging.jometer.com/?" + encodedParams);
-
-    clickEvent.setDatapoint(dataPointId, "/datapoints/" + dataPointId, shortUrl, destinationUrl);
-
-    clickEvent.setParams(encodedParams);
-
-    String event = null;
-    try {
-      event = objectMapper.writeValueAsString(clickEvent);
-    } catch (JsonProcessingException e) {
-      String errorMessage = "Exception raised while serializing click event : " + e.getMessage();
-      logger.error(errorMessage);
-      throw new MojoException(errorMessage);
-    }
-    logger.info("Click event : " + event);
-    return event;
-  }
-
-  private List<String> generateClickEvents(
-      Map<LocalDateTime, Integer> clicks, List<OutboundJob> outboundJobs, Boolean isBot)
-      throws MojoException {
-    List<String> clickEvents = new ArrayList<>();
-    for (OutboundJob job : outboundJobs) {
-      for (Map.Entry<LocalDateTime, Integer> click : clicks.entrySet()) {
-        LocalDateTime eventDate = click.getKey();
-        Integer clicksCount = click.getValue();
-        for (long clickItr = 0; clickItr < clicksCount; clickItr++) {
-          clickEvents.add(generateSingleClick(eventDate, job, isBot));
-        }
-      }
-    }
-    return clickEvents;
-  }
-
-  private String generateSingleApply(
-      LocalDateTime eventDate, OutboundJob job, long conversionId, String conversionCode)
-      throws MojoException {
-    ClickEvent clickEvent = new ClickEvent();
-
-    clickEvent.setEvent("click");
-    clickEvent.setTimestamp(eventDate);
-    clickEvent.setId(getEventId(eventDate));
-    clickEvent.setUser(getRandomNumberWithLength(6));
-
-    long dataPointId = getRandomNumberWithLength(9);
-
-    URL url = null;
-    try {
-      url = new URL(URLDecoder.decode(job.getUrl(), "UTF-8"));
-    } catch (MalformedURLException e) {
-      String errorMessage = "Malformed job url : " + e.getMessage();
-      logger.error(errorMessage);
-      throw new MojoException(errorMessage);
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage());
-      throw new MojoException(e.getMessage());
-    }
-
-    String encodedParams = URLEncoder.encode(url.getQuery());
-    String destinationUrl = URLEncoder.encode("https://trk-staging.jometer.com/?" + encodedParams);
-    clickEvent.setDatapoint(dataPointId, "/datapoints/" + dataPointId, null, destinationUrl);
-
-    clickEvent.setDomain(1501, "/domains/1501", "9nl.es");
-    clickEvent.setGroup(11096543, "/groups/" + dataPointId);
-    clickEvent.setUnique(null);
-
-    clickEvent.setAgent(
-        "human", null, null, null, null, null, "en-GB%2Cen-US%3Bq%3D0.9%2Cen%3Bq%3D0.8");
-
-    clickEvent.setLocation(getRandomIp(), null, null, null, null);
-
-    clickEvent.setParams(encodedParams);
-
-    ApplyEvent applyEvent = new ApplyEvent();
-    applyEvent.setEvent("conversion");
-    applyEvent.setTimestamp(eventDate);
-    applyEvent.setId(getEventId(LocalDateTime.now()));
-
-    applyEvent.setData(
-        clickEvent, conversionId, "/conversions/" + conversionId, "?id=" + conversionCode);
-
-    String event = null;
-    try {
-      event = objectMapper.writeValueAsString(applyEvent);
-    } catch (JsonProcessingException e) {
-      String errorMessage = "Exception raised while trying to serialize pojo to json : " + e;
-      logger.error(errorMessage);
-      throw new MojoException(errorMessage);
-    }
-    return event;
-  }
-
-  private List<String> generateApplyEvents(
-      Map<LocalDateTime, Integer> applies,
-      List<OutboundJob> outboundJobs,
-      long conversionId,
-      String conversionCode)
-      throws MojoException {
-    List<String> applyEvents = new ArrayList<>();
-    for (OutboundJob job : outboundJobs) {
-      for (Map.Entry<LocalDateTime, Integer> apply : applies.entrySet()) {
-        LocalDateTime eventDate = apply.getKey();
-        Integer appliesCount = apply.getValue();
-        for (long applyItr = 0; applyItr < appliesCount; applyItr++) {
-          applyEvents.add(generateSingleApply(eventDate, job, conversionId, conversionCode));
-        }
-      }
-    }
-    return applyEvents;
-  }
-
-  private void pushClickMeterEventsToSqs(
-      List<String> allSponsoredClickEvents,
-      List<String> allSponsoredBotClickEvents,
-      List<String> allSponsoredApplyStartEvents,
-      List<String> allSponsoredApplyFinishEvents)
+  private void pushClickMeterEventsToSqs(SponsoredEvents sponsoredEvents)
       throws SqsEventFailedException {
     logger.info("Click Queue URL : " + this.clicksQueue);
-    awsService.sendSqsMessages(allSponsoredClickEvents, this.clicksQueue);
+    awsService.sendSqsMessages(sponsoredEvents.getAllSponsoredClickEvents(), this.clicksQueue);
 
-    awsService.sendSqsMessages(allSponsoredBotClickEvents, this.clicksQueue);
+    awsService.sendSqsMessages(sponsoredEvents.getAllSponsoredBotClickEvents(), this.clicksQueue);
 
     logger.info("Apply Queue URL : " + this.appliesQueue);
-    awsService.sendSqsMessages(allSponsoredApplyStartEvents, this.appliesQueue);
+    awsService.sendSqsMessages(
+        sponsoredEvents.getAllSponsoredApplyStartEvents(), this.appliesQueue);
 
-    awsService.sendSqsMessages(allSponsoredApplyFinishEvents, this.appliesQueue);
+    awsService.sendSqsMessages(
+        sponsoredEvents.getAllSponsoredApplyFinishEvents(), this.appliesQueue);
   }
 
   private void populateClickMeterEventsToMojo()
@@ -314,51 +125,23 @@ public class TrafficGenerator implements Waitable {
    */
   public void run(List<StatsRequest> statsRequestList)
       throws MojoException, InterruptWaitException {
-    logger.info("Events generation started...");
-    List<String> allSponsoredClickEvents = new ArrayList<>();
-    List<String> allSponsoredBotClickEvents = new ArrayList<>();
-    List<String> allSponsoredApplyStartEvents = new ArrayList<>();
-    List<String> allSponsoredApplyFinishEvents = new ArrayList<>();
+    SponsoredEvents sponsoredEvents = new SponsoredEvents();
+    EventGenerator eventGenerator = new EventGenerator();
     Map<String, ConversionCodes> clientIdToConversionCodes = new HashMap<>();
 
     for (StatsRequest statsRequest : statsRequestList) {
       List<OutboundJob> outboundJobs = statsRequest.getJobsInStats();
       String clientId = statsRequest.getClientId();
-      // generateSponsoredClickEvents
-      allSponsoredClickEvents.addAll(
-          generateClickEvents(statsRequest.getSponsoredClicks(), outboundJobs, false));
-
-      // generateSponsoredBotClicks
-      allSponsoredBotClickEvents.addAll(
-          generateClickEvents(statsRequest.getSponsoredBotClicks(), outboundJobs, true));
 
       if (!clientIdToConversionCodes.containsKey(clientId)) {
         clientIdToConversionCodes.put(clientId, databaseService.getApplyConversionCodes(clientId));
       }
 
-      ConversionCodes conversionCodes = clientIdToConversionCodes.get(clientId);
-      // generateSponsoredApplyStartsEvents
-      allSponsoredApplyStartEvents.addAll(
-          generateApplyEvents(
-              statsRequest.getSponsoredApplyStarts(),
-              outboundJobs,
-              conversionCodes.getApplyStartConversionId(),
-              conversionCodes.getApplyStartConversionCode()));
-
-      // generateSponsoredApplyFinishesEvents
-      allSponsoredApplyFinishEvents.addAll(
-          generateApplyEvents(
-              statsRequest.getSponsoredApplyFinishes(),
-              outboundJobs,
-              conversionCodes.getApplyFinishConversionId(),
-              conversionCodes.getApplyFinishConversionCode()));
+      eventGenerator.generateClickMeterEvents(
+          sponsoredEvents, statsRequest, outboundJobs, clientIdToConversionCodes.get(clientId));
     }
 
-    pushClickMeterEventsToSqs(
-        allSponsoredClickEvents,
-        allSponsoredBotClickEvents,
-        allSponsoredApplyStartEvents,
-        allSponsoredApplyFinishEvents);
+    pushClickMeterEventsToSqs(sponsoredEvents);
 
     populateClickMeterEventsToMojo();
   }
