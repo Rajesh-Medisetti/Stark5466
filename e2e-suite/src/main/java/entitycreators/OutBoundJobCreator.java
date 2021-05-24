@@ -12,11 +12,19 @@ public class OutBoundJobCreator {
 
   /** . Create Map of OutBoundJob and ReNo */
   public static Map<String, OutboundJob> outBoundFeedJob(Client client, String pubId)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     Map<String, OutboundJob> map = new HashMap<>();
 
     OutboundFeed outboundFeed = client.getOutboundFeed(pubId);
+    if (outboundFeed == null) {
+      Thread.sleep(5000);
+      outboundFeed = client.getOutboundFeed(pubId);
+      if (outboundFeed == null) {
+        client.runScheduler();
+        outboundFeed = client.getOutboundFeed(pubId);
+      }
+    }
 
     List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJobs();
 

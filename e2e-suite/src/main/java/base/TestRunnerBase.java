@@ -77,11 +77,14 @@ public class TestRunnerBase {
    *
    * @return list of list of date operators
    */
-  public static List<List<RuleOperator>> getDateGroups() {
-    List<List<RuleOperator>> dateGroups =
+  public static List<List<String>> getDateGroups() {
+    List<List<String>> dateGroups =
         Arrays.asList(
-            Arrays.asList(RuleOperator.GREATER_THAN, RuleOperator.LESS_THAN, RuleOperator.BETWEEN),
-            Arrays.asList(RuleOperator.ON, RuleOperator.BEFORE, RuleOperator.AFTER));
+            Arrays.asList(RuleOperator.GREATER_THAN.toString(), RuleOperator.LESS_THAN.toString()),
+            Arrays.asList(
+                RuleOperator.ON.toString(),
+                RuleOperator.BEFORE.toString(),
+                RuleOperator.AFTER.toString()));
 
     return dateGroups;
   }
