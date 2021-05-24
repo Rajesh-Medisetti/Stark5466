@@ -5,6 +5,7 @@ import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.GroupOperator;
 import com.joveo.eqrtestsdk.models.GroupingJobFilter;
 import com.joveo.eqrtestsdk.models.JobFilter;
+import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,5 +39,53 @@ public class JobGroupCreator {
       resultList.add(jobGroupDto);
     }
     return resultList;
+  }
+
+  /**
+   * One on one mapping of job group DTO with job filter operator as equal.
+   *
+   * @return list of job group DTO's that has been set.
+   */
+  public static JobGroupDto dtoWithEqual(
+      JobFilterFields field, String searchString, double budget, double bidIncrement) {
+    double counter = 0.0;
+    List<JobGroupDto> resultList = new ArrayList();
+    List<Filter> jf = new ArrayList<>();
+    JobGroupDto jobGroupDto = new JobGroupDto();
+    JobFilter jfEle = (JobFilter) JobFilter.eq(field, searchString);
+    jf.add(jfEle);
+    jobGroupDto.setName(
+        jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
+    jobGroupDto.setCpcBid(counter + bidIncrement);
+    jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
+    jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
+
+    counter++;
+    return jobGroupDto;
+  }
+
+  /**
+   * One on one mapping of job group DTO with job filter operator as In.
+   *
+   * @return list of job group DTO's that has been set.
+   */
+  public static JobGroupDto dtoWithIN(
+      JobFilterFields field, List<String> searchString, double budget, double bidIncrement) {
+    double counter = 0.0;
+    List<JobGroupDto> resultList = new ArrayList();
+    List<Filter> jf = new ArrayList<>();
+    JobGroupDto jobGroupDto = new JobGroupDto();
+    JobFilter jfEle = (JobFilter) JobFilter.in(field, searchString);
+    jf.add(jfEle);
+    jobGroupDto.setName(
+        jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
+    jobGroupDto.setCpcBid(counter + bidIncrement);
+    jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
+    jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
+
+    counter++;
+    return jobGroupDto;
   }
 }

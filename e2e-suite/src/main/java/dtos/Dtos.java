@@ -10,15 +10,29 @@ public class Dtos {
   private CampaignDto campaignDto;
   private JobGroupDto jobGroupDto;
 
+  public int getNumberOfjobs() {
+    return numberOfJobs;
+  }
+
+  public void setNumberOfjobs(int numberOfJobs) {
+    this.numberOfJobs = numberOfJobs;
+  }
+
+  private int numberOfJobs;
   private BidLevel bidLevel;
 
   /** . Storage for Entities */
   public Dtos(
-      ClientDto clientDto, CampaignDto campaignDto, JobGroupDto jobGroupDto, BidLevel bidLevel) {
+      ClientDto clientDto,
+      CampaignDto campaignDto,
+      JobGroupDto jobGroupDto,
+      BidLevel bidLevel,
+      int numberOfJobs) {
     this.clientDto = clientDto;
     this.campaignDto = campaignDto;
     this.jobGroupDto = jobGroupDto;
     this.bidLevel = bidLevel;
+    this.numberOfJobs = numberOfJobs;
   }
 
   public ClientDto getClientDto() {

@@ -65,7 +65,7 @@ public class JobCreator {
 
       List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
 
-      int size = Utils.getRandomNumber(2, 5);
+      int size = dto.getNumberOfjobs();
       List<String> data = new ArrayList<>();
 
       switch (jobFilter.getOperator().toString()) {

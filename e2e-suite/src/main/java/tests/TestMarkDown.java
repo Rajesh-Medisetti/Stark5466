@@ -4,7 +4,9 @@ import base.TestRunnerBase;
 import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
+import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import dataproviders.JobFilterDP;
 import dataproviders.MarkDownDP;
 import entitycreators.JobCreator;
 import enums.BidLevel;
@@ -27,16 +29,21 @@ public class TestMarkDown extends TestRunnerBase {
     if (null == driver) {
       createDriver();
     }
-    MarkDownDP.dataProvider(driver);
+    JobFilterDP jobfilterObj = new JobFilterDP();
+    MarkDownDP.markDowndata =
+        jobfilterObj.createJobFilterData(driver, new MarkDownDP().getMarkDownList());
+    // MarkDownDP.dataProvider(driver);
   }
 
   @Test(dataProvider = "MarkDown", dataProviderClass = MarkDownDP.class)
   public void markDownTestCases(
-      Double markDown,
+      String testCase,
+      ClientDto clientDto,
       Client client,
       JobGroupDto jobGroupDto,
       JobGroup jobGroupObj,
       JobCreator jobCreator,
+      String publisher,
       BidLevel bidLevel)
       throws MojoException, InterruptedException {
 
@@ -46,7 +53,7 @@ public class TestMarkDown extends TestRunnerBase {
     } else {
       cpc = jobGroupObj.getStats().getCpcBid();
     }
-
+    double markDown = 20; // will do clientDto.getMarkDown();
     Assert.assertTrue(
         new OutBoundJobCpcValidation()
             .getJobLevelCpc(
