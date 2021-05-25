@@ -8,6 +8,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.TimeoutException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 public class MojoUtils {
 
@@ -27,7 +28,9 @@ public class MojoUtils {
     //              client.runScheduler();
     //            }
 
-    clientSet.parallelStream()
+    ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors()*2);
+
+    pool.submit(() -> clientSet.stream().parallel()
         .forEach(
             (client) -> {
               try {
@@ -40,8 +43,12 @@ public class MojoUtils {
               } catch (MojoException e) {
                 e.printStackTrace();
               }
-            });
-    Thread.sleep(1000);
+            }));
+
+    pool.shutdown();
+
+    while (!pool.isTerminated()){}
+
     driver.refreshEntityCache();
     driver.refreshJobCount();
   }
