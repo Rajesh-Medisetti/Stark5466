@@ -1,12 +1,34 @@
 package helpers;
 
+import static helpers.Utils.getRandomString;
+import static helpers.Utils.getRandomStringsOfGivenSize;
+
+import com.joveo.eqrtestsdk.core.entities.Campaign;
 import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.Driver;
+import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.InterruptWaitException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.TimeoutException;
+import com.joveo.eqrtestsdk.models.CampaignDto;
+import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.FeedDto;
+import com.joveo.eqrtestsdk.models.FeedJob;
+import com.joveo.eqrtestsdk.models.JobFilterFields;
+import com.joveo.eqrtestsdk.models.JobGroupDto;
+import dtos.AllEntities;
+import dtos.Dtos;
+import entitycreators.CampaignEntityCreator;
+import entitycreators.ClientEntityCreator;
+import entitycreators.InBoundFeedCreator;
+import entitycreators.JobCreator;
+import entitycreators.JobGroupCreator;
+import enums.BidLevel;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
@@ -70,5 +92,182 @@ public class MojoUtils {
     for (String feed : feeds) {
       driver.deleteInboundFeed(feed);
     }
+  }
+
+  /**
+   * This method creates a client along with campaign and job group for that client.
+   *
+   * @param driver driver
+   * @param publisher publisher
+   * @param bidLevel bidLevel
+   * @return AllEntities object
+   * @throws MojoException Mojo Exception
+   */
+  public static AllEntities createClientAlongWithCampaignAndJobGroup(
+      Driver driver, String publisher, BidLevel bidLevel) throws MojoException {
+    List<String> countriesForJobGroup = getRandomStringsOfGivenSize(Utils.getRandomNumber(3, 5));
+    // clientDto
+    ClientDto clientDto = ClientEntityCreator.randomClientCreator(false, 0);
+    // campaignDto
+    CampaignDto campaignDto = CampaignEntityCreator.randomCampaignCreator(1000);
+    // JobGroupDto
+    JobGroupDto jobGroupDto =
+        JobGroupCreator.dtoWithIN(
+            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT);
+    jobGroupDto.addPlacementWithBid(publisher, 2.0);
+
+    List<Dtos> dtos = new ArrayList<>();
+    dtos.add(new Dtos(clientDto, campaignDto, jobGroupDto, bidLevel, 0));
+
+    // inbound feed url
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtos);
+
+    // set url to client
+    clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));
+
+    // create client, campaign, job group
+    Client client = driver.createClient(clientDto);
+
+    campaignDto.setClientId(client.id);
+    Campaign campaign = driver.createCampaign(campaignDto);
+
+    jobGroupDto.setClientId(client.id);
+    jobGroupDto.setCampaignId(campaign.id);
+    JobGroup jobGroup = driver.createJobGroup(jobGroupDto);
+
+    AllEntities allEntities =
+        new AllEntities(
+            client,
+            clientDto,
+            campaign,
+            campaignDto,
+            jobGroup,
+            jobGroupDto,
+            bidLevel,
+            0,
+            jobCreator);
+    return allEntities;
+  }
+
+  /**
+   * This method adds a list of jobs to a given client.
+   *
+   * @param driver driver
+   * @param publisher publisher
+   * @param bidLevel bidLevel
+   * @param jobCreator jobCreator
+   * @param allEntities allEntities
+   * @return AllEntities Object
+   * @throws MojoException Mojo Exception
+   */
+  public static AllEntities addNewJobGroupToExistingClient(
+      Driver driver,
+      String publisher,
+      BidLevel bidLevel,
+      JobCreator jobCreator,
+      AllEntities allEntities)
+      throws MojoException {
+    List<String> countriesForJobGroup = getRandomStringsOfGivenSize(Utils.getRandomNumber(1, 3));
+    ClientDto editClientDto = new ClientDto();
+    editClientDto.deleteFeed(jobCreator.clientUrlMap.get(allEntities.getClientDto()));
+
+    JobGroupDto jobGroupDto =
+        JobGroupCreator.dtoWithIN(
+            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT);
+    jobGroupDto.addPlacementWithBid(publisher, 2.0);
+
+    List<Dtos> dtos = new ArrayList<>();
+    dtos.add(
+        new Dtos(
+            allEntities.getClientDto(), allEntities.getCampaignDto(), jobGroupDto, bidLevel, 0));
+
+    JobCreator jobCreator1 = new JobCreator();
+    jobCreator1.jobProvider(dtos);
+
+    editClientDto.addFeed(jobCreator.clientUrlMap.get(allEntities.getClientDto()));
+
+    allEntities.getClient().edit(editClientDto);
+
+    jobGroupDto.setClientId(allEntities.getClient().id);
+    jobGroupDto.setCampaignId(allEntities.getCampaign().id);
+    JobGroup jobGroup = driver.createJobGroup(jobGroupDto);
+
+    AllEntities allEntities1 =
+        new AllEntities(
+            allEntities.getClient(),
+            allEntities.getClientDto(),
+            allEntities.getCampaign(),
+            allEntities.getCampaignDto(),
+            jobGroup,
+            jobGroupDto,
+            bidLevel,
+            0,
+            jobCreator1);
+    return allEntities1;
+  }
+
+  /**
+   * This method is used to add a given job to existing inbound feed based on title and reference id
+   * provided.
+   *
+   * @param jobCreator jobCreator
+   * @param isTitleSame isTitleSame
+   * @param isReqSame isReqSame
+   * @param jobs jobs
+   * @param allEntities allEntities
+   * @throws MojoException Mojo Exception
+   */
+  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+  public static void addNewJobToInboundFeed(
+      JobCreator jobCreator,
+      boolean isTitleSame,
+      boolean isReqSame,
+      int jobs,
+      AllEntities allEntities)
+      throws MojoException {
+    Client client = allEntities.getClient();
+    ClientDto clientDto = allEntities.getClientDto();
+    JobGroupDto jobGroupDto = allEntities.getJobGroupDto();
+    ClientDto editClientDto = new ClientDto();
+    editClientDto.deleteFeed(jobCreator.clientUrlMap.get(clientDto));
+
+    if (jobs > jobCreator.clientFeedMap.get(clientDto).getJob().size()) {
+      return;
+    }
+
+    FeedDto inboundFeedDto = jobCreator.clientFeedMap.get(clientDto);
+    for (int i = 0; i < jobs; i++) {
+      FeedJob job = new FeedJob();
+      FeedJob inboundJob = inboundFeedDto.getJob().get(i);
+      if (isReqSame && isTitleSame) {
+        job = inboundJob;
+      } else if (isReqSame) {
+        job.setReferenceNumber(inboundJob.getReferenceNumber());
+        job.setCountry(inboundJob.getCountry());
+        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
+      } else if (isTitleSame) {
+        job.setTitle(inboundJob.getTitle());
+        job.setReferenceNumber(++JobCreator.refNo);
+        job.setCountry(inboundJob.getCountry());
+        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
+      } else {
+        job.setReferenceNumber(++JobCreator.refNo);
+        job.setCountry(inboundJob.getCountry());
+        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
+      }
+      inboundFeedDto.addJob(job);
+    }
+
+    Map<ClientDto, FeedDto> clientFeeds = new HashMap<>();
+    clientFeeds.put(clientDto, inboundFeedDto);
+    String feedUrl = InBoundFeedCreator.feedCreator(clientFeeds).get(clientDto);
+
+    editClientDto.addFeed(feedUrl);
+    client.edit(editClientDto);
+
+    jobCreator.clientUrlMap.put(clientDto, feedUrl);
+    jobCreator.clientFeedMap.put(clientDto, inboundFeedDto);
+    jobCreator.jobGroupDtoFeedDtoMap.put(jobGroupDto, inboundFeedDto);
   }
 }
