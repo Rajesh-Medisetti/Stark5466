@@ -2,6 +2,7 @@ package com.joveo.eqrtestsdk.core.entities;
 
 import static com.joveo.eqrtestsdk.utils.DateUtils.startOfMonth;
 
+import com.joveo.eqrtestsdk.core.models.fetcher.Pixels;
 import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
 import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
@@ -178,6 +179,11 @@ public class Client {
 
     driver.clientService.setMarkUp(
         new MarkUp(markUp, id, id, "Client"), driver.session, driver.conf);
+  }
+
+  public Pixels getPixels() throws UnexpectedResponseException, ApiRequestException {
+
+    return driver.clientService.getPixels(this.id, driver.session, driver.conf);
   }
 
   /**
