@@ -34,7 +34,7 @@ public class JobFilterDP {
   static Client globalClient;
   static Campaign globalCampaign;
   static String feed = "https://joveo-samplefeed.s3.amazonaws.com/abhinay/AbSample.xml";
-  static String placements = "Naukri";
+  public static String placements = "Naukri";
   public static Set<Client> clientSet = new HashSet<>();
   static Object[][] arr;
   //  static List<List<Object>> dpList = new ArrayList<>();
