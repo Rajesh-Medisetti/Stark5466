@@ -48,6 +48,7 @@ public class JobFilterDP {
     dtosList.addAll(createDtoListStringNegative(GroupOperator.OR, BidLevel.JOB_GROUP));
     dtosList.addAll(createDtoListStringPositive(GroupOperator.AND, BidLevel.JOB_GROUP));
     dtosList.addAll(createDtoListStringPositive(GroupOperator.OR, BidLevel.PLACEMENT));
+    dtosList.addAll(createDtoListStringPositive(GroupOperator.OR, BidLevel.NO_BID));
     for (List<String> dateList : TestRunnerBase.getDateGroups()) {
       dtosList.addAll(createDtoListDate(GroupOperator.OR, BidLevel.PLACEMENT, dateList));
     }
@@ -155,7 +156,8 @@ public class JobFilterDP {
                   TestRunnerBase.getJobFilterStringList(), tempList),
               gp,
               300,
-              1);
+              1,
+              level);
       for (JobGroupDto jobGroupDto : jobGroupList) {
         dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
       }
@@ -173,7 +175,8 @@ public class JobFilterDP {
                 TestRunnerBase.getJobFilterStringList(), TestRunnerBase.getStringPositiveList()),
             gp,
             300,
-            1);
+            1,
+            level);
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
     }
@@ -191,7 +194,8 @@ public class JobFilterDP {
                 TestRunnerBase.getJobFilterDateList(), dateGroupList),
             gp,
             300,
-            1);
+            1,
+            level);
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
     }
