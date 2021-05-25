@@ -2,7 +2,8 @@ package enums;
 
 public enum BidLevel {
   PLACEMENT,
-  JOB_GROUP
+  JOB_GROUP,
+  NO_BID
   //    INBOUND_FEED,
   //    JOB
 }
