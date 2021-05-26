@@ -212,7 +212,8 @@ public class ClientService extends BaseService {
    * @throws ApiRequestException something wrong with request
    * @throws InvalidInputException invalid input provided
    */
-  public String create(Session session, Config conf, ClientDto client)
+  @SuppressWarnings("checkstyle:CyclomaticComplexity")
+  public String create(Session session, Config conf, ClientDto client, boolean validation)
       throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
 
     client.setDefaultValues();
@@ -221,10 +222,12 @@ public class ClientService extends BaseService {
       populateFeed(session, conf, feed);
     }
 
-    String validationErrors = validateEntity(client, validator);
-    if (validationErrors != null) {
-      logger.error(validationErrors);
-      throw new InvalidInputException(validationErrors);
+    if (validation) {
+      String validationErrors = validateEntity(client, validator);
+      if (validationErrors != null) {
+        logger.error(validationErrors);
+        throw new InvalidInputException(validationErrors);
+      }
     }
 
     RestResponse response =
