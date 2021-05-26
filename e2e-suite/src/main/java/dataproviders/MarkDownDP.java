@@ -62,7 +62,8 @@ public class MarkDownDP {
   public List<Dtos> getMarkDownList(BidLevel level) {
     List<Dtos> dtosList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(true, markDown);
-    JobGroupDto jobGroup = JobGroupCreator.dtoWithEqual(JobFilterFields.country, "India", 300, 1);
+    JobGroupDto jobGroup =
+        JobGroupCreator.dtoWithEqual(JobFilterFields.country, "India", 300, 1, level);
     dtosList.add(new Dtos(clientDto, null, jobGroup, level, Utils.getRandomNumber(2, 5)));
     return dtosList;
   }
