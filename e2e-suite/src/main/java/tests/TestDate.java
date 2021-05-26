@@ -31,7 +31,8 @@ public class TestDate extends TestRunnerBase {
       createDriver();
     }
     JobFilterDP jobFilter = new JobFilterDP();
-    DateDP.data1to1 = jobFilter.createJobFilterData(driver, new DateDP().getDateCombination());
+    DateDP.data1to1 =
+        jobFilter.createJobFilterData(driver, new DateDP().getDateCombination(), false);
   }
 
   @Test(dataProvider = "test", dataProviderClass = DateDP.class)

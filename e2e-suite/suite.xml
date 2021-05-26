@@ -2,9 +2,9 @@
 
 <suite name="Suite1" verbose="1" >
   <test name="testBasic" >
-    <classes>
-       <class name="tests.TestJobFilter" />
-    </classes>
+    <packages>
+       <package name="tests" />
+    </packages>
   </test>
 
 <!--   <test name="Regression1">

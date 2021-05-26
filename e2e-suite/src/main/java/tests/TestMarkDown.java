@@ -31,7 +31,7 @@ public class TestMarkDown extends TestRunnerBase {
     }
     JobFilterDP jobfilterObj = new JobFilterDP();
     MarkDownDP.markDowndata =
-        jobfilterObj.createJobFilterData(driver, new MarkDownDP().getMarkDownList());
+        jobfilterObj.createJobFilterData(driver, new MarkDownDP().getMarkDownList(), true);
   }
 
   @Test(dataProvider = "MarkDown", dataProviderClass = MarkDownDP.class)
