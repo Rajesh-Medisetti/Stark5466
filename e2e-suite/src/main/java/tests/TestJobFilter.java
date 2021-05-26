@@ -49,7 +49,7 @@ public class TestJobFilter extends TestRunnerBase {
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
     softAssertion.assertEquals(
         jobGroupObj.getStats().getJobCount(),
-        jobCreator.jobsInJobGroup.get(jobGroupDto).size(),
+        jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob().size(),
         "The job count is not correct for client "
             + clientObj.id
             + " and job group "
