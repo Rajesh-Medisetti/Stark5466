@@ -1,4 +1,5 @@
 package entitycreators;
+
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.FeedDto;
@@ -12,7 +13,12 @@ import dtos.Dtos;
 import helpers.Utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class JobCreator {
   public Map<ClientDto, FeedDto> clientFeedMap;
@@ -20,6 +26,7 @@ public class JobCreator {
   public Map<JobGroupDto, FeedDto> jobGroupDtoFeedDtoMap;
   public Set<ClientDto> clientDtoSet;
   public static Integer refNo = 0;
+
   /** Constructor for JobCreator. */
   public JobCreator() {
 
@@ -27,8 +34,8 @@ public class JobCreator {
     clientUrlMap = new HashMap<>();
     jobGroupDtoFeedDtoMap = new HashMap<>();
     clientDtoSet = new HashSet<>();
-
   }
+
   /** . JobProvider. */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   public void jobProvider(List<Dtos> dtos) throws MojoException {
@@ -105,6 +112,7 @@ public class JobCreator {
     }
     clientUrlMap = InBoundFeedCreator.feedCreator(clientFeedMap);
   }
+
   private FeedDto copyFeed(FeedDto feed) {
     FeedDto feedDto = new FeedDto();
     List<FeedJob> jobList = feed.getJob();
@@ -113,6 +121,7 @@ public class JobCreator {
     }
     return feedDto;
   }
+
   private FeedDto getFeed(List<Map<JobFilterFields, List<String>>> feed, boolean notFeed) {
     FeedDto feedDto = new FeedDto();
     for (Map<JobFilterFields, List<String>> jobDetails : feed) {
@@ -120,9 +129,9 @@ public class JobCreator {
     }
     return feedDto;
   }
+
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  private  List<Map<JobFilterFields, List<String>>> getAllJobs(
-      JobFilter jobFilter, int size) {
+  private List<Map<JobFilterFields, List<String>>> getAllJobs(JobFilter jobFilter, int size) {
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
     String value = (String) jobFilter.getData();
     for (int i = 0; i < size; i++) {
@@ -158,6 +167,7 @@ public class JobCreator {
     }
     return feed;
   }
+
   private List<Map<JobFilterFields, List<String>>> getAllJobsForIn(JobFilter jobFilter) {
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
     List<String> values = (List<String>) jobFilter.getData();
@@ -179,7 +189,8 @@ public class JobCreator {
     }
     return feed;
   }
-  private  List<Map<JobFilterFields, List<String>>> getAllJobsForDate(
+
+  private List<Map<JobFilterFields, List<String>>> getAllJobsForDate(
       JobFilter jobFilter, int size) {
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
     //    String value = (String) jobFilter.getData();

@@ -7,7 +7,6 @@ import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.FeedDto;
-import com.joveo.eqrtestsdk.models.FeedJob;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.JobFilterDP;
 import dataproviders.editdp.EditClientDP;
@@ -22,8 +21,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import validations.EditClientValidations;
 import validations.OutBoundJobCpcValidation;
-
-import java.util.List;
 
 public class TestEditClient extends TestRunnerBase {
 
@@ -54,15 +51,15 @@ public class TestEditClient extends TestRunnerBase {
     SoftAssert softAssertion = new SoftAssert();
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
 
+    Assert.assertEquals(
+        (feedDto1.getJob().size() + feedDto2.getJob().size()),
+        client.getOutboundFeed(pubId).size());
 
-
-      Assert.assertEquals((feedDto1.getJob().size() + feedDto2.getJob().size()), client.getOutboundFeed(pubId).size());
-
-    Assert.assertTrue(EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto1, client, pubId));
-      Assert.assertTrue(
-          EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto2, client, pubId),
-          "createFeed jobs is not present in OutBoundFeed ");
-
+    Assert.assertTrue(
+        EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto1, client, pubId));
+    Assert.assertTrue(
+        EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto2, client, pubId),
+        "createFeed jobs is not present in OutBoundFeed ");
   }
 
   @Test(dataProvider = "removeFeed", dataProviderClass = EditClientDP.class)
@@ -124,7 +121,6 @@ public class TestEditClient extends TestRunnerBase {
    * @throws UnexpectedResponseException unexpected response exceptions
    * @throws MojoException mojo exception
    */
-
   @AfterClass
   public void tearDown() throws MojoException {
 

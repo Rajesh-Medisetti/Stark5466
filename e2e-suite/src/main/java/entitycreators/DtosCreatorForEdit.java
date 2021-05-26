@@ -27,19 +27,19 @@ public class DtosCreatorForEdit {
     final ClientDto createClientDto = ClientEntityCreator.randomClientCreator(false, 0);
 
     clientDtoList.add(createClientDto);
-    for (int i = 0;i < sz - 1; i++) {
+    for (int i = 0; i < sz - 1; i++) {
       clientDtoList.add(new ClientDto());
     }
 
     List<CampaignDto> campaignDtoList = new ArrayList<>();
 
-    for (int i = 0;i < sz ; i++) {
+    for (int i = 0; i < sz; i++) {
       campaignDtoList.add(new CampaignDto());
     }
 
     List<JobGroupDto> jobGroupDtoList = new ArrayList<>();
 
-    for (int i = 0;i < sz; i++) {
+    for (int i = 0; i < sz; i++) {
       JobGroupDto jobGroupDto = new JobGroupDto();
 
       JobFilter jobFilter = (JobFilter) listList.get(i).get(0);
@@ -51,7 +51,6 @@ public class DtosCreatorForEdit {
       jobGroupDtoList.add(jobGroupDto);
     }
 
-
     List<Dtos> dtosList = new ArrayList<>();
 
     List<BidLevel> bidLevelList = new ArrayList<>();
@@ -60,9 +59,14 @@ public class DtosCreatorForEdit {
     bidLevelList.add(BidLevel.JOB_GROUP);
     bidLevelList.add(BidLevel.PLACEMENT);
 
-    for (int i = 0;i < sz; i++) {
-      dtosList.add(new Dtos(clientDtoList.get(i), campaignDtoList.get(i),
-          jobGroupDtoList.get(i), bidLevelList.get(i),0));
+    for (int i = 0; i < sz; i++) {
+      dtosList.add(
+          new Dtos(
+              clientDtoList.get(i),
+              campaignDtoList.get(i),
+              jobGroupDtoList.get(i),
+              bidLevelList.get(i),
+              0));
     }
 
     return dtosList;

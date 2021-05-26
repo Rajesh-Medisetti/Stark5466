@@ -75,7 +75,6 @@ public class EditJobGroupDP {
     JobCreator jobCreator = new JobCreator();
     jobCreator.jobProvider(dtosList);
 
-
     ClientDto clientDto = dtosList.get(0).getClientDto();
 
     clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));

@@ -5,7 +5,10 @@ import com.joveo.eqrtestsdk.core.entities.Client;
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
-import com.joveo.eqrtestsdk.models.*;
+import com.joveo.eqrtestsdk.models.CampaignDto;
+import com.joveo.eqrtestsdk.models.ClientDto;
+import com.joveo.eqrtestsdk.models.Freq;
+import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dtos.Dtos;
 import entitycreators.DtosCreatorForEdit;
 import entitycreators.JobCreator;
@@ -100,8 +103,8 @@ public class EditClientDP {
   }
 
   /** . checks OutBoundFeed after adding feed */
-  public static void addFeedDataProvider(Driver driver, Scheduler scheduler) throws MojoException, InterruptedException {
-
+  public static void addFeedDataProvider(Driver driver, Scheduler scheduler)
+      throws MojoException, InterruptedException {
 
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
 
@@ -115,59 +118,56 @@ public class EditClientDP {
     Client client = driver.createClient(clientDto);
     clientSet.add(client);
 
+    ClientDto editClientDto = dtosList.get(1).getClientDto();
 
-      ClientDto editClientDto = dtosList.get(1).getClientDto();
+    editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
 
-      editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
+    client.edit(editClientDto);
 
+    if (scheduler.equals(Scheduler.Run)) {
+      MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
+    }
 
-      client.edit(editClientDto);
+    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setClientId(client.id);
+    campaignDto.setName(campaignName);
+    campaignDto.setBudget(1000.0);
 
-      if (scheduler.equals(Scheduler.Run)) {
-        MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
-      }
+    Campaign campaign = driver.createCampaign(campaignDto);
 
-      CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
-      campaignDto.setClientId(client.id);
-      campaignDto.setName(campaignName);
-      campaignDto.setBudget(1000.0);
+    JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
+    jobGroupDto1.setClientId(client.id);
+    jobGroupDto1.setCampaignId(campaign.id);
 
-      Campaign campaign = driver.createCampaign(campaignDto);
+    jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto1.addPlacementWithBid(publisher, 3.0);
 
-      JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
-      jobGroupDto1.setClientId(client.id);
-      jobGroupDto1.setCampaignId(campaign.id);
+    driver.createJobGroup(jobGroupDto1);
 
-      jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto1.addPlacementWithBid(publisher, 3.0);
+    JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
+    jobGroupDto2.setClientId(client.id);
+    jobGroupDto2.setCampaignId(campaign.id);
 
-      driver.createJobGroup(jobGroupDto1);
+    jobGroupDto2.setCpcBid(3.0);
+    jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto2.addPlacement(publisher);
+    driver.createJobGroup(jobGroupDto2);
 
-      JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
-      jobGroupDto2.setClientId(client.id);
-      jobGroupDto2.setCampaignId(campaign.id);
-
-      jobGroupDto2.setCpcBid(3.0);
-      jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto2.addPlacement(publisher);
-      driver.createJobGroup(jobGroupDto2);
-
-      addFeedDPList.add(
-          List.of(
-              jobCreator.clientFeedMap.get(clientDto),
-              jobCreator.clientFeedMap.get(editClientDto),
-              client,
-              jobGroupDto1.getPlacements().get(0).publisher));
+    addFeedDPList.add(
+        List.of(
+            jobCreator.clientFeedMap.get(clientDto),
+            jobCreator.clientFeedMap.get(editClientDto),
+            client,
+            jobGroupDto1.getPlacements().get(0).publisher));
   }
 
   /** . checks OutBoundFeed after removing feed */
-  public static void removeFeedDataProvider(Driver driver, Scheduler scheduler) throws MojoException, InterruptedException {
-
+  public static void removeFeedDataProvider(Driver driver, Scheduler scheduler)
+      throws MojoException, InterruptedException {
 
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
     JobCreator jobCreator = new JobCreator();
     jobCreator.jobProvider(dtosList);
-
 
     ClientDto clientDto = dtosList.get(0).getClientDto();
 
@@ -176,52 +176,51 @@ public class EditClientDP {
     Client client = driver.createClient(clientDto);
     clientSet.add(client);
 
-      ClientDto editClientDto = dtosList.get(1).getClientDto();
+    ClientDto editClientDto = dtosList.get(1).getClientDto();
 
-      editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
+    editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
 
-      editClientDto.deleteFeed(jobCreator.clientUrlMap.get(clientDto));
+    editClientDto.deleteFeed(jobCreator.clientUrlMap.get(clientDto));
 
+    client.edit(editClientDto);
 
-      client.edit(editClientDto);
+    if (scheduler.equals(Scheduler.Run)) {
+      MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
+    }
+    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setClientId(client.id);
+    campaignDto.setName(campaignName);
+    campaignDto.setBudget(1000.0);
 
-      if (scheduler.equals(Scheduler.Run)) {
-        MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
-      }
-      CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
-      campaignDto.setClientId(client.id);
-      campaignDto.setName(campaignName);
-      campaignDto.setBudget(1000.0);
+    Campaign campaign = driver.createCampaign(campaignDto);
 
-      Campaign campaign = driver.createCampaign(campaignDto);
+    JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
+    jobGroupDto1.setClientId(client.id);
+    jobGroupDto1.setCampaignId(campaign.id);
 
-      JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
-      jobGroupDto1.setClientId(client.id);
-      jobGroupDto1.setCampaignId(campaign.id);
+    jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto1.addPlacementWithBid("Naukri", 3.0);
 
-      jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto1.addPlacementWithBid("Naukri", 3.0);
+    driver.createJobGroup(jobGroupDto1);
 
-      driver.createJobGroup(jobGroupDto1);
+    JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
+    jobGroupDto2.setClientId(client.id);
+    jobGroupDto2.setCampaignId(campaign.id);
 
-      JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
-      jobGroupDto2.setClientId(client.id);
-      jobGroupDto2.setCampaignId(campaign.id);
+    jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto2.addPlacementWithBid("Naukri", 3.0);
+    driver.createJobGroup(jobGroupDto2);
 
-      jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto2.addPlacementWithBid("Naukri", 3.0);
-      driver.createJobGroup(jobGroupDto2);
-
-      removeFeedDPList.add(
-          List.of(
-              jobCreator.clientFeedMap.get(editClientDto),
-              client,
-              jobGroupDto1.getPlacements().get(0).publisher));
+    removeFeedDPList.add(
+        List.of(
+            jobCreator.clientFeedMap.get(editClientDto),
+            client,
+            jobGroupDto1.getPlacements().get(0).publisher));
   }
 
   /** . checks OutBoundJob cpc after editing markDown */
-  public static void editMarkDownDataProvider(Driver driver, Scheduler scheduler) throws MojoException, InterruptedException {
-
+  public static void editMarkDownDataProvider(Driver driver, Scheduler scheduler)
+      throws MojoException, InterruptedException {
 
     final Double editedMarkDown = 50.0;
 
@@ -238,67 +237,67 @@ public class EditClientDP {
     Client client = driver.createClient(clientDto);
     clientSet.add(client);
 
-      ClientDto editClientDto = dtosList.get(1).getClientDto();
+    ClientDto editClientDto = dtosList.get(1).getClientDto();
 
-      editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
+    editClientDto.addFeed(jobCreator.clientUrlMap.get(editClientDto));
 
-      editClientDto.setMarkDown(editedMarkDown, false);
-      client.edit(editClientDto);
+    editClientDto.setMarkDown(editedMarkDown, false);
+    client.edit(editClientDto);
 
-      if (scheduler.equals(Scheduler.Run)) {
-        MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
-      }
+    if (scheduler.equals(Scheduler.Run)) {
+      MojoUtils.runSchedulerAndRefreshCache(clientSet, driver);
+    }
 
-      CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
-      campaignDto.setBudget(1000.0);
-      campaignDto.setClientId(client.id);
-      campaignDto.setName(campaignName);
+    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setBudget(1000.0);
+    campaignDto.setClientId(client.id);
+    campaignDto.setName(campaignName);
 
-      Campaign campaign = driver.createCampaign(campaignDto);
+    Campaign campaign = driver.createCampaign(campaignDto);
 
-      JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
-      jobGroupDto1.setClientId(client.id);
-      jobGroupDto1.setCampaignId(campaign.id);
-      jobGroupDto1.setCpcBid(4.0);
+    JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
+    jobGroupDto1.setClientId(client.id);
+    jobGroupDto1.setCampaignId(campaign.id);
+    jobGroupDto1.setCpcBid(4.0);
 
-      jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto1.addPlacement(publisher);
+    jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto1.addPlacement(publisher);
 
-      JobGroup jobGroup1 = driver.createJobGroup(jobGroupDto1);
+    JobGroup jobGroup1 = driver.createJobGroup(jobGroupDto1);
 
-      editMarkDownDPList.add(
-          List.of(
-              editedMarkDown,
-              client,
-              jobGroupDto1,
-              jobGroup1,
-              jobCreator,
-              dtosList.get(0).getBidLevel()));
+    editMarkDownDPList.add(
+        List.of(
+            editedMarkDown,
+            client,
+            jobGroupDto1,
+            jobGroup1,
+            jobCreator,
+            dtosList.get(0).getBidLevel()));
 
-      JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
-      jobGroupDto2.setClientId(client.id);
-      jobGroupDto2.setCampaignId(campaign.id);
-      jobGroupDto2.setCpcBid((double) Utils.getRandomNumber(1, 5));
+    JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
+    jobGroupDto2.setClientId(client.id);
+    jobGroupDto2.setCampaignId(campaign.id);
+    jobGroupDto2.setCpcBid((double) Utils.getRandomNumber(1, 5));
 
-      jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
-      jobGroupDto2.addPlacementWithBid(publisher, (double) Utils.getRandomNumber(1, 5));
-      JobGroup jobGroup2 = driver.createJobGroup(jobGroupDto2);
+    jobGroupDto2.setBudgetCap(true, Freq.Monthly, 80.0, 300.0);
+    jobGroupDto2.addPlacementWithBid(publisher, (double) Utils.getRandomNumber(1, 5));
+    JobGroup jobGroup2 = driver.createJobGroup(jobGroupDto2);
 
-      editMarkDownDPList.add(
-          List.of(
-              editedMarkDown,
-              client,
-              jobGroupDto2,
-              jobGroup2,
-              jobCreator,
-              dtosList.get(1).getBidLevel()));
+    editMarkDownDPList.add(
+        List.of(
+            editedMarkDown,
+            client,
+            jobGroupDto2,
+            jobGroup2,
+            jobCreator,
+            dtosList.get(1).getBidLevel()));
   }
 
   /** . checks clientBudget after editing budget */
-  public static void editClientBudgetDataProvider(Driver driver) throws MojoException, InterruptedException {
+  public static void editClientBudgetDataProvider(Driver driver)
+      throws MojoException, InterruptedException {
 
-
-    Double newBudget = (double) Utils.getRandomNumber(1000, 2000);
+    final Double newBudget = (double) Utils.getRandomNumber(1000, 2000);
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
 
     JobCreator jobCreator = new JobCreator();
@@ -311,13 +310,12 @@ public class EditClientDP {
     Client client = driver.createClient(clientDto);
     clientSet.add(client);
 
-      ClientDto editClientDto = dtosList.get(1).getClientDto();
+    ClientDto editClientDto = dtosList.get(1).getClientDto();
 
-      editClientDto.setBudget(newBudget);
-      client.edit(editClientDto);
+    editClientDto.setBudget(newBudget);
+    client.edit(editClientDto);
 
-
-      editClientBudgetDPList.add(List.of(client, newBudget));
+    editClientBudgetDPList.add(List.of(client, newBudget));
   }
 
   /** . run Scheduler */
