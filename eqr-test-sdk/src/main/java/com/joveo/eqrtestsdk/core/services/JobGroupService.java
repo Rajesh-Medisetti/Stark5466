@@ -68,14 +68,15 @@ public class JobGroupService extends BaseService {
    * @throws ApiRequestException something wrong with request
    * @throws InvalidInputException invalid input provided
    */
-  public String create(Session session, Config conf, JobGroupDto jobGroup)
+  public String create(Session session, Config conf, JobGroupDto jobGroup, boolean validation)
       throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
 
     jobGroup.setDefaultValues();
 
-    String validationErrors = this.validateEntity(jobGroup, validator);
-
-    checkValidationErrors(validationErrors);
+    if (validation) {
+      String validationErrors = this.validateEntity(jobGroup, validator);
+      checkValidationErrors(validationErrors);
+    }
 
     checkPlacementsMinBid(session, conf, jobGroup);
 
