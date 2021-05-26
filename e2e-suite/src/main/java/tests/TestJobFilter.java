@@ -49,21 +49,29 @@ public class TestJobFilter extends TestRunnerBase {
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
     softAssertion.assertEquals(
         jobGroupObj.getStats().getJobCount(),
-        jobCreator.jobsInJobGroup.get(jobGroupDto).size(),
+        jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob().size(),
         "The job count is not correct for client "
             + clientObj.id
             + " and job group "
             + jobGroupObj.getStats().getName());
-    softAssertion.assertTrue(
-        JobFilterValidations.checkJobWithRefNo(
-            clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
-        "jobRefId is not present in OutBoundFeed");
-    softAssertion.assertTrue(
-        JobFilterValidations.checkJobWithFields(
-            clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
-        "Job values is not equal in outboundJob");
-    JobFilterValidations.checkBid(
-        clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
+    if (bidLevel.equals(BidLevel.NO_BID)) {
+      softAssertion.assertFalse(
+          JobFilterValidations.checkJobWithRefNo(
+              clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
+          "jobRefId is present in OutBoundFeed for bid zero");
+      // need to check job is not live too
+    } else {
+      softAssertion.assertTrue(
+          JobFilterValidations.checkJobWithRefNo(
+              clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
+          "jobRefId is not present in OutBoundFeed");
+      softAssertion.assertTrue(
+          JobFilterValidations.checkJobWithFields(
+              clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator),
+          "Job values is not equal in outboundJob");
+      JobFilterValidations.checkBid(
+          clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
+    }
   }
 
   /**

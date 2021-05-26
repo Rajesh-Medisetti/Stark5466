@@ -7,6 +7,7 @@ import com.joveo.eqrtestsdk.models.GroupingJobFilter;
 import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import enums.BidLevel;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +26,11 @@ public class JobGroupCreator {
    * @return list of job group DTO's that has been set.
    */
   public static List<JobGroupDto> dtoUsingFilter(
-      List<List<Filter>> jbList, GroupOperator groupOper, double budget, double bidIncrement) {
+      List<List<Filter>> jbList,
+      GroupOperator groupOper,
+      double budget,
+      double bidIncrement,
+      BidLevel level) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     for (List<Filter> jf : jbList) {
@@ -33,8 +38,10 @@ public class JobGroupCreator {
       JobFilter jfEle = (JobFilter) jf.get(0);
       jobGroupDto.setName(
           jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
-      jobGroupDto.setCpcBid(counter + bidIncrement);
-      jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+      if (!level.equals(BidLevel.NO_BID)) {
+        jobGroupDto.setCpcBid(counter + bidIncrement);
+        jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+      }
       jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
       jobGroupDto.setJobFilter(new GroupingJobFilter(groupOper, jf));
       counter++;
@@ -49,7 +56,11 @@ public class JobGroupCreator {
    * @return list of job group DTO's that has been set.
    */
   public static JobGroupDto dtoWithEqual(
-      JobFilterFields field, String searchString, double budget, double bidIncrement) {
+      JobFilterFields field,
+      String searchString,
+      double budget,
+      double bidIncrement,
+      BidLevel level) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     List<Filter> jf = new ArrayList<>();
@@ -58,8 +69,10 @@ public class JobGroupCreator {
     jf.add(jfEle);
     jobGroupDto.setName(
         jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
-    jobGroupDto.setCpcBid(counter + bidIncrement);
-    jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    if (!level.equals(BidLevel.NO_BID)) {
+      jobGroupDto.setCpcBid(counter + bidIncrement);
+      jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    }
     jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
     jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
 
@@ -73,7 +86,11 @@ public class JobGroupCreator {
    * @return list of job group DTO's that has been set.
    */
   public static JobGroupDto dtoWithIN(
-      JobFilterFields field, List<String> searchString, double budget, double bidIncrement) {
+      JobFilterFields field,
+      List<String> searchString,
+      double budget,
+      double bidIncrement,
+      BidLevel level) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     List<Filter> jf = new ArrayList<>();
@@ -82,8 +99,10 @@ public class JobGroupCreator {
     jf.add(jfEle);
     jobGroupDto.setName(
         jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
-    jobGroupDto.setCpcBid(counter + bidIncrement);
-    jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    if (!level.equals(BidLevel.NO_BID)) {
+      jobGroupDto.setCpcBid(counter + bidIncrement);
+      jobGroupDto.setCpaBid(counter + bidIncrement + 0.5);
+    }
     jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
     jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
 

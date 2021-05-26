@@ -21,7 +21,7 @@ public class ClientEntityCreator {
   public static ClientDto randomClientCreator(boolean isMarkDown, double markDown) {
 
     ClientDto clientDto = new ClientDto();
-    clientDto.setName("SAM_JOVEO_client_name_automation" + Utils.generateRandomString());
+    clientDto.setName("TEST_CLIENT1_client_name_automation" + Utils.generateRandomString());
     clientDto.setBudget((double) Utils.getRandomNumber(1000));
     clientDto.setBudget(1000.00); // this has to be random need somesdk modifications
     clientDto.setFrequency(Frequency._3_Hours);
