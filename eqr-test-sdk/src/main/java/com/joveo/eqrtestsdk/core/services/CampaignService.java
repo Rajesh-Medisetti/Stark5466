@@ -59,15 +59,17 @@ public class CampaignService extends BaseService {
    * @throws UnexpectedResponseException The API response was not as expected
    * @throws ApiRequestException something wrong with request
    */
-  public String create(Session session, Config conf, CampaignDto campaign)
+  public String create(Session session, Config conf, CampaignDto campaign, boolean validation)
       throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
 
     campaign.setDefaultDates();
 
-    String validationErrors = validateEntity(campaign, validator);
-    if (validationErrors != null) {
-      logger.error(validationErrors);
-      throw new InvalidInputException(validationErrors);
+    if (validation) {
+      String validationErrors = validateEntity(campaign, validator);
+      if (validationErrors != null) {
+        logger.error(validationErrors);
+        throw new InvalidInputException(validationErrors);
+      }
     }
 
     RestResponse response =

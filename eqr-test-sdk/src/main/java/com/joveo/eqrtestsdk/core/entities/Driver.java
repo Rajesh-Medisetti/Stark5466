@@ -90,7 +90,14 @@ public class Driver {
   public Client createClient(ClientDto client)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
           ApiRequestException {
-    String clientId = clientService.create(session, conf, client);
+    String clientId = clientService.create(session, conf, client, true);
+    return new Client(this, clientId);
+  }
+
+  public Client createClient(ClientDto client, boolean validation)
+      throws MojoException, UnexpectedResponseException, InvalidInputException,
+          ApiRequestException {
+    String clientId = clientService.create(session, conf, client, validation);
     return new Client(this, clientId);
   }
 
@@ -104,7 +111,14 @@ public class Driver {
   public Campaign createCampaign(CampaignDto campaign)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
           ApiRequestException {
-    String campaignId = campaignService.create(session, conf, campaign);
+    String campaignId = campaignService.create(session, conf, campaign, true);
+    return new Campaign(this, campaign.getClientId(), campaignId);
+  }
+
+  public Campaign createCampaign(CampaignDto campaign, boolean validation)
+      throws MojoException, UnexpectedResponseException, InvalidInputException,
+          ApiRequestException {
+    String campaignId = campaignService.create(session, conf, campaign, validation);
     return new Campaign(this, campaign.getClientId(), campaignId);
   }
 
@@ -118,7 +132,14 @@ public class Driver {
   public JobGroup createJobGroup(JobGroupDto jobGroup)
       throws MojoException, UnexpectedResponseException, InvalidInputException,
           ApiRequestException {
-    String jobGroupId = jobGroupService.create(session, conf, jobGroup);
+    String jobGroupId = jobGroupService.create(session, conf, jobGroup, true);
+    return new JobGroup(this, jobGroup.getClientId(), jobGroupId);
+  }
+
+  public JobGroup createJobGroup(JobGroupDto jobGroup, boolean validation)
+      throws MojoException, UnexpectedResponseException, InvalidInputException,
+          ApiRequestException {
+    String jobGroupId = jobGroupService.create(session, conf, jobGroup, validation);
     return new JobGroup(this, jobGroup.getClientId(), jobGroupId);
   }
 
