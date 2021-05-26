@@ -28,6 +28,7 @@ public class EditJobGroupDP {
   public static List<List<Object>> bidDPList = new ArrayList<>();
   public static boolean ifSchedulerRan = true;
   static String publisher = "Naukri";
+  public static String campaignName = "TestCampaign";
 
   /**
    * the actual data provider for the test.
@@ -70,7 +71,10 @@ public class EditJobGroupDP {
     Double newCpaBid = (double) Utils.getRandomNumber(1, 5);
 
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
-    JobCreator jobCreator = JobCreator.jobProvider(dtosList);
+
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtosList);
+
 
     ClientDto clientDto = dtosList.get(0).getClientDto();
 
@@ -80,6 +84,8 @@ public class EditJobGroupDP {
     clientSet.add(client);
 
     CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setName(campaignName);
+    campaignDto.setBudget(1000.0);
     campaignDto.setClientId(client.id);
 
     Campaign campaign = driver.createCampaign(campaignDto);
@@ -120,7 +126,8 @@ public class EditJobGroupDP {
 
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
 
-    JobCreator jobCreator = JobCreator.jobProvider(dtosList);
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtosList);
 
     ClientDto clientDto = dtosList.get(0).getClientDto();
 
@@ -130,6 +137,8 @@ public class EditJobGroupDP {
     clientSet.add(client);
 
     CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setName(campaignName);
+    campaignDto.setBudget(1000.0);
     campaignDto.setClientId(client.id);
 
     Campaign campaign = driver.createCampaign(campaignDto);

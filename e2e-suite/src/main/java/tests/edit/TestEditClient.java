@@ -13,6 +13,7 @@ import dataproviders.JobFilterDP;
 import dataproviders.editdp.EditClientDP;
 import entitycreators.JobCreator;
 import enums.BidLevel;
+import enums.Scheduler;
 import helpers.MojoUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,50 +38,45 @@ public class TestEditClient extends TestRunnerBase {
       createDriver();
     }
 
-    EditClientDP.addFeedDataProvider(driver);
-
-  //  EditClientDP.removeFeedDataProvider(driver);
-   // EditClientDP.editMarkDownDataProvider(driver);
-   // EditClientDP.editClientBudgetDataProvider(driver);
+    for (Scheduler scheduler : Scheduler.values()) {
+      EditClientDP.addFeedDataProvider(driver, scheduler);
+      EditClientDP.removeFeedDataProvider(driver, scheduler);
+      EditClientDP.editMarkDownDataProvider(driver, scheduler);
+    }
+    EditClientDP.editClientBudgetDataProvider(driver);
 
     EditClientDP.runScheduler(driver);
   }
 
   @Test(dataProvider = "addFeed", dataProviderClass = EditClientDP.class)
-  public void addFeedTestCases(List<FeedDto> feedDtoList, Client client, String pubId)
+  public void addFeedTestCases(FeedDto feedDto1, FeedDto feedDto2, Client client, String pubId)
       throws MojoException, InterruptedException {
     SoftAssert softAssertion = new SoftAssert();
     softAssertion.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
 
-    int totalJobs = 0;
-    for (FeedDto feedDto : feedDtoList ) {
-      totalJobs += feedDto.getJob().size();
-    }
 
-      Assert.assertEquals(
-          totalJobs, client.getOutboundFeed(pubId).size());
 
-    for (FeedDto feedDto : feedDtoList ) {
+      Assert.assertEquals((feedDto1.getJob().size() + feedDto2.getJob().size()), client.getOutboundFeed(pubId).size());
+
+    Assert.assertTrue(EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto1, client, pubId));
       Assert.assertTrue(
-          EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto, client, pubId),
+          EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feedDto2, client, pubId),
           "createFeed jobs is not present in OutBoundFeed ");
-    }
-
 
   }
 
- /* @Test(dataProvider = "removeFeed", dataProviderClass = EditClientDP.class)
-  public void removeFeedTestCases(FeedDto feed2, Client client, String pubId)
+  @Test(dataProvider = "removeFeed", dataProviderClass = EditClientDP.class)
+  public void removeFeedTestCases(FeedDto feed, Client client, String pubId)
       throws MojoException, InterruptedException {
     SoftAssert softAssertion = new SoftAssert();
 
     Assert.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
 
     Assert.assertEquals(
-        feed2.getJob().size(), client.getOutboundFeed(pubId).getFeed().getJobs().size());
+        feed.getJob().size(), client.getOutboundFeed(pubId).getFeed().getJobs().size());
 
     Assert.assertTrue(
-        EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feed2, client, pubId),
+        EditClientValidations.checkInboundJobsInOIutBoundWithJobRefNo(feed, client, pubId),
         "Edit jobs is not present in OutBoundFeed ");
   }
 
@@ -119,7 +115,7 @@ public class TestEditClient extends TestRunnerBase {
 
     System.out.println(client.getStats().getBudgetCap().value + ", " + budget);
     Assert.assertEquals(client.getStats().getBudgetCap().value, budget);
-  }*/
+  }
 
   /**
    * teardown function deletes all the clients that are created.

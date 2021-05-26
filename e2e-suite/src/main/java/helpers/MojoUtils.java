@@ -6,9 +6,12 @@ import com.joveo.eqrtestsdk.exception.InterruptWaitException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.TimeoutException;
+import jodd.util.concurrent.Task;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 
 public class MojoUtils {
 
@@ -28,9 +31,14 @@ public class MojoUtils {
     //              client.runScheduler();
     //            }
 
-    ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors()*2);
+   // ForkJoinPool pool = new ForkJoinPool(2);
+   // ExecutorService pool = Executors.newFixedThreadPool(2);
 
-    pool.submit(() -> clientSet.stream().parallel()
+    ExecutorService pool = new ThreadPoolExecutor(2, 2, 30, TimeUnit.MINUTES,
+        new LinkedBlockingQueue<Runnable>());
+
+
+   pool.submit(() -> clientSet.stream().parallel()
         .forEach(
             (client) -> {
               try {
@@ -45,13 +53,16 @@ public class MojoUtils {
               }
             }));
 
-    pool.shutdown();
+   pool.shutdown();
 
-    while (!pool.isTerminated()){}
+   while (!pool.isTerminated()){}
 
+    Thread.sleep(10000);
     driver.refreshEntityCache();
     driver.refreshJobCount();
   }
+
+
 
   /** . deleting Clients */
   public static void removeClientSet(Set<Client> clientSet) throws MojoException {

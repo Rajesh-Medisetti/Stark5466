@@ -17,14 +17,15 @@ public class OutBoundJobCreator {
     Map<String, OutboundJob> map = new HashMap<>();
 
     OutboundFeed outboundFeed = client.getOutboundFeed(pubId);
-    if (outboundFeed == null) {
+
+    int cnt = 5;
+    while (outboundFeed == null && cnt > 0 ) {
       Thread.sleep(5000);
+      client.runScheduler();
       outboundFeed = client.getOutboundFeed(pubId);
-      if (outboundFeed == null) {
-        client.runScheduler();
-        outboundFeed = client.getOutboundFeed(pubId);
-      }
+      cnt--;
     }
+
 
     List<OutboundJob> outboundJobs = outboundFeed.getFeed().getJobs();
 

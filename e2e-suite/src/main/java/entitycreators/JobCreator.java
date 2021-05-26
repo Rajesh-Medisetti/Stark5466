@@ -1,5 +1,4 @@
 package entitycreators;
-
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.FeedDto;
@@ -13,61 +12,36 @@ import dtos.Dtos;
 import helpers.Utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class JobCreator {
-
-  public Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroup;
   public Map<ClientDto, FeedDto> clientFeedMap;
   public Map<ClientDto, String> clientUrlMap;
   public Map<JobGroupDto, FeedDto> jobGroupDtoFeedDtoMap;
-
+  public Set<ClientDto> clientDtoSet;
   public static Integer refNo = 0;
-
   /** Constructor for JobCreator. */
-  public JobCreator(
-      Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroup,
-      Map<ClientDto, FeedDto> clientFeedMap,
-      Map<ClientDto, String> clientUrlDMap,
-      Map<JobGroupDto, FeedDto> jobGroupDtoFeedDtoMap) {
-    this.jobsInJobGroup = jobsInJobGroup;
-    this.clientFeedMap = clientFeedMap;
-    this.clientUrlMap = clientUrlDMap;
-    this.jobGroupDtoFeedDtoMap = jobGroupDtoFeedDtoMap;
-  }
+  public JobCreator() {
 
+    clientFeedMap = new HashMap<>();
+    clientUrlMap = new HashMap<>();
+    jobGroupDtoFeedDtoMap = new HashMap<>();
+    clientDtoSet = new HashSet<>();
+
+  }
   /** . JobProvider. */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public static JobCreator jobProvider(List<Dtos> dtos) throws MojoException {
-
-    Map<ClientDto, FeedDto> clientFeeds = new HashMap<>();
-
-    Map<JobGroupDto, FeedDto> jobGroupFeedMap = new HashMap<>();
-
-    Set<ClientDto> clientDtoSet = new HashSet<>();
-
+  public void jobProvider(List<Dtos> dtos) throws MojoException {
     boolean noFeed = false;
-    Map<JobGroupDto, List<Map<JobFilterFields, List<String>>>> jobsInJobGroupDto = new HashMap<>();
-
     for (Dtos dto : dtos) {
       noFeed = false;
       JobGroupDto jobGroupDto = dto.getJobGroupDto();
       final ClientDto clientDto = dto.getClientDto();
-
       Filter filter = jobGroupDto.getFilter().getRules().get(0);
-
       JobFilter jobFilter = (JobFilter) filter;
-
       List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
-
       int size = dto.getNumberOfjobs();
       List<String> data = new ArrayList<>();
-
       switch (jobFilter.getOperator().toString()) {
         case "EQUAL":
         case "NOT_EQUAL":
@@ -80,7 +54,6 @@ public class JobCreator {
             data.add((String) jobFilter.getData());
           }
           job.put(jobFilter.getField(), new ArrayList<>(data));
-
           if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
             data.clear();
             data.add((++refNo).toString());
@@ -89,27 +62,22 @@ public class JobCreator {
           data.clear();
           feed.add(job);
           break;
-
         case "IN":
           feed = getAllJobsForIn(jobFilter);
           break;
-
         case "NOT_IN":
           feed = getAllJobsForIn(jobFilter);
           noFeed = true;
           break;
-
         case "BEGINS_WITH":
         case "ENDS_WITH":
           feed = getAllJobs(jobFilter, size);
           break;
-
         case "NOT_BEGINS_WITH":
         case "NOT_ENDS_WITH":
           feed = getAllJobs(jobFilter, size);
           noFeed = true;
           break;
-
         case "GREATER_THAN":
         case "AFTER":
         case "BEFORE":
@@ -117,71 +85,49 @@ public class JobCreator {
         case "ON":
           feed = getAllJobsForDate(jobFilter, size);
           break;
-
         default:
           feed = getAllJobs(jobFilter, size);
       }
-
       FeedDto localFeedDto = getFeed(feed, noFeed);
-      jobGroupFeedMap.put(jobGroupDto, copyFeed(localFeedDto));
-
-      jobsInJobGroupDto.put(jobGroupDto, new ArrayList<>(feed));
-
+      jobGroupDtoFeedDtoMap.put(jobGroupDto, copyFeed(localFeedDto));
       List<JobGroupDto> jobGroupDtos = new ArrayList<>();
       jobGroupDtos.add(jobGroupDto);
-
       if (clientDtoSet.contains(clientDto)) {
-        //        List<Map<JobFilterFields, List<String>>> oldFeed = clientFeeds.get(clientDto);
-        FeedDto oldFeed1 = clientFeeds.get(clientDto);
+        FeedDto oldFeed1 = clientFeedMap.get(clientDto);
         for (FeedJob job : localFeedDto.getJob()) {
           oldFeed1.addJob(job);
         }
-        clientFeeds.put(clientDto, oldFeed1);
-
-        //        clientFeeds.put(clientDto, oldFeed);
-
+        clientFeedMap.put(clientDto, oldFeed1);
       } else {
         clientDtoSet.add(clientDto);
-        clientFeeds.put(clientDto, localFeedDto);
+        clientFeedMap.put(clientDto, localFeedDto);
       }
     }
-    Map<ClientDto, String> feedurl = InBoundFeedCreator.feedCreator(clientFeeds);
-    return new JobCreator(jobsInJobGroupDto, clientFeeds, feedurl, jobGroupFeedMap);
+    clientUrlMap = InBoundFeedCreator.feedCreator(clientFeedMap);
   }
-
-  private static FeedDto copyFeed(FeedDto feed) {
-
+  private FeedDto copyFeed(FeedDto feed) {
     FeedDto feedDto = new FeedDto();
-
     List<FeedJob> jobList = feed.getJob();
-
     for (FeedJob job : jobList) {
       feedDto.addJob(job);
     }
     return feedDto;
   }
-
-  private static FeedDto getFeed(List<Map<JobFilterFields, List<String>>> feed, boolean notFeed) {
-
+  private FeedDto getFeed(List<Map<JobFilterFields, List<String>>> feed, boolean notFeed) {
     FeedDto feedDto = new FeedDto();
     for (Map<JobFilterFields, List<String>> jobDetails : feed) {
       feedDto.addJob(InBoundFeedCreator.getJob(jobDetails, notFeed));
     }
     return feedDto;
   }
-
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  private static List<Map<JobFilterFields, List<String>>> getAllJobs(
+  private  List<Map<JobFilterFields, List<String>>> getAllJobs(
       JobFilter jobFilter, int size) {
-
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
-
     String value = (String) jobFilter.getData();
     for (int i = 0; i < size; i++) {
-
       Map<JobFilterFields, List<String>> job = new HashMap<>();
       List<String> data = new ArrayList<>();
-
       if (jobFilter.getOperator().equals(RuleOperator.CONTAINS)) {
         data.add(
             Utils.getRandomString(Utils.getRandomNumber(10, 20))
@@ -201,9 +147,7 @@ public class JobCreator {
       } else {
         data.add(Utils.getRandomString(Utils.getRandomNumber(10, 20)) + value + "ERR");
       }
-
       job.put(jobFilter.getField(), new ArrayList<>(data));
-
       if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
         data.clear();
         data.add((++refNo).toString());
@@ -214,25 +158,17 @@ public class JobCreator {
     }
     return feed;
   }
-
-  private static List<Map<JobFilterFields, List<String>>> getAllJobsForIn(JobFilter jobFilter) {
-
+  private List<Map<JobFilterFields, List<String>>> getAllJobsForIn(JobFilter jobFilter) {
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
-
     List<String> values = (List<String>) jobFilter.getData();
-
     for (String value : values) {
-
       Map<JobFilterFields, List<String>> job = new HashMap<>();
       List<String> data = new ArrayList<>();
-
       if (jobFilter.getOperator().equals(RuleOperator.NOT_IN)) {
         value = value + "ERR";
       }
-
       data.add(value);
       job.put(jobFilter.getField(), new ArrayList<>(data));
-
       if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
         data.clear();
         data.add((++refNo).toString());
@@ -243,15 +179,11 @@ public class JobCreator {
     }
     return feed;
   }
-
-  private static List<Map<JobFilterFields, List<String>>> getAllJobsForDate(
+  private  List<Map<JobFilterFields, List<String>>> getAllJobsForDate(
       JobFilter jobFilter, int size) {
-
     List<Map<JobFilterFields, List<String>>> feed = new ArrayList<>();
-
     //    String value = (String) jobFilter.getData();
     for (int i = 0; i < size; i++) {
-
       Map<JobFilterFields, List<String>> job = new HashMap<>();
       List<String> data = new ArrayList<>();
       System.out.println("the filter rule operator is " + jobFilter.getOperator().toString());
@@ -263,7 +195,6 @@ public class JobCreator {
                   .minusDays(value - 2)
                   .format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
           break;
-
         case "GREATER_THAN":
           value = Integer.parseInt((String) jobFilter.getData());
           data.add(
@@ -271,11 +202,9 @@ public class JobCreator {
                   .minusDays(value + 2)
                   .format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
           break;
-
         case "BEFORE":
           data.add(LocalDate.now().plusDays(32).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
           break;
-
         case "AFTER":
           data.add(LocalDate.now().minusDays(32).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
           break;
@@ -301,9 +230,7 @@ public class JobCreator {
       //      } else {
       //        data.add(Utils.getRandomString(Utils.getRandomNumber(10, 20)) + value + "ERR");
       //      }
-
       job.put(jobFilter.getField(), new ArrayList<>(data));
-
       if (!jobFilter.getField().equals(JobFilterFields.refNumber)) {
         data.clear();
         data.add((++refNo).toString());

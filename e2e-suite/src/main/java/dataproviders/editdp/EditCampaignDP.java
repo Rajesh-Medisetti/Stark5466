@@ -49,7 +49,8 @@ public class EditCampaignDP {
 
     List<Dtos> dtosList = new DtosCreatorForEdit().getDtos();
 
-    JobCreator jobCreator = JobCreator.jobProvider(dtosList);
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtosList);
 
     ClientDto clientDto = dtosList.get(0).getClientDto();
 
@@ -59,6 +60,7 @@ public class EditCampaignDP {
     clientSet.add(client);
 
     CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setName("TestCampaign");
     campaignDto.setClientId(client.id);
 
     Campaign campaign = driver.createCampaign(campaignDto);
