@@ -171,6 +171,7 @@ public class MojoUtils {
     List<String> countriesForJobGroup = getRandomStringsOfGivenSize(Utils.getRandomNumber(1, 3));
     ClientDto editClientDto = new ClientDto();
     editClientDto.deleteFeed(jobCreator.clientUrlMap.get(allEntities.getClientDto()));
+    allEntities.getClient().edit(editClientDto);
 
     JobGroupDto jobGroupDto =
         JobGroupCreator.dtoWithIN(
@@ -182,12 +183,13 @@ public class MojoUtils {
         new Dtos(
             allEntities.getClientDto(), allEntities.getCampaignDto(), jobGroupDto, bidLevel, 0));
 
-    JobCreator jobCreator1 = new JobCreator();
+    JobCreator jobCreator1 = allEntities.getJobCreator();
     jobCreator1.jobProvider(dtos);
 
-    editClientDto.addFeed(jobCreator.clientUrlMap.get(allEntities.getClientDto()));
 
-    allEntities.getClient().edit(editClientDto);
+    ClientDto editClientDto1 = new ClientDto();
+    editClientDto1.addFeed(jobCreator.clientUrlMap.get(allEntities.getClientDto()));
+    allEntities.getClient().edit(editClientDto1);
 
     jobGroupDto.setClientId(allEntities.getClient().id);
     jobGroupDto.setCampaignId(allEntities.getCampaign().id);
@@ -241,21 +243,18 @@ public class MojoUtils {
       FeedJob job = new FeedJob();
       FeedJob inboundJob = inboundFeedDto.getJob().get(i);
       if (isReqSame && isTitleSame) {
-        job = inboundJob;
+        job.setReferenceNumber(inboundJob.getReferenceNumber());
+        job.setTitle(inboundJob.getTitle());
       } else if (isReqSame) {
         job.setReferenceNumber(inboundJob.getReferenceNumber());
-        job.setCountry(inboundJob.getCountry());
-        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
       } else if (isTitleSame) {
         job.setTitle(inboundJob.getTitle());
         job.setReferenceNumber(++JobCreator.refNo);
-        job.setCountry(inboundJob.getCountry());
-        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
       } else {
         job.setReferenceNumber(++JobCreator.refNo);
-        job.setCountry(inboundJob.getCountry());
-        InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
       }
+      job.setCountry(inboundJob.getCountry());
+      InBoundFeedCreator.setDefaultValues(getRandomString(10), job);
       inboundFeedDto.addJob(job);
     }
 
