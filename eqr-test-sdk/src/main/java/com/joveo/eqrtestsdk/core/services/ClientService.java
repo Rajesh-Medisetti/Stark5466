@@ -8,6 +8,7 @@ import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.models.fetcher.ClientGetResponse;
+import com.joveo.eqrtestsdk.core.models.fetcher.Pixels;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
 import com.joveo.eqrtestsdk.core.mojo.RestResponse;
@@ -244,6 +245,20 @@ public class ClientService extends BaseService {
       throw new UnexpectedResponseException(
           "data at first index missing in response " + response.toString());
     }
+  }
+
+  /** . */
+  public Pixels getPixels(String clientId, Session session, Config config)
+      throws UnexpectedResponseException, ApiRequestException {
+
+    RestResponse getResponse =
+        executor.get(
+            session,
+            config.getString("MojoBaseUrl") + "/api/clients/conversions/v3?clientID=" + clientId);
+
+    checkGetResponse(getResponse, "Could not fetch pixels for clientId -" + clientId);
+
+    return getResponse.toEntityWithData(Pixels.class);
   }
 
   /**
