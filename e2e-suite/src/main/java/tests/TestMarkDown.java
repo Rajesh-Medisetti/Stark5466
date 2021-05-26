@@ -32,7 +32,6 @@ public class TestMarkDown extends TestRunnerBase {
     JobFilterDP jobfilterObj = new JobFilterDP();
     MarkDownDP.markDowndata =
         jobfilterObj.createJobFilterData(driver, new MarkDownDP().getMarkDownList());
-    // MarkDownDP.dataProvider(driver);
   }
 
   @Test(dataProvider = "MarkDown", dataProviderClass = MarkDownDP.class)
@@ -53,7 +52,7 @@ public class TestMarkDown extends TestRunnerBase {
     } else {
       cpc = jobGroupObj.getStats().getCpcBid();
     }
-    double markDown = 20; // will do clientDto.getMarkDown();
+    double markDown = 50.0;
     Assert.assertTrue(
         new OutBoundJobCpcValidation()
             .getJobLevelCpc(

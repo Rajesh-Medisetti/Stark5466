@@ -84,7 +84,10 @@ public class JobFilterDP {
     CampaignDto campaignDto = CampaignEntityCreator.randomCampaignCreator(1000);
     campaignDto.setClientId(globalClient.id);
     globalCampaign = driver.createCampaign(campaignDto);
-    jobCreator = JobCreator.jobProvider(dtosList);
+
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtosList);
+
     Set<ClientDto> clientDtoSet = new HashSet<>();
     Client myClient = null;
     Campaign myCampaign = null;
