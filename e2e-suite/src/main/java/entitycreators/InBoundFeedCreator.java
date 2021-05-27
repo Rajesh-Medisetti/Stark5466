@@ -91,8 +91,14 @@ public class InBoundFeedCreator extends TestRunnerBase {
     return feedJob;
   }
 
+  /**
+   * This method is used for assigning default value to unassigned fields for a given job.
+   *
+   * @param defaultValue defaultValue
+   * @param feedJob feedJob
+   */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  private static void setDefaultValues(String defaultValue, FeedJob feedJob) {
+  public static void setDefaultValues(String defaultValue, FeedJob feedJob) {
 
     if (feedJob.getTitle() == null) {
       feedJob.setTitle(defaultValue);

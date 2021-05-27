@@ -1,5 +1,7 @@
 package helpers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Utils {
@@ -54,5 +56,19 @@ public class Utils {
   public static int getRandomNumber(int minimum, int maximum) {
     Random random = new Random();
     return minimum + random.nextInt(maximum - minimum + 1);
+  }
+
+  /**
+   * This method provides a list of given size random strings.
+   *
+   * @param size size
+   * @return list of strings
+   */
+  public static List<String> getRandomStringsOfGivenSize(int size) {
+    List<String> randomStringsList = new ArrayList<>();
+    for (int randomStringNo = 0; randomStringNo < size; randomStringNo++) {
+      randomStringsList.add(Utils.getRandomString(10));
+    }
+    return randomStringsList;
   }
 }

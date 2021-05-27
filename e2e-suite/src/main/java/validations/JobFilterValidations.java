@@ -123,8 +123,9 @@ public class JobFilterValidations {
     }
   }
 
+  /** This method used to validate FeedJob with given Outbound job. */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  private static boolean checkJobFields(FeedJob job, OutboundJob outboundJob) {
+  public static boolean checkJobFields(FeedJob job, OutboundJob outboundJob) {
 
     if (!job.getTitle().equalsIgnoreCase(outboundJob.title)) {
       return false;
