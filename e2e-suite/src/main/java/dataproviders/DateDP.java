@@ -58,7 +58,7 @@ public class DateDP {
       ClientDto clientDto = ClientEntityCreator.dateClientCreator(currentDate, futureDate);
       CampaignDto campaignDto = CampaignEntityCreator.dateCampaignCreator(currentDate, futureDate);
       JobGroupDto jobGroupDto =
-          JobGroupCreator.dtoWithDate(JobFilterFields.country, "India", currentDate, futureDate);
+          JobGroupCreator.dtoWithDate(JobFilterFields.country, "India", currentDate, futureDate, 1);
       dtoList.add(getInvalidDate(entity, clientDto, campaignDto, jobGroupDto, futureDate));
       dtoList.add(getInvalidDate(entity, clientDto, campaignDto, jobGroupDto, previousDate));
     }
@@ -80,7 +80,7 @@ public class DateDP {
         campaignDto = CampaignEntityCreator.dateCampaignCreator(date, date);
         break;
       case JobGroup:
-        jobGroupDto = JobGroupCreator.dtoWithDate(JobFilterFields.country, "India", date, date);
+        jobGroupDto = JobGroupCreator.dtoWithDate(JobFilterFields.country, "India", date, date, 1);
         break;
       default:
         break;

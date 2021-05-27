@@ -32,6 +32,7 @@ public class TestInboundFeed extends TestRunnerBase {
     InboundDp.newJobsToInboundEntity =
         MojoUtils.createClientAlongWithCampaignAndJobGroup(
             driver, JobFilterDP.placements, BidLevel.PLACEMENT);
+
     InboundDp.clientsUsedForInboundTest.add(InboundDp.newJobsToInboundEntity.getClient());
     InboundDp.inboundFeedUrlsUsedForTest.add(
         InboundDp.newJobsToInboundEntity

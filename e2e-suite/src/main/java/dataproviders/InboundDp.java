@@ -77,7 +77,6 @@ public class InboundDp {
     List<List<Object>> dpList = new ArrayList<>();
     booleanList.add(true);
     booleanList.add(false);
-
     for (Boolean isTitleSame : booleanList) {
       for (Boolean isReqSame : booleanList) {
         AllEntities allEntities =
