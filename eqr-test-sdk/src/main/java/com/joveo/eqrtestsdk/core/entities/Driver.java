@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.joveo.eqrtestsdk.api.Session;
+import com.joveo.eqrtestsdk.core.models.MajorMinorVersions;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
 import com.joveo.eqrtestsdk.core.mojo.TrafficGenerator;
 import com.joveo.eqrtestsdk.core.services.AllStatsService;
@@ -22,6 +23,7 @@ import com.joveo.eqrtestsdk.exception.InterruptWaitException;
 import com.joveo.eqrtestsdk.exception.InvalidCredentialsException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
+import com.joveo.eqrtestsdk.exception.RedisIoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.ClientDto;
@@ -193,16 +195,32 @@ public class Driver {
    * This method will generate click and apply stats for the a given list of stats requests.
    *
    * @param statsRequests List of Stats Requests
+   * @return Major and Minor version numbers.
    * @throws MojoException throws custom mojo exception Something went wrong
    * @throws InterruptWaitException on Interrupt
    */
-  public void generateStats(List<StatsRequest> statsRequests)
+  public MajorMinorVersions generateSponsoredStats(List<StatsRequest> statsRequests)
       throws MojoException, InterruptWaitException {
 
     TrafficGenerator trafficGenerator =
         new TrafficGenerator(session, conf, awsService, trackingService, databaseService);
 
-    trafficGenerator.run(statsRequests);
+    return trafficGenerator.run(statsRequests);
+  }
+
+  /**
+   * This method checks whether Major and Minor versions got updated by comparing with given state
+   * of versions.
+   *
+   * @param prevMajorMinorVersions Major and Minor versions
+   * @return if gandalf got updated it returns true else false
+   * @throws RedisIoException throws exception when versions contains other than numbers
+   */
+  public boolean checkCurrentStateOfGandalf(MajorMinorVersions prevMajorMinorVersions)
+      throws RedisIoException {
+    MajorMinorVersions currentMajorMinorVersions = trackingService.getVersions();
+    return (currentMajorMinorVersions.getMajorVersion() > prevMajorMinorVersions.getMajorVersion()
+        && currentMajorMinorVersions.getMinorVersion() > prevMajorMinorVersions.getMinorVersion());
   }
 
   public void generateAllStats(List<AllStatsRequest> allStatsRequests)

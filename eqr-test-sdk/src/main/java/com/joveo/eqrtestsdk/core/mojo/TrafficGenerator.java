@@ -2,7 +2,6 @@ package com.joveo.eqrtestsdk.core.mojo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joveo.eqrtestsdk.api.Session;
-import com.joveo.eqrtestsdk.api.Wait;
 import com.joveo.eqrtestsdk.api.Waitable;
 import com.joveo.eqrtestsdk.core.models.ConversionCodes;
 import com.joveo.eqrtestsdk.core.models.MajorMinorVersions;
@@ -110,9 +109,9 @@ public class TrafficGenerator implements Waitable {
 
     trackingService.runGandalf(session, config.getString("GandalfMajorRunUrl"));
 
-    Wait.until(this);
+    // Wait.until(this);
 
-    logger.info("Click and Apply events are now available in Mojo UI : " + LocalDateTime.now());
+    // logger.info("Click and Apply events are now available in Mojo UI : " + LocalDateTime.now());
   }
 
   /**
@@ -123,7 +122,7 @@ public class TrafficGenerator implements Waitable {
    * @throws MojoException throws custom mojo exception Something went wrong
    * @throws InterruptWaitException on Interrupt
    */
-  public void run(List<StatsRequest> statsRequestList)
+  public MajorMinorVersions run(List<StatsRequest> statsRequestList)
       throws MojoException, InterruptWaitException {
     SponsoredEvents sponsoredEvents = new SponsoredEvents();
     EventGenerator eventGenerator = new EventGenerator();
@@ -144,6 +143,8 @@ public class TrafficGenerator implements Waitable {
     pushClickMeterEventsToSqs(sponsoredEvents);
 
     populateClickMeterEventsToMojo();
+
+    return prevVersions;
   }
 
   @Override
