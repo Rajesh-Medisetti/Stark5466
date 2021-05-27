@@ -20,4 +20,19 @@ public class CampaignEntityCreator {
     campaignDto.setEndDate(LocalDate.now().plusDays(2));
     return campaignDto;
   }
+
+  /**
+   * creating campaign dto.
+   *
+   * @param startDate start Date
+   * @param endDate end date
+   * @return campaign dto
+   */
+  public static CampaignDto dateCampaignCreator(LocalDate startDate, LocalDate endDate) {
+    CampaignDto campaignDto = new CampaignDto();
+    campaignDto.setName("campaign_name_test"); // this has to be random
+    campaignDto.setStartDate(startDate);
+    campaignDto.setEndDate(endDate);
+    return campaignDto;
+  }
 }

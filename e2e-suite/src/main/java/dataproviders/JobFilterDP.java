@@ -74,16 +74,16 @@ public class JobFilterDP {
 
   /** . creating JobFilter */
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
-  public JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList)
+  public JobFilterData createJobFilterData(Driver driver, List<Dtos> dtosList, boolean validation)
       throws MojoException {
     List<List<Object>> dpList = new ArrayList<>();
     ClientDto clientDto = ClientEntityCreator.randomClientCreator(false, 0.0);
     clientDto.addFeed(feed);
-    globalClient = driver.createClient(clientDto);
+    globalClient = driver.createClient(clientDto, validation);
     ClientDto globalClientDto = clientDto;
     CampaignDto campaignDto = CampaignEntityCreator.randomCampaignCreator(1000);
     campaignDto.setClientId(globalClient.id);
-    globalCampaign = driver.createCampaign(campaignDto);
+    globalCampaign = driver.createCampaign(campaignDto, validation);
 
     JobCreator jobCreator = new JobCreator();
     jobCreator.jobProvider(dtosList);
@@ -102,12 +102,12 @@ public class JobFilterDP {
       }
       if (clientDto1 != null && !clientDtoSet.contains(clientDto1)) {
         clientDto1.addFeed(jobCreator.clientUrlMap.get(clientDto1));
-        myClient = driver.createClient(clientDto1);
+        myClient = driver.createClient(clientDto1, validation);
         if (campaignDto1 == null) {
           campaignDto1 = campaignDto;
         }
         campaignDto1.setClientId(myClient.id);
-        myCampaign = driver.createCampaign(campaignDto1);
+        myCampaign = driver.createCampaign(campaignDto1, validation);
         clientDtoSet.add(clientDto1);
       }
       jobGroupDto.setPriority(1);
@@ -120,7 +120,7 @@ public class JobFilterDP {
         jobGroupDto.addPlacementWithBudget(placements, 200.00, Freq.Monthly, false, 80.00, false);
       }
       try {
-        JobGroup myJobGroup = driver.createJobGroup(jobGroupDto);
+        JobGroup myJobGroup = driver.createJobGroup(jobGroupDto, validation);
         dpList.add(
             List.of(
                 TestUtils.getTestCase(myClient, jobGroupDto),
