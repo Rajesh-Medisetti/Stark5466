@@ -10,6 +10,7 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dtos.Dtos;
+import entitycreators.DtosCreator;
 import entitycreators.DtosCreatorForEdit;
 import entitycreators.JobCreator;
 import enums.BidType;
@@ -26,6 +27,7 @@ public class EditJobGroupDP {
   public static Set<Client> clientSet = new HashSet<>();
   public static List<List<Object>> cpcBidDPList = new ArrayList<>();
   public static List<List<Object>> bidDPList = new ArrayList<>();
+  public static List<List<Object>> filterDPList = new ArrayList<>();
   public static boolean ifSchedulerRan = true;
   static String publisher = "Naukri";
   public static String campaignName = "TestCampaign";
@@ -62,6 +64,62 @@ public class EditJobGroupDP {
       counter++;
     }
     return array;
+  }
+
+  /**
+   * the actual data provider for the test.
+   *
+   * @return 2d array
+   */
+  @DataProvider(name = "editJobFilter")
+  public static Object[][] checkJobFilters() {
+
+    Object[][] array = new Object[filterDPList.size()][filterDPList.get(0).size()];
+    int counter = 0;
+    for (List<Object> list : filterDPList) {
+      array[counter] = list.toArray();
+      counter++;
+    }
+    return array;
+  }
+
+  /** . checking jobs in job group after editing jobFilter */
+  public static void checkJobFilterAfterEdit(Driver driver) throws MojoException {
+
+    List<Dtos> dtosList = new DtosCreator().getDtos();
+
+    JobCreator jobCreator = new JobCreator();
+    jobCreator.jobProvider(dtosList);
+
+    ClientDto clientDto = dtosList.get(0).getClientDto();
+
+    clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));
+
+    Client client = driver.createClient(clientDto);
+    clientSet.add(client);
+
+    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
+    campaignDto.setName(campaignName);
+    campaignDto.setBudget(1000.0);
+    campaignDto.setClientId(client.id);
+
+    Campaign campaign = driver.createCampaign(campaignDto);
+
+    JobGroupDto jobGroupDto1 = dtosList.get(0).getJobGroupDto();
+    jobGroupDto1.setClientId(client.id);
+    jobGroupDto1.setCampaignId(campaign.id);
+
+    jobGroupDto1.setBudgetCap(true, Freq.Monthly, 80.0, 500.0);
+    jobGroupDto1.addPlacement(publisher);
+
+    JobGroup jobGroup = driver.createJobGroup(jobGroupDto1);
+
+    JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
+
+    jobGroup.edit(jobGroupDto2);
+
+    filterDPList.add(
+        List.of(jobGroup, driver, jobGroupDto2, jobCreator, client, clientDto, publisher));
   }
 
   /** . check bids after edit */
