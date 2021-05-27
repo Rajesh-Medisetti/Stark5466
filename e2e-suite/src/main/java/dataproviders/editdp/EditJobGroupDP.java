@@ -83,7 +83,6 @@ public class EditJobGroupDP {
     return array;
   }
 
-
   /** . checking jobs in job group after editing jobFilter */
   public static void checkJobFilterAfterEdit(Driver driver) throws MojoException {
 

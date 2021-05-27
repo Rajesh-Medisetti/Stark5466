@@ -42,12 +42,7 @@ public class MojoUtils {
               } catch (MojoException e) {
                 e.printStackTrace();
               }
-            }); // );
-
-    // pool.shutdown();
-
-    // while (!pool.isTerminated()) {}
-
+            });
 
     for (int i = 0; i < 5; i++) {
       Thread.sleep(20000);

@@ -11,7 +11,6 @@ import dataproviders.editdp.EditJobGroupDP;
 import entitycreators.JobCreator;
 import enums.BidType;
 import helpers.MojoUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,12 +42,14 @@ public class TestEditJobGroup extends TestRunnerBase {
   public void testBidsAfterEdit(JobGroup jobGroup, Double newBid, BidType bidType)
       throws MojoException {
 
+    SoftAssert softAssert = new SoftAssert();
+
     if (bidType.equals(BidType.CPC)) {
-      Assert.assertEquals(newBid, Double.parseDouble(jobGroup.getStats().getCpcBid()));
+      softAssert.assertEquals(newBid, Double.parseDouble(jobGroup.getStats().getCpcBid()));
     }
 
     if (bidType.equals(BidType.CPA)) {
-      Assert.assertEquals(newBid, Double.parseDouble(jobGroup.getStats().getCpaBid()));
+      softAssert.assertEquals(newBid, Double.parseDouble(jobGroup.getStats().getCpaBid()));
     }
   }
 
@@ -62,9 +63,11 @@ public class TestEditJobGroup extends TestRunnerBase {
       JobCreator jobCreator)
       throws MojoException, InterruptedException {
 
-    Assert.assertTrue(
+    SoftAssert softAssert = new SoftAssert();
+    softAssert.assertTrue(
         new OutBoundJobCpcValidation()
-            .getJobLevelCpc(client, publisher, jobCreator, jobGroupDto, jobGroup, newCpcBid));
+            .getJobLevelCpc(client, publisher, jobCreator, jobGroupDto, jobGroup, newCpcBid),
+        "cpc is not valid in Jobgroup after edit" + jobGroup.id);
   }
 
   @Test(dataProvider = "editJobFilter", dataProviderClass = EditJobGroupDP.class)
@@ -79,6 +82,10 @@ public class TestEditJobGroup extends TestRunnerBase {
       throws MojoException, InterruptedException {
 
     SoftAssert softAssert = new SoftAssert();
+
+    softAssert.assertEquals(
+        jobGroup.getStats().getJobCount(),
+        jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob().size());
 
     softAssert.assertTrue(
         new EditJobGroupValidations().isJobsInJobGroup(jobGroup, driver, jobGroupDto, jobCreator),

@@ -74,7 +74,8 @@ public class TestJobFilter extends TestRunnerBase {
           clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
 
       softAssertion.assertTrue(
-          new EditJobGroupValidations().isJobsInJobGroup(jobGroupObj, driver, jobGroupDto, jobCreator),
+          new EditJobGroupValidations()
+              .isJobsInJobGroup(jobGroupObj, driver, jobGroupDto, jobCreator),
           "required jobs are not in jobGroup for JobGroupId " + jobGroupObj.id);
       softAssertion.assertTrue(
           JobFilterValidations.isJobLive(
