@@ -66,6 +66,23 @@ public class EditJobGroupDP {
     return array;
   }
 
+  /**
+   * the actual data provider for the test.
+   *
+   * @return 2d array
+   */
+  @DataProvider(name = "editJobFilter")
+  public static Object[][] checkJobFilters() {
+
+    Object[][] array = new Object[filterDPList.size()][filterDPList.get(0).size()];
+    int counter = 0;
+    for (List<Object> list : filterDPList) {
+      array[counter] = list.toArray();
+      counter++;
+    }
+    return array;
+  }
+
   public static void checkJobFilter (Driver driver) throws MojoException {
 
     List<Dtos> dtosList = new DtosCreator().getDtos();

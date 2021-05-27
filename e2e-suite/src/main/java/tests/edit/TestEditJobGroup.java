@@ -2,6 +2,7 @@ package tests.edit;
 
 import base.TestRunnerBase;
 import com.joveo.eqrtestsdk.core.entities.Client;
+import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.JobGroup;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
@@ -60,6 +61,19 @@ public class TestEditJobGroup extends TestRunnerBase {
         new OutBoundJobCpcValidation()
             .getJobLevelCpc(client, publisher, jobCreator, jobGroupDto, jobGroup, newCpcBid));
   }
+
+  @Test(dataProvider = "editJobFilter", dataProviderClass = EditJobGroupDP.class)
+  public void checkJobsAfterJobFilterEdit(
+      JobGroup jobGroup,
+      Driver driver,
+      JobGroupDto jobGroupDto,
+      JobCreator jobCreator)
+      throws MojoException, InterruptedException {
+
+    Assert.assertTrue(isJobsInJobGroup(jobGroup, driver, jobGroupDto, jobCreator);
+  }
+
+
 
   /**
    * teardown function deletes all the clients that are created.
