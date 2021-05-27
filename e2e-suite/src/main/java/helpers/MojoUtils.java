@@ -113,7 +113,7 @@ public class MojoUtils {
     // JobGroupDto
     JobGroupDto jobGroupDto =
         JobGroupCreator.dtoWithIN(
-            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT);
+            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT, 1);
     jobGroupDto.addPlacementWithBid(publisher, 2.0);
 
     List<Dtos> dtos = new ArrayList<>();
@@ -175,7 +175,7 @@ public class MojoUtils {
 
     JobGroupDto jobGroupDto =
         JobGroupCreator.dtoWithIN(
-            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT);
+            JobFilterFields.country, countriesForJobGroup, 100.0, 1.0, BidLevel.PLACEMENT, 1);
     jobGroupDto.addPlacementWithBid(publisher, 2.0);
 
     List<Dtos> dtos = new ArrayList<>();

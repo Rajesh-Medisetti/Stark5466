@@ -30,7 +30,8 @@ public class JobGroupCreator {
       GroupOperator groupOper,
       double budget,
       double bidIncrement,
-      BidLevel level) {
+      BidLevel level,
+      Integer priority) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     for (List<Filter> jf : jbList) {
@@ -44,6 +45,7 @@ public class JobGroupCreator {
       }
       jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
       jobGroupDto.setJobFilter(new GroupingJobFilter(groupOper, jf));
+      jobGroupDto.setPriority(priority);
       counter++;
       resultList.add(jobGroupDto);
     }
@@ -60,7 +62,8 @@ public class JobGroupCreator {
       String searchString,
       double budget,
       double bidIncrement,
-      BidLevel level) {
+      BidLevel level,
+      Integer priority) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     List<Filter> jf = new ArrayList<>();
@@ -75,7 +78,7 @@ public class JobGroupCreator {
     }
     jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
     jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
-
+    jobGroupDto.setPriority(priority);
     counter++;
     return jobGroupDto;
   }
@@ -90,7 +93,8 @@ public class JobGroupCreator {
       List<String> searchString,
       double budget,
       double bidIncrement,
-      BidLevel level) {
+      BidLevel level,
+      Integer priority) {
     double counter = 0.0;
     List<JobGroupDto> resultList = new ArrayList();
     List<Filter> jf = new ArrayList<>();
@@ -105,7 +109,7 @@ public class JobGroupCreator {
     }
     jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, budget);
     jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
-
+    jobGroupDto.setPriority(priority);
     counter++;
     return jobGroupDto;
   }
@@ -118,7 +122,11 @@ public class JobGroupCreator {
    * @return job group dto
    */
   public static JobGroupDto dtoWithDate(
-      JobFilterFields field, String searchString, LocalDate startDate, LocalDate endDate) {
+      JobFilterFields field,
+      String searchString,
+      LocalDate startDate,
+      LocalDate endDate,
+      Integer priority) {
     JobGroupDto jobGroupDto = new JobGroupDto();
     JobFilter jfEle = (JobFilter) JobFilter.eq(field, searchString);
     jobGroupDto.setName(
@@ -127,6 +135,7 @@ public class JobGroupCreator {
         new GroupingJobFilter(GroupOperator.OR, Collections.singletonList(jfEle)));
     jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, 300.0);
     jobGroupDto.setStartDate(startDate);
+    jobGroupDto.setPriority(priority);
     jobGroupDto.setEndDate(endDate);
     return jobGroupDto;
   }
