@@ -17,6 +17,8 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.CampaignStats;
+import com.joveo.eqrtestsdk.models.EntityStatus;
+import com.joveo.eqrtestsdk.models.EntityStatusDto;
 import com.joveo.eqrtestsdk.models.JobStats;
 import com.joveo.eqrtestsdk.models.JoveoEntity;
 import com.joveo.eqrtestsdk.models.MojoData;
@@ -342,5 +344,41 @@ public class CampaignService extends BaseService {
     platformFiltersDto.addRule(clientId, PFfields.clientId, PfOperators.IN);
     platformFiltersDto.addRule(campaignId, PFfields.entityId, PfOperators.IN);
     return platformFiltersDto;
+  }
+
+  /**
+   * change campaign status.
+   *
+   * @param session session
+   * @param config configuration
+   * @param clientId client id
+   * @param campaignId campaign id
+   * @param status status
+   * @throws ApiRequestException api exception
+   * @throws UnexpectedResponseException response exception
+   */
+  public void changeCampaignStatus(
+      Session session, Config config, String clientId, String campaignId, EntityStatus status)
+      throws ApiRequestException, UnexpectedResponseException {
+    EntityStatusDto entityStatusDto = new EntityStatusDto();
+    entityStatusDto.addCampaignId(campaignId);
+    entityStatusDto.addClientId(clientId);
+
+    if (status.equals(EntityStatus.enable)) {
+      entityStatusDto.addStatus("A");
+    } else {
+      entityStatusDto.addStatus("P");
+    }
+
+    RestResponse response =
+        executor.put(
+            session, config.getString("MojoBaseUrl") + "/thor/api/campaigns", entityStatusDto);
+
+    if (!response.isSuccess()) {
+      String errorMessage = "failed to " + status + " campaign" + response.getJoveoErrorMessage();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+    logger.info("Campaign " + status + " successfully");
   }
 }

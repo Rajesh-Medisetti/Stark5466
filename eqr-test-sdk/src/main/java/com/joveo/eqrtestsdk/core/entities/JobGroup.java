@@ -6,6 +6,7 @@ import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
+import com.joveo.eqrtestsdk.models.EntityStatus;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JobGroupStats;
 import com.joveo.eqrtestsdk.models.JobStats;
@@ -179,5 +180,15 @@ public class JobGroup {
     }
 
     return this.id.equals(((JobGroup) other).id);
+  }
+
+  public void pauseJobGroup() throws MojoException {
+    driver.jobGroupService.changeJobGroupStatus(
+        driver.session, driver.conf, this.clientId, this.id, EntityStatus.pause);
+  }
+
+  public void enableJobGroup() throws MojoException {
+    driver.jobGroupService.changeJobGroupStatus(
+        driver.session, driver.conf, this.clientId, this.id, EntityStatus.enable);
   }
 }
