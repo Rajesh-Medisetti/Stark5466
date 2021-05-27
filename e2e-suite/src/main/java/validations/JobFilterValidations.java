@@ -29,8 +29,6 @@ public class JobFilterValidations {
 
     List<FeedJob> jobs = jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob();
 
-    driver.refreshEntityCache();
-
     for (FeedJob job : jobs) {
       if (!jobGroup
           .getJobDetails(Integer.toString(job.getReferenceNumber()))
