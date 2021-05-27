@@ -8,7 +8,9 @@ import com.joveo.eqrtestsdk.models.JobFilter;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import enums.BidLevel;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class JobGroupCreator {
@@ -105,6 +107,27 @@ public class JobGroupCreator {
     jobGroupDto.setJobFilter(new GroupingJobFilter(GroupOperator.OR, jf));
 
     counter++;
+    return jobGroupDto;
+  }
+
+  /**
+   * create a job group dto with custom start and end date.
+   *
+   * @param startDate start date
+   * @param endDate end date
+   * @return job group dto
+   */
+  public static JobGroupDto dtoWithDate(
+      JobFilterFields field, String searchString, LocalDate startDate, LocalDate endDate) {
+    JobGroupDto jobGroupDto = new JobGroupDto();
+    JobFilter jfEle = (JobFilter) JobFilter.eq(field, searchString);
+    jobGroupDto.setName(
+        jfEle.getField().toString() + " is " + jfEle.getOperator() + " to " + jfEle.getData());
+    jobGroupDto.setJobFilter(
+        new GroupingJobFilter(GroupOperator.OR, Collections.singletonList(jfEle)));
+    jobGroupDto.setBudgetCap(false, Freq.Monthly, 80.00, 300.0);
+    jobGroupDto.setStartDate(startDate);
+    jobGroupDto.setEndDate(endDate);
     return jobGroupDto;
   }
 }
