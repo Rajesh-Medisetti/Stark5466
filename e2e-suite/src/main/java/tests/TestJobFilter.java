@@ -16,6 +16,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import validations.EditJobGroupValidations;
 import validations.JobFilterValidations;
 
 public class TestJobFilter extends TestRunnerBase {
@@ -71,6 +72,14 @@ public class TestJobFilter extends TestRunnerBase {
           "Job values is not equal in outboundJob");
       JobFilterValidations.checkBid(
           clientObj, pubId, bidLevel, jobGroupObj, jobGroupDto, jobCreator, softAssertion);
+
+      softAssertion.assertTrue(
+          new EditJobGroupValidations().isJobsInJobGroup(jobGroupObj, driver, jobGroupDto, jobCreator),
+          "required jobs are not in jobGroup for JobGroupId " + jobGroupObj.id);
+      softAssertion.assertTrue(
+          JobFilterValidations.isJobLive(
+              clientDto, clientObj, jobGroupDto, jobGroupObj, pubId, jobCreator, driver),
+          "jobs are not live for JobGroupId" + " " + jobGroupObj.id);
     }
   }
 

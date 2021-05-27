@@ -9,13 +9,16 @@ import com.joveo.eqrtestsdk.models.ClientDto;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import dataproviders.editdp.EditJobGroupDP;
 import entitycreators.JobCreator;
+import enums.BidType;
 import helpers.MojoUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 import validations.EditJobGroupValidations;
 import validations.JobFilterValidations;
+import validations.OutBoundJobCpcValidation;
 
 public class TestEditJobGroup extends TestRunnerBase {
 
@@ -29,15 +32,14 @@ public class TestEditJobGroup extends TestRunnerBase {
     if (null == driver) {
       createDriver();
     }
-    //  EditJobGroupDP.checkCpcBidInOutBoundFeedAfterEdit(driver);
-    // EditJobGroupDP.checkBidsAfterEdit(driver);
-    EditJobGroupDP.checkJobFilter(driver);
+    EditJobGroupDP.checkCpcBidInOutBoundFeedAfterEdit(driver);
+    EditJobGroupDP.checkBidsAfterEdit(driver);
     EditJobGroupDP.checkJobFilterAfterEdit(driver);
 
     EditJobGroupDP.runScheduler(driver);
   }
 
-  /* @Test(dataProvider = "editBids", dataProviderClass = EditJobGroupDP.class)
+  @Test(dataProvider = "editBids", dataProviderClass = EditJobGroupDP.class)
   public void testBidsAfterEdit(JobGroup jobGroup, Double newBid, BidType bidType)
       throws MojoException {
 
@@ -63,7 +65,7 @@ public class TestEditJobGroup extends TestRunnerBase {
     Assert.assertTrue(
         new OutBoundJobCpcValidation()
             .getJobLevelCpc(client, publisher, jobCreator, jobGroupDto, jobGroup, newCpcBid));
-  }*/
+  }
 
   @Test(dataProvider = "editJobFilter", dataProviderClass = EditJobGroupDP.class)
   public void checkJobsAfterJobFilterEdit(
@@ -76,14 +78,15 @@ public class TestEditJobGroup extends TestRunnerBase {
       String pubId)
       throws MojoException, InterruptedException {
 
-    Assert.assertEquals(
-        jobGroup.getJobs(1, 100).size(),
-        jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob().size());
-    Assert.assertTrue(
-        new EditJobGroupValidations().isJobsInJobGroup(jobGroup, driver, jobGroupDto, jobCreator));
-    Assert.assertTrue(
+    SoftAssert softAssert = new SoftAssert();
+
+    softAssert.assertTrue(
+        new EditJobGroupValidations().isJobsInJobGroup(jobGroup, driver, jobGroupDto, jobCreator),
+        "required jobs are not in jobGroup for JobGroupId " + jobGroup.id);
+    softAssert.assertTrue(
         JobFilterValidations.isJobLive(
-            clientDto, client, jobGroupDto, jobGroup, pubId, jobCreator, driver));
+            clientDto, client, jobGroupDto, jobGroup, pubId, jobCreator, driver),
+        "jobs are not live for JobGroupId" + " " + jobGroup.id);
   }
 
   /**

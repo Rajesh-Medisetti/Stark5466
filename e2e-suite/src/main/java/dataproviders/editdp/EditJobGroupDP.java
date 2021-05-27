@@ -83,40 +83,6 @@ public class EditJobGroupDP {
     return array;
   }
 
-  /** . checking jobs in job group according to jobFilter */
-  public static void checkJobFilter(Driver driver) throws MojoException {
-
-    List<Dtos> dtosList = new DtosCreator().getDtos();
-
-    JobCreator jobCreator = new JobCreator();
-    jobCreator.jobProvider(dtosList);
-
-    ClientDto clientDto = dtosList.get(0).getClientDto();
-
-    clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));
-
-    Client client = driver.createClient(clientDto);
-    clientSet.add(client);
-
-    CampaignDto campaignDto = dtosList.get(0).getCampaignDto();
-    campaignDto.setName(campaignName);
-    campaignDto.setBudget(1000.0);
-    campaignDto.setClientId(client.id);
-
-    Campaign campaign = driver.createCampaign(campaignDto);
-
-    JobGroupDto jobGroupDto = dtosList.get(0).getJobGroupDto();
-    jobGroupDto.setClientId(client.id);
-    jobGroupDto.setCampaignId(campaign.id);
-
-    jobGroupDto.setBudgetCap(true, Freq.Monthly, 80.0, 500.0);
-    jobGroupDto.addPlacement(publisher);
-
-    JobGroup jobGroup = driver.createJobGroup(jobGroupDto);
-
-    filterDPList.add(
-        List.of(jobGroup, driver, jobGroupDto, jobCreator, client, clientDto, publisher));
-  }
 
   /** . checking jobs in job group after editing jobFilter */
   public static void checkJobFilterAfterEdit(Driver driver) throws MojoException {

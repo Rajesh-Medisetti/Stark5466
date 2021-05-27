@@ -48,6 +48,7 @@ public class MojoUtils {
 
     // while (!pool.isTerminated()) {}
 
+
     for (int i = 0; i < 5; i++) {
       Thread.sleep(20000);
       driver.refreshEntityCache();
