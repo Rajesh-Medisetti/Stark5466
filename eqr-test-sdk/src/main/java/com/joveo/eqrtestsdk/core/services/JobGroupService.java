@@ -17,6 +17,8 @@ import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CapDto;
+import com.joveo.eqrtestsdk.models.EntityStatus;
+import com.joveo.eqrtestsdk.models.EntityStatusDto;
 import com.joveo.eqrtestsdk.models.Freq;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JobGroupStats;
@@ -715,5 +717,42 @@ public class JobGroupService extends BaseService {
     platformFiltersDto.addRule(clientId, PFfields.clientId, PfOperators.IN);
     platformFiltersDto.addRule(jobGroupId, PFfields.entityId, PfOperators.IN);
     return platformFiltersDto;
+  }
+
+  /**
+   * enable job group.
+   *
+   * @param session session
+   * @param config config
+   * @param clientId client id
+   * @param jobGroupId job group id
+   * @param status status
+   * @throws ApiRequestException custom exception
+   * @throws UnexpectedResponseException response exception
+   */
+  public void changeJobGroupStatus(
+      Session session, Config config, String clientId, String jobGroupId, EntityStatus status)
+      throws ApiRequestException, UnexpectedResponseException {
+    EntityStatusDto entityStatusDto = new EntityStatusDto();
+    entityStatusDto.addClientId(clientId);
+    entityStatusDto.addJobGroupId(jobGroupId);
+
+    if (status.equals(EntityStatus.enable)) {
+      entityStatusDto.addStatus("A");
+    } else {
+      entityStatusDto.addStatus("P");
+    }
+
+    RestResponse response =
+        executor.put(
+            session, config.getString("MojoBaseUrl") + "/thor/api/jobgroups", entityStatusDto);
+
+    if (!response.isSuccess()) {
+      String errorMessage = "failed to " + status + " jobGroup" + response.getJoveoErrorMessage();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    logger.info("jobGroup " + status + " successfully");
   }
 }

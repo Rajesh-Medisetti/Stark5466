@@ -8,6 +8,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
 import com.joveo.eqrtestsdk.models.CampaignDto;
 import com.joveo.eqrtestsdk.models.CampaignStats;
+import com.joveo.eqrtestsdk.models.EntityStatus;
 import com.joveo.eqrtestsdk.models.JobStats;
 import java.time.LocalDate;
 import java.util.List;
@@ -175,5 +176,15 @@ public class Campaign {
       return false;
     }
     return this.id.equals(((Campaign) other).id);
+  }
+
+  public void pauseCampaign() throws MojoException {
+    driver.campaignService.changeCampaignStatus(
+        driver.session, driver.conf, this.clientId, this.id, EntityStatus.pause);
+  }
+
+  public void enableCampaign() throws MojoException {
+    driver.campaignService.changeCampaignStatus(
+        driver.session, driver.conf, this.clientId, this.id, EntityStatus.enable);
   }
 }
