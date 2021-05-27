@@ -110,7 +110,7 @@ public class JobFilterDP {
         myCampaign = driver.createCampaign(campaignDto1, validation);
         clientDtoSet.add(clientDto1);
       }
-      jobGroupDto.setPriority(1);
+
       jobGroupDto.setClientId(myClient.id);
       jobGroupDto.setCampaignId(myCampaign.id);
       if (dtos.getBidLevel().equals(BidLevel.PLACEMENT)) {
@@ -160,7 +160,8 @@ public class JobFilterDP {
               gp,
               300,
               1,
-              level);
+              level,
+              1);
       for (JobGroupDto jobGroupDto : jobGroupList) {
         dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
       }
@@ -179,7 +180,8 @@ public class JobFilterDP {
             gp,
             300,
             1,
-            level);
+            level,
+            1);
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
     }
@@ -198,7 +200,8 @@ public class JobFilterDP {
             gp,
             300,
             1,
-            level);
+            level,
+            1);
     for (JobGroupDto jobGroupDto : jobGroupList) {
       dtosList.add(new Dtos(clientDto, null, jobGroupDto, level, Utils.getRandomNumber(2, 5)));
     }
