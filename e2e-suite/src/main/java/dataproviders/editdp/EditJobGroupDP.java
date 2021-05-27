@@ -83,7 +83,8 @@ public class EditJobGroupDP {
     return array;
   }
 
-  public static void checkJobFilter (Driver driver) throws MojoException {
+  /** . checking jobs in job group according to jobFilter */
+  public static void checkJobFilter(Driver driver) throws MojoException {
 
     List<Dtos> dtosList = new DtosCreator().getDtos();
 
@@ -113,11 +114,12 @@ public class EditJobGroupDP {
 
     JobGroup jobGroup = driver.createJobGroup(jobGroupDto);
 
-    filterDPList.add(List.of(jobGroup, driver, jobGroupDto));
-
+    filterDPList.add(
+        List.of(jobGroup, driver, jobGroupDto, jobCreator, client, clientDto, publisher));
   }
 
-  public static void checkJobFilterAfterEdit (Driver driver) throws MojoException {
+  /** . checking jobs in job group after editing jobFilter */
+  public static void checkJobFilterAfterEdit(Driver driver) throws MojoException {
 
     List<Dtos> dtosList = new DtosCreator().getDtos();
 
@@ -147,14 +149,12 @@ public class EditJobGroupDP {
 
     JobGroup jobGroup = driver.createJobGroup(jobGroupDto1);
 
-
     JobGroupDto jobGroupDto2 = dtosList.get(1).getJobGroupDto();
-
 
     jobGroup.edit(jobGroupDto2);
 
-    filterDPList.add(List.of(jobGroup, driver, jobGroupDto2));
-
+    filterDPList.add(
+        List.of(jobGroup, driver, jobGroupDto2, jobCreator, client, clientDto, publisher));
   }
 
   /** . check bids after edit */

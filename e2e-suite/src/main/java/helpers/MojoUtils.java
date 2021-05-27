@@ -8,7 +8,6 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.TimeoutException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 
 public class MojoUtils {
 
@@ -28,33 +27,32 @@ public class MojoUtils {
     //              client.runScheduler();
     //            }
 
-    ForkJoinPool pool = new ForkJoinPool(2);
+    // ForkJoinPool pool = new ForkJoinPool(2);
 
-    pool.submit(
-        () ->
-            clientSet.stream()
-                .parallel()
-                .forEach(
-                    (client) -> {
-                      try {
-                        client.runScheduler();
-                      } catch (MojoException e) {
-                        e.printStackTrace();
-                      }
-                      try {
-                        System.out.println(client.id + " " + client.getStats().getName());
-                      } catch (MojoException e) {
-                        e.printStackTrace();
-                      }
-                    }));
+    clientSet.parallelStream()
+        .forEach(
+            (client) -> {
+              try {
+                client.runScheduler();
+              } catch (MojoException e) {
+                e.printStackTrace();
+              }
+              try {
+                System.out.println(client.id + " " + client.getStats().getName());
+              } catch (MojoException e) {
+                e.printStackTrace();
+              }
+            }); // );
 
-    pool.shutdown();
+    // pool.shutdown();
 
-    while (!pool.isTerminated()) {}
+    // while (!pool.isTerminated()) {}
 
-    Thread.sleep(10000);
-    driver.refreshEntityCache();
-    driver.refreshJobCount();
+    for (int i = 0; i < 5; i++) {
+      Thread.sleep(20000);
+      driver.refreshEntityCache();
+      driver.refreshJobCount();
+    }
   }
 
   /** . deleting Clients */
