@@ -183,6 +183,11 @@ public class Driver {
     return new JobGroup(this, clientId, jobGroupId);
   }
 
+  public List<String> searchClients(String searchString)
+      throws ApiRequestException, UnexpectedResponseException {
+    return clientService.getClientIdsFromSearch(session, conf, searchString);
+  }
+
   public String generateInboundFeed(FeedDto feedDto) throws InvalidInputException {
     return feedService.getFeedUrl(conf, awsService, feedDto);
   }
