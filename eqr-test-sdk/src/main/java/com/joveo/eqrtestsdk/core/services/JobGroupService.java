@@ -197,6 +197,7 @@ public class JobGroupService extends BaseService {
     String validationErrors = this.validateEditEntity(jobGroup, validator);
 
     LocalDate endDate = jobGroup.getEndDate();
+
     List<JobGroupGetResponse> fields = getResponseData(getResponse);
 
     JobGroupGetResponse responseData = fields.get(0);

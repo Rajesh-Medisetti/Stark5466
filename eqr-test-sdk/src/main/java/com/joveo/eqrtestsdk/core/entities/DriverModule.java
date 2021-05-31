@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
+import com.joveo.eqrtestsdk.core.services.AutomationService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
 import com.joveo.eqrtestsdk.core.services.ClientService;
 import com.joveo.eqrtestsdk.core.services.JobGroupService;
@@ -71,6 +72,13 @@ public class DriverModule extends AbstractModule {
   static PublisherService providesPublisherService(
       JoveoHttpExecutor executor, ObjectMapper objectMapper, Validator validator) {
     return new PublisherService(executor, objectMapper, validator);
+  }
+
+  @Singleton
+  @Provides
+  static AutomationService providesAutomationService(
+      JoveoHttpExecutor executor, Validator validator) {
+    return new AutomationService(executor, validator);
   }
 
   @Provides

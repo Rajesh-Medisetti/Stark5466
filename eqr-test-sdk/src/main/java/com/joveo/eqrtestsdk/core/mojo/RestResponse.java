@@ -181,6 +181,22 @@ public class RestResponse {
   /**
    * .
    *
+   * @param key key
+   * @return responseStatus
+   * @throws UnexpectedResponseException On unexpected Response
+   */
+  public Boolean extractByKeyWithData(String key) throws UnexpectedResponseException {
+    try {
+      return objectMapper.readTree(result).get("data").get(key).booleanValue();
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      throw new UnexpectedResponseException("Couldn't find key " + key + " in result " + result);
+    }
+  }
+
+  /**
+   * .
+   *
    * @param keys extracting by keys
    * @return values associated with keys
    * @throws UnexpectedResponseException On unexpected Response
