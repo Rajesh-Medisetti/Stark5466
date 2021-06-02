@@ -25,9 +25,24 @@ public class JobFilterValidations {
       String pubId,
       JobCreator jobCreator,
       Driver driver)
-      throws MojoException {
+      throws MojoException, InterruptedException {
 
     List<FeedJob> jobs = jobCreator.jobGroupDtoFeedDtoMap.get(jobGroupDto).getJob();
+
+    if (jobs.size() == 0) {
+      return true;
+    }
+
+    int cnt = 1;
+    while (!jobGroup.getJobDetails(Integer.toString(jobs.get(0).getReferenceNumber())).isPresent()
+        && cnt > 0) {
+      driver.refreshEntityCache();
+      cnt--;
+    }
+
+    if (!jobGroup.getJobDetails(Integer.toString(jobs.get(0).getReferenceNumber())).isPresent()) {
+      return false;
+    }
 
     for (FeedJob job : jobs) {
       if (!jobGroup
