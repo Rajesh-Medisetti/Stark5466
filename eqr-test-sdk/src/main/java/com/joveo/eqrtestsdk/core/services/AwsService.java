@@ -138,6 +138,17 @@ public class AwsService {
   }
 
   /**
+   * This method checks whether file exists in given s3 bucket.
+   *
+   * @param bucketName Name of S3 Bucket
+   * @param objectName File path
+   * @return returns presence of file path.
+   */
+  public boolean doesFileExistsInS3(String bucketName, String objectName) {
+    return s3.doesObjectExist(bucketName, objectName);
+  }
+
+  /**
    * This method takes a list of messages and pushes them to the given queue in a batch of 10.
    *
    * @param messages List of messages

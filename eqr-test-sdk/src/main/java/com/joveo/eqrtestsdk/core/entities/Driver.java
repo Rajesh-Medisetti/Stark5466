@@ -183,6 +183,11 @@ public class Driver {
     return new JobGroup(this, clientId, jobGroupId);
   }
 
+  public List<String> searchClients(String searchString)
+      throws ApiRequestException, UnexpectedResponseException {
+    return clientService.getClientIdsFromSearch(session, conf, searchString);
+  }
+
   public String generateInboundFeed(FeedDto feedDto) throws InvalidInputException {
     return feedService.getFeedUrl(conf, awsService, feedDto);
   }
@@ -236,6 +241,10 @@ public class Driver {
   public void refreshEntityCache() throws ApiRequestException, UnexpectedResponseException {
     cacheRefreshService.refreshCache(
         session, awsService, conf.getString("InstanceTag"), conf.getString("AragonRefreshUrl"));
+  }
+
+  public boolean doesFileExistsInS3Bucket(String bucketName, String objectName) {
+    return awsService.doesFileExistsInS3(bucketName, objectName);
   }
 
   private void setup(String username, String password)
