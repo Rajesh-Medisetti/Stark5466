@@ -85,8 +85,10 @@ public class TrackingService {
     logger.info("Triggering Gandalf for major run at: " + LocalDateTime.now());
     RestResponse response = executor.post(session, gandalfMajorRunUrl, null);
     if (response.getResponseCode() != 200) {
-      logger.error("Unable to run gandalf major run");
-      throw new UnexpectedResponseException("Unable to run gandalf major run");
+      String errorMessage =
+          "Unable to run gandalf major run. Status code: " + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     logger.info("Gandalf major run started...");
   }

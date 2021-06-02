@@ -99,8 +99,9 @@ public abstract class BaseService {
       throws UnexpectedResponseException {
 
     if (!response.isSuccess()) {
-      logger.error(errorMessage + "," + response.toString());
-      throw new UnexpectedResponseException(errorMessage + "," + response.toString());
+      errorMessage += ": " + response + "status code: " + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 
@@ -115,9 +116,13 @@ public abstract class BaseService {
       throws UnexpectedResponseException {
 
     if (!response.isSuccess()) {
-      logger.error(errorMessage + "," + response.getJoveoUpdateErrorMeesage());
-      throw new UnexpectedResponseException(
-          errorMessage + "," + response.getJoveoUpdateErrorMeesage());
+      errorMessage +=
+          ": "
+              + response.getJoveoUpdateErrorMeesage()
+              + "status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 
@@ -188,9 +193,13 @@ public abstract class BaseService {
       throws MojoException, UnexpectedResponseException, ApiRequestException {
     RestResponse response = executor.post(session, url, platformFiltersDto);
     if (!response.isSuccess()) {
-      logger.error("failed to get client's stats " + response.getJoveoErrorMessage());
-      throw new UnexpectedResponseException(
-          "failed to get client's stats " + response.getJoveoErrorMessage());
+      String errorMessage =
+          "failed to get client's stats "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     MojoResponse<Stats> mojoResponse = response.toMojoResponse(getMojoStatsTypeReference());
 

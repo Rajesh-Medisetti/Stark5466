@@ -45,7 +45,9 @@ public class SchedulerService {
 
     if (!response.isSuccess()) {
       logger.error(
-          "Couldn't get last scheduler executionTime, Mongo has no docs for this client yet");
+          "Couldn't get last scheduler executionTime, Mongo has no docs for this client yet. "
+              + "status code: "
+              + response.getResponseCode());
       // Success false is given before batch picking the request; hence, we have to avoid this
       // false-negative case.
       return null;
@@ -83,9 +85,13 @@ public class SchedulerService {
     RestResponse response = executor.post(session, baseUrl + "/batch/manualfeed/refresh", client);
 
     if (!Boolean.parseBoolean(response.extractByPath("data", "success"))) {
-      logger.error("Unable to run scheduler: " + response.extractByPath("data", "data", "message"));
-      throw new UnexpectedResponseException(
-          "Unable to run scheduler: " + response.extractByPath("data", "data", "message"));
+      String errorMessage =
+          "Unable to run scheduler: "
+              + response.extractByPath("data", "data", "message")
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 }
