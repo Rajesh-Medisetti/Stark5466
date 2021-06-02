@@ -243,6 +243,10 @@ public class Driver {
         session, awsService, conf.getString("InstanceTag"), conf.getString("AragonRefreshUrl"));
   }
 
+  public boolean doesFileExistsInS3Bucket(String bucketName, String objectName) {
+    return awsService.doesFileExistsInS3(bucketName, objectName);
+  }
+
   private void setup(String username, String password)
       throws UnexpectedResponseException, ApiRequestException, InvalidCredentialsException {
     session = new MojoSession(username, password, this.conf.getString("MojoBaseUrl"));
