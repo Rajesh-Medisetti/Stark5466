@@ -17,8 +17,10 @@ import com.joveo.eqrtestsdk.models.FeedDto;
 import com.joveo.eqrtestsdk.models.FeedJob;
 import com.joveo.eqrtestsdk.models.JobFilterFields;
 import com.joveo.eqrtestsdk.models.JobGroupDto;
+import com.joveo.eqrtestsdk.models.Stats;
 import dtos.AllEntities;
 import dtos.Dtos;
+import dtos.SponsoredStatsInfo;
 import entitycreators.CampaignEntityCreator;
 import entitycreators.ClientEntityCreator;
 import entitycreators.InBoundFeedCreator;
@@ -261,5 +263,30 @@ public class MojoUtils {
     jobCreator.clientUrlMap.put(clientDto, feedUrl);
     jobCreator.clientFeedMap.put(clientDto, inboundFeedDto);
     jobCreator.jobGroupDtoFeedDtoMap.put(jobGroupDto, inboundFeedDto);
+  }
+
+  /**
+   * This method creates clients for given client ids.
+   *
+   * @param clientIds ClientIds
+   * @param driver Driver
+   * @return List of clients
+   * @throws MojoException Mojo Exception
+   */
+  public Map<Client, SponsoredStatsInfo> getClients(List<String> clientIds, Driver driver)
+      throws MojoException {
+    Map<Client, SponsoredStatsInfo> clientSponsoredStatsInfoMap = new HashMap<>();
+    for (String clientId : clientIds) {
+      Client client = driver.getExistingClient(clientId);
+      Stats clientLevelStats = client.getStats();
+      SponsoredStatsInfo sponsoredStatsInfo =
+          new SponsoredStatsInfo(
+              clientLevelStats.getClicks(),
+              clientLevelStats.getBotClicks(),
+              clientLevelStats.getApplyStarts(),
+              clientLevelStats.getApplies());
+      clientSponsoredStatsInfoMap.put(client, sponsoredStatsInfo);
+    }
+    return clientSponsoredStatsInfoMap;
   }
 }
