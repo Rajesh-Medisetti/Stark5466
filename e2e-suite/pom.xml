@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.joveo</groupId>
       <artifactId>eqr-test-sdk</artifactId>
-      <version>1.0.8</version>
+      <version>1.0.11</version>
     </dependency>
   </dependencies>
   <build>
