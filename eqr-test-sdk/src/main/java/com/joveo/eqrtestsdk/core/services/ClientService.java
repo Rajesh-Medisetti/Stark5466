@@ -1,5 +1,7 @@
 package com.joveo.eqrtestsdk.core.services;
 
+import static com.joveo.eqrtestsdk.utils.DateUtils.formatAsMojoDate;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +10,7 @@ import com.joveo.eqrtestsdk.api.Session;
 import com.joveo.eqrtestsdk.core.entities.Driver;
 import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.models.fetcher.ClientGetResponse;
+import com.joveo.eqrtestsdk.core.models.fetcher.ClientPostResponse;
 import com.joveo.eqrtestsdk.core.models.fetcher.Pixels;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
@@ -106,6 +109,50 @@ public class ClientService extends BaseService {
       throws TimeoutException, InterruptWaitException, ApiRequestException,
           UnexpectedResponseException, MojoException {
     this.runScheduler(session, config, clientId, config.getDuration("SchedulerTimeout"));
+  }
+
+  /**
+   * . This method returns a list of client ids for which the client name contains given
+   * searchString.
+   *
+   * @param session session
+   * @param config config
+   * @param searchString searchString
+   * @return List of client ids.
+   * @throws ApiRequestException something wrong with request
+   * @throws UnexpectedResponseException On unexpected Response
+   */
+  public List<String> getClientIdsFromSearch(Session session, Config config, String searchString)
+      throws ApiRequestException, UnexpectedResponseException {
+    PlatformFiltersDto platformFiltersDto = new PlatformFiltersDto();
+    platformFiltersDto.addRule(
+        formatAsMojoDate(LocalDate.now().minusYears(10)), PFfields.startDate, PfOperators.EQUAL);
+    platformFiltersDto.addRule(
+        formatAsMojoDate(LocalDate.now()), PFfields.endDate, PfOperators.EQUAL);
+    platformFiltersDto.addRule(searchString, PFfields.name, PfOperators.CONTAINS);
+
+    RestResponse response =
+        executor.post(
+            session, config.getString("MojoBaseUrl") + "/flash/api/clients", platformFiltersDto);
+
+    if (response.getResponseCode() != 200) {
+      String errorMessage =
+          "Unable to make POST API call to fetch client Ids of given search pattern"
+              + ", status code "
+              + response.getResponseCode();
+
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+
+    List<String> clientIds = new ArrayList<>();
+    List<ClientPostResponse> fields = getPostResponseData(response);
+    for (ClientPostResponse field : fields) {
+      if (field.getStatus().equals("A")) {
+        clientIds.add(field.getId());
+      }
+    }
+    return clientIds;
   }
 
   /**
@@ -368,6 +415,19 @@ public class ClientService extends BaseService {
         response.toMojoResponse(new TypeReference<MojoResponse<ClientGetResponse>>() {});
 
     for (MojoData<ClientGetResponse> data : mojoResponse.getData()) {
+      dataList.add(data.getFields());
+    }
+    return dataList;
+  }
+
+  private List<ClientPostResponse> getPostResponseData(RestResponse response)
+      throws UnexpectedResponseException {
+
+    List<ClientPostResponse> dataList = new ArrayList<>();
+    MojoResponse<ClientPostResponse> mojoResponse =
+        response.toMojoResponse(new TypeReference<MojoResponse<ClientPostResponse>>() {});
+
+    for (MojoData<ClientPostResponse> data : mojoResponse.getData()) {
       dataList.add(data.getFields());
     }
     return dataList;
