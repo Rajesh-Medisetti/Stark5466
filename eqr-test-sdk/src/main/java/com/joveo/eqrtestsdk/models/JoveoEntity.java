@@ -6,4 +6,5 @@ public enum JoveoEntity {
   publishers,
   campaigns,
   job,
+  Automation
 }

@@ -101,8 +101,13 @@ public class AwsService {
       return objectUrl;
 
     } catch (AmazonServiceException e) {
-      logger.error("S3 couldn't process the request: " + e.getMessage());
-      throw new S3IoException("S3 couldn't process the request: " + e.getMessage());
+      String errorMessage =
+          "S3 couldn't process the request: "
+              + e.getMessage()
+              + " Status code- "
+              + e.getErrorCode();
+      logger.error(errorMessage);
+      throw new S3IoException(errorMessage);
     } catch (SdkClientException e) {
       logger.error(
           "S3 couldn't be contacted for response or couldn't parse the response: "
@@ -125,8 +130,13 @@ public class AwsService {
     try {
       s3.deleteObject(new DeleteObjectRequest(bucketName, awsFilePath));
     } catch (AmazonServiceException e) {
-      logger.error("S3 couldn't process the request: " + e.getMessage());
-      throw new AmazonServiceException("S3 couldn't process the request: " + e.getMessage());
+      String errorMessage =
+          "S3 couldn't process the request: "
+              + e.getMessage()
+              + " Status code- "
+              + e.getErrorCode();
+      logger.error(errorMessage);
+      throw new AmazonServiceException(errorMessage);
     } catch (SdkClientException e) {
       logger.error(
           "S3 couldn't be contacted for response or couldn't parse the response: "

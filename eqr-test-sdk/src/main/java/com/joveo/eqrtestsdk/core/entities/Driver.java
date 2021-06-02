@@ -1,5 +1,6 @@
 package com.joveo.eqrtestsdk.core.entities;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -8,6 +9,7 @@ import com.joveo.eqrtestsdk.core.models.MajorMinorVersions;
 import com.joveo.eqrtestsdk.core.mojo.MojoSession;
 import com.joveo.eqrtestsdk.core.mojo.TrafficGenerator;
 import com.joveo.eqrtestsdk.core.services.AllStatsService;
+import com.joveo.eqrtestsdk.core.services.AutomationService;
 import com.joveo.eqrtestsdk.core.services.AwsService;
 import com.joveo.eqrtestsdk.core.services.CacheRefreshService;
 import com.joveo.eqrtestsdk.core.services.CampaignService;
@@ -32,6 +34,7 @@ import com.joveo.eqrtestsdk.models.JobGroupDto;
 import com.joveo.eqrtestsdk.models.JoveoEnvironment;
 import com.joveo.eqrtestsdk.models.PublisherDto;
 import com.joveo.eqrtestsdk.models.allstatsevents.AllStatsRequest;
+import com.joveo.eqrtestsdk.models.automation.AutomationDto;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -42,6 +45,7 @@ public class Driver {
   public Session session;
   public Config conf;
 
+  @Inject AutomationService automationService;
   @Inject ClientService clientService;
   @Inject CampaignService campaignService;
   @Inject JobGroupService jobGroupService;
@@ -71,15 +75,25 @@ public class Driver {
     Driver driver = injector.getInstance(Driver.class);
     driver.conf = config;
     driver.setup(username, password);
-    driver.databaseService.setup(
-        config.getString("MongoHost_Name"),
-        config.getString("MongoDB_Name"),
-        config.getString("MongoConversionCollection_Name"),
-        config.getString("MongoClientsCollection_Name"),
-        config.getString("Mongo_Username"),
-        config.getString("Mongo_Password"));
-    driver.trackingService.setup(config.getString("RedisUrl"), config.getString("RedisMapName"));
     return driver;
+  }
+
+  /**
+   * add mongodb and redis connection.
+   *
+   * @return driver
+   */
+  public Driver addTrackingAndDatabaseService() {
+    this.databaseService.setup(
+        this.conf.getString("MongoHost_Name"),
+        this.conf.getString("MongoDB_Name"),
+        this.conf.getString("MongoConversionCollection_Name"),
+        this.conf.getString("MongoClientsCollection_Name"),
+        this.conf.getString("Mongo_Username"),
+        this.conf.getString("Mongo_Password"));
+    this.trackingService.setup(
+        this.conf.getString("RedisUrl"), this.conf.getString("RedisMapName"));
+    return this;
   }
 
   /**
@@ -157,6 +171,15 @@ public class Driver {
           ApiRequestException {
     String publisherID = publisherService.create(session, conf, publisher);
     return new Publisher(this, publisherID);
+  }
+
+  /** . create Automation with AutomationDto object */
+  public Automation createAutomation(AutomationDto automation)
+      throws UnexpectedResponseException, InvalidInputException, ApiRequestException,
+          JsonProcessingException {
+    String automationId = automationService.create(session, conf, automation);
+
+    return new Automation(automationId, automation.getClientId(), this);
   }
 
   public Publisher getExistingPublisher(String publisherId)

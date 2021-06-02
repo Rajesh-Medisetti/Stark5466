@@ -86,7 +86,11 @@ public class JobGroupService extends BaseService {
         executor.post(session, conf.getString("MojoBaseUrl") + "/thor/api/jobgroups", jobGroup);
 
     if (!response.isSuccess()) {
-      String errorMessage = "Unable to create Job Group: " + response.getJoveoErrorMessage();
+      String errorMessage =
+          "Unable to create Job Group: "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
@@ -112,7 +116,10 @@ public class JobGroupService extends BaseService {
 
     if (getResponse.getResponseCode() != 200) {
       String errorMessage =
-          "Unable to make getClient Request , check clientId " + getResponse.toString();
+          "Unable to make getClient Request , check clientId "
+              + getResponse
+              + " status code: "
+              + getResponse.getResponseCode();
 
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
@@ -197,6 +204,7 @@ public class JobGroupService extends BaseService {
     String validationErrors = this.validateEditEntity(jobGroup, validator);
 
     LocalDate endDate = jobGroup.getEndDate();
+
     List<JobGroupGetResponse> fields = getResponseData(getResponse);
 
     JobGroupGetResponse responseData = fields.get(0);
@@ -517,9 +525,13 @@ public class JobGroupService extends BaseService {
     Boolean success = response.extractByKeyWithoutData("success");
 
     if (!Boolean.TRUE.equals(success)) {
-      logger.error("Unable to update Markup in JobGroup: " + response.toString());
-      throw new UnexpectedResponseException(
-          "Unable to update Markup in JobGroup: " + response.toString());
+      String errorMessage =
+          "Unable to update Markup in JobGroup: "
+              + response
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 
@@ -619,9 +631,13 @@ public class JobGroupService extends BaseService {
             platformFiltersDto);
 
     if (!response.isSuccess()) {
-      logger.error("failed to get campaigns " + response.getJoveoErrorMessage());
-      throw new UnexpectedResponseException(
-          "failed to get campaigns " + response.getJoveoErrorMessage());
+      String errorMessage =
+          "failed to get campaigns "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     MojoResponse<Stats> mojoResponse =
         response.toMojoResponse(new TypeReference<MojoResponse<Stats>>() {});
@@ -748,7 +764,13 @@ public class JobGroupService extends BaseService {
             session, config.getString("MojoBaseUrl") + "/thor/api/jobgroups", entityStatusDto);
 
     if (!response.isSuccess()) {
-      String errorMessage = "failed to " + status + " jobGroup" + response.getJoveoErrorMessage();
+      String errorMessage =
+          "failed to "
+              + status
+              + " jobGroup"
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }

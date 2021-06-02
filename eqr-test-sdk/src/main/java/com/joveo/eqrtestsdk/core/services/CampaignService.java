@@ -78,7 +78,11 @@ public class CampaignService extends BaseService {
         executor.post(session, conf.getString("MojoBaseUrl") + "/thor/api/campaigns", campaign);
 
     if (!response.isSuccess()) {
-      String errorMessage = "Unable to Create Campaign: " + response.getJoveoErrorMessage();
+      String errorMessage =
+          "Unable to Create Campaign: "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
@@ -89,8 +93,7 @@ public class CampaignService extends BaseService {
       return mojoResponse.getFirstData().getId();
     } catch (IndexOutOfBoundsException e) {
       logger.error(e.getMessage());
-      throw new UnexpectedResponseException(
-          "data at first index missing in response " + response.toString());
+      throw new UnexpectedResponseException("data at first index missing in response " + response);
     }
   }
 
@@ -160,8 +163,7 @@ public class CampaignService extends BaseService {
       return mojoResponse.getFirstData().getId();
     } catch (IndexOutOfBoundsException e) {
       logger.error(e.getMessage());
-      throw new UnexpectedResponseException(
-          "data at first index missing in response " + response.toString());
+      throw new UnexpectedResponseException("data at first index missing in response " + response);
     }
   }
 
@@ -246,9 +248,13 @@ public class CampaignService extends BaseService {
             platformFiltersDto);
 
     if (!response.isSuccess()) {
-      logger.error("failed to get campaigns " + response.getJoveoErrorMessage());
-      throw new UnexpectedResponseException(
-          "failed to get campaigns " + response.getJoveoErrorMessage());
+      String errorMessage =
+          "failed to get campaigns "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     MojoResponse<Stats> mojoResponse =
         response.toMojoResponse(new TypeReference<MojoResponse<Stats>>() {});
@@ -375,7 +381,13 @@ public class CampaignService extends BaseService {
             session, config.getString("MojoBaseUrl") + "/thor/api/campaigns", entityStatusDto);
 
     if (!response.isSuccess()) {
-      String errorMessage = "failed to " + status + " campaign" + response.getJoveoErrorMessage();
+      String errorMessage =
+          "failed to "
+              + status
+              + " campaign"
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
