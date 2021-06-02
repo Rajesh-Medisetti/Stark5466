@@ -70,9 +70,13 @@ public class JobService extends BaseService {
 
     RestResponse response = executor.post(session, url, platformFiltersDto);
     if (!response.isSuccess()) {
-      logger.error("failed to get jobs data " + response.getJoveoErrorMessage());
-      throw new UnexpectedResponseException(
-          "failed to get jobs data " + response.getJoveoErrorMessage());
+      String errorMessage =
+          "failed to get jobs data "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     MojoResponse<JobStats> mojoResponse =
         response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {});
@@ -125,9 +129,13 @@ public class JobService extends BaseService {
 
     RestResponse response = executor.post(driver.session, url, platformFiltersDto);
     if (!response.isSuccess()) {
-      logger.error("failed to get jobs data " + response.getJoveoErrorMessage());
-      throw new UnexpectedResponseException(
-          "failed to get jobs data " + response.getJoveoErrorMessage());
+      String errorMessage =
+          "failed to get jobs data "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
     MojoResponse<JobStats> mojoResponse =
         response.toMojoResponse(new TypeReference<MojoResponse<JobStats>>() {});

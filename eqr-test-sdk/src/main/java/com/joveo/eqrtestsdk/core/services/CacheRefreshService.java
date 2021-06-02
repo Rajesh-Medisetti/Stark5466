@@ -37,8 +37,9 @@ public class CacheRefreshService {
       RestResponse response = executor.post(session, "http://" + ip + url, null);
 
       if (!response.isSuccess()) {
-        logger.error("Unable to refresh Cache");
-        throw new UnexpectedResponseException("Unable to refresh Cache");
+        String errorMessage = "Unable to refresh Cache, Status code: " + response.getResponseCode();
+        logger.error(errorMessage);
+        throw new UnexpectedResponseException(errorMessage);
       }
       logger.info("Successfully refresh cache at: " + ip);
     }

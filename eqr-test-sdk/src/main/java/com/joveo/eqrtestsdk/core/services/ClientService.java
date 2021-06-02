@@ -281,7 +281,11 @@ public class ClientService extends BaseService {
         executor.post(session, conf.getString("MojoBaseUrl") + "/thor/api/clients", client);
 
     if (!response.isSuccess()) {
-      String errorMessage = "Unable to create Client: " + response.getJoveoErrorMessage();
+      String errorMessage =
+          "Unable to create Client: "
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
@@ -292,8 +296,7 @@ public class ClientService extends BaseService {
       return mojoResponse.getFirstData().getId();
     } catch (IndexOutOfBoundsException e) {
       logger.error(e.getMessage());
-      throw new UnexpectedResponseException(
-          "data at first index missing in response " + response.toString());
+      throw new UnexpectedResponseException("data at first index missing in response " + response);
     }
   }
 
@@ -470,9 +473,13 @@ public class ClientService extends BaseService {
     Boolean success = response.extractByKeyWithoutData("success");
 
     if (!Boolean.TRUE.equals(success)) {
-      logger.error("Unable to update Markup in Client: " + response.toString());
-      throw new UnexpectedResponseException(
-          "Unable to update Markup in Client:" + response.toString());
+      String errorMessage =
+          "Unable to update Markup in Client: "
+              + response
+              + " status code: "
+              + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 
@@ -501,7 +508,11 @@ public class ClientService extends BaseService {
         executor.put(session, config.getString("MojoBaseUrl") + "/thor/api/clients", clientDto);
 
     if (!response.isSuccess()) {
-      String errorMessage = "failed to remove client" + response.getJoveoErrorMessage();
+      String errorMessage =
+          "failed to remove client"
+              + response.getJoveoErrorMessage()
+              + " status code: "
+              + response.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
@@ -632,7 +643,10 @@ public class ClientService extends BaseService {
 
     if (!getResponse.isSuccess()) {
       String errorMessage =
-          "Unable to make getClient Request , check clientId " + getResponse.toString();
+          "Unable to make getClient Request , check clientId "
+              + getResponse
+              + " Status code: "
+              + getResponse.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }

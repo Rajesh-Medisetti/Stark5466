@@ -71,15 +71,25 @@ public class Driver {
     Driver driver = injector.getInstance(Driver.class);
     driver.conf = config;
     driver.setup(username, password);
-    driver.databaseService.setup(
-        config.getString("MongoHost_Name"),
-        config.getString("MongoDB_Name"),
-        config.getString("MongoConversionCollection_Name"),
-        config.getString("MongoClientsCollection_Name"),
-        config.getString("Mongo_Username"),
-        config.getString("Mongo_Password"));
-    driver.trackingService.setup(config.getString("RedisUrl"), config.getString("RedisMapName"));
     return driver;
+  }
+
+  /**
+   * add mongodb and redis connection.
+   *
+   * @return driver
+   */
+  public Driver addTrackingAndDatabaseService() {
+    this.databaseService.setup(
+        this.conf.getString("MongoHost_Name"),
+        this.conf.getString("MongoDB_Name"),
+        this.conf.getString("MongoConversionCollection_Name"),
+        this.conf.getString("MongoClientsCollection_Name"),
+        this.conf.getString("Mongo_Username"),
+        this.conf.getString("Mongo_Password"));
+    this.trackingService.setup(
+        this.conf.getString("RedisUrl"), this.conf.getString("RedisMapName"));
+    return this;
   }
 
   /**

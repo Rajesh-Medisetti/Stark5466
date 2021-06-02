@@ -87,8 +87,9 @@ public class PublisherService extends BaseService {
     if (Boolean.TRUE.equals(success)) {
       return publisher.getValue();
     } else {
-      logger.error("Unable to create Publisher: ");
-      throw new UnexpectedResponseException("Unable to create Publisher ");
+      logger.error("Unable to create Publisher. Status code: " + response.getResponseCode());
+      throw new UnexpectedResponseException(
+          "Unable to create Publisher. Status code: " + response.getResponseCode());
     }
   }
 
@@ -116,7 +117,9 @@ public class PublisherService extends BaseService {
     if (getResponse.getResponseCode() != 200) {
       String errorMessage =
           "Unable to make getApi call to Publisher, check placementValue: "
-              + getResponse.toString();
+              + getResponse
+              + " status code: "
+              + getResponse.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
@@ -148,8 +151,10 @@ public class PublisherService extends BaseService {
     if (Boolean.TRUE.equals(success)) {
       return;
     } else {
-      logger.error("Unable to update Publisher: " + response.toString());
-      throw new UnexpectedResponseException("Unable to update Publisher " + response.toString());
+      String errorMessage =
+          "Unable to update Publisher: " + response + " status code: " + response.getResponseCode();
+      logger.error(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
     }
   }
 
@@ -176,7 +181,11 @@ public class PublisherService extends BaseService {
                 + publisherId);
 
     if (getResponse.getResponseCode() != 200) {
-      String errorMessage = "Unable to make GET API call to Publisher: " + getResponse.toString();
+      String errorMessage =
+          "Unable to make GET API call to Publisher: "
+              + getResponse
+              + " status code: "
+              + getResponse.getResponseCode();
       logger.error(errorMessage);
       throw new UnexpectedResponseException(errorMessage);
     }
