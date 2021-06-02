@@ -33,15 +33,14 @@ public class JobFilterValidations {
       return true;
     }
 
-
     int cnt = 1;
-    while (! jobGroup.getJobDetails(
-        Integer.toString(jobs.get(0).getReferenceNumber())).isPresent() && cnt > 0) {
+    while (!jobGroup.getJobDetails(Integer.toString(jobs.get(0).getReferenceNumber())).isPresent()
+        && cnt > 0) {
       driver.refreshEntityCache();
       cnt--;
     }
 
-    if (! jobGroup.getJobDetails(Integer.toString(jobs.get(0).getReferenceNumber())).isPresent()) {
+    if (!jobGroup.getJobDetails(Integer.toString(jobs.get(0).getReferenceNumber())).isPresent()) {
       return false;
     }
 
