@@ -86,7 +86,7 @@ public class AutomationService extends BaseService {
             automationData);
 
     if (response.getResponseCode() == 200 && response.extractByKeyWithData("success")) {
-      return response.extractByPath("data", "id");
+      return response.extractByPath("data", "id").replace("\"", "");
     } else {
       logger.error("could not create automation " + response.toString());
       throw new UnexpectedResponseException("could not create automation " + response.toString());
