@@ -91,6 +91,7 @@ public class Driver {
         this.conf.getString("MongoClientsCollection_Name"),
         this.conf.getString("Mongo_Username"),
         this.conf.getString("Mongo_Password"));
+
     this.trackingService.setup(
         this.conf.getString("RedisUrl"), this.conf.getString("RedisMapName"));
     return this;
