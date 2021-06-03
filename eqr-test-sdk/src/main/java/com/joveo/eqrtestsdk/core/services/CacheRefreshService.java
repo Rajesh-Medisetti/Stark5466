@@ -44,4 +44,27 @@ public class CacheRefreshService {
       logger.info("Successfully refresh cache at: " + ip);
     }
   }
+
+  /**
+   * refresh cache.
+   * @param session session
+   * @param ipList  list of ips
+   * @param url url
+   * @throws UnexpectedResponseException custom exception
+   * @throws ApiRequestException custom exception
+   */
+  public void refreshCache(Session session, List<String> ipList, String url)
+      throws UnexpectedResponseException, ApiRequestException {
+
+    for (String ip : ipList) {
+      RestResponse response = executor.post(session, "http://" + ip + url, null);
+
+      if (!response.isSuccess()) {
+        String errorMessage = "Unable to refresh Cache, Status code: " + response.getResponseCode();
+        logger.error(errorMessage);
+        throw new UnexpectedResponseException(errorMessage);
+      }
+      logger.info("Successfully refresh cache at: " + ip);
+    }
+  }
 }
