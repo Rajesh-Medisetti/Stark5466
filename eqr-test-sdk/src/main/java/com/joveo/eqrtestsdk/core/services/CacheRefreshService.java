@@ -47,8 +47,9 @@ public class CacheRefreshService {
 
   /**
    * refresh cache.
+   *
    * @param session session
-   * @param ipList  list of ips
+   * @param ipList list of ips
    * @param url url
    * @throws UnexpectedResponseException custom exception
    * @throws ApiRequestException custom exception
