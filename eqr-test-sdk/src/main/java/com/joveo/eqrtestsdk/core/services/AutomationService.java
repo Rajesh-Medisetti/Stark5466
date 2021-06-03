@@ -14,6 +14,7 @@ import com.joveo.eqrtestsdk.models.automation.ActionType;
 import com.joveo.eqrtestsdk.models.automation.AutomationData;
 import com.joveo.eqrtestsdk.models.automation.AutomationDto;
 import com.joveo.eqrtestsdk.models.automation.FilterLevel;
+import com.joveo.eqrtestsdk.models.automation.PauseDto;
 import com.joveo.eqrtestsdk.models.automation.automationvalidationgroups.Administration;
 import com.joveo.eqrtestsdk.models.automation.automationvalidationgroups.BidStrategy;
 import com.joveo.eqrtestsdk.models.automation.automationvalidationgroups.ClientCampaignJobGroupLevel;
@@ -192,91 +193,31 @@ public class AutomationService extends BaseService {
     }
   }
 
+  /** . pause the Automation */
+  public void pause(String id, Session session, Config config, PauseDto pauseDto)
+      throws UnexpectedResponseException, ApiRequestException, InvalidInputException {
+
+    String errorMessage = validateEntity(pauseDto, validator);
+
+    if (errorMessage != null) {
+      logger.error(errorMessage);
+      throw new InvalidInputException(errorMessage);
+    }
+
+    RestResponse response =
+        executor.put(session, config.getString("MojoBaseUrl") + "/api/rules/v2", pauseDto);
+
+    errorMessage = "Unable to pause Automation: ";
+
+    if (response.getResponseCode() != 200 || !response.isSuccess()) {
+      logger.info(errorMessage);
+      throw new UnexpectedResponseException(errorMessage);
+    }
+    logger.info(id + " automation paused successfully");
+  }
+
   @Override
   public String getEntity() {
     return JoveoEntity.Automation.toString();
   }
 }
-
-/*{
-"ruleDto" : {
-"filterLevel" : "clients",
-"filters" : [ {
-"id" : "3d2460b1-7095-4dbf-a665-a6efcda3a683",
-"name" : "SAM_JOVEO_client_name_automationWn69Tp7Ps3",
-"placementIds" : [ ],
-"allPlacements" : false
-} ],
-"conditions" : [ {
-"value" : 6.0,
-"parameter" : "cta",
-"condition" : "equals",
-"conditionDuration" : "last_3_days",
-"unit" : "%"
-}, {
-"value" : 7.0,
-"parameter" : "allClicks",
-"condition" : "greater_than",
-"conditionDuration" : "last_3_days",
-"unit" : "#"
-} ],
-"actionType" : "bidStrategy",
-"actions" : {
-"action" : "increase",
-"parameter" : "cpc bid",
-"value" : 1.5,
-"unit" : "$"
-},
-"startDate" : "05/31/2021",
-"endDate" : "06/07/2021",
-"name" : "test1",
-"clientId" : "3d2460b1-7095-4dbf-a665-a6efcda3a683",
-"allIds" : false,
-"campaignId" : "0",
-"jobGroupId" : "0",
-"notifyUser" : false,
-"status" : "A",
-"applyToChildren" : true,
-"conditionOp" : "AND"
-},
-"orderedRules" : [ {
-"filterLevel" : "clients",
-"filters" : [ {
-"id" : "3d2460b1-7095-4dbf-a665-a6efcda3a683",
-"name" : "SAM_JOVEO_client_name_automationWn69Tp7Ps3",
-"placementIds" : [ ],
-"allPlacements" : false
-} ],
-"conditions" : [ {
-"value" : 6.0,
-"parameter" : "cta",
-"condition" : "equals",
-"conditionDuration" : "last_3_days",
-"unit" : "%"
-}, {
-"value" : 7.0,
-"parameter" : "allClicks",
-"condition" : "greater_than",
-"conditionDuration" : "last_3_days",
-"unit" : "#"
-} ],
-"actionType" : "bidStrategy",
-"actions" : {
-"action" : "increase",
-"parameter" : "cpc bid",
-"value" : 1.5,
-"unit" : "$"
-},
-"startDate" : "05/31/2021",
-"endDate" : "06/07/2021",
-"name" : "test1",
-"clientId" : "3d2460b1-7095-4dbf-a665-a6efcda3a683",
-"allIds" : false,
-"campaignId" : "0",
-"jobGroupId" : "0",
-"notifyUser" : false,
-"status" : "A",
-"applyToChildren" : true,
-"conditionOp" : "AND"
-} ]
-}*/

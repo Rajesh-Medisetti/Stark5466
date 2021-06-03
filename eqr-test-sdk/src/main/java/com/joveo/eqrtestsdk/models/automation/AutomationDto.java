@@ -193,6 +193,7 @@ public class AutomationDto {
       jobGroupId = "0";
     } else if (filterLevel.equals(FilterLevel.jobgroups)) {
       jobGroupId = filters.get(0).id;
+      campaignId = "0";
     } else if (jobFilterLevel.equals(JobFilterLevel.clients)) {
       clientId = filters.get(0).id;
       campaignId = "0";
@@ -202,6 +203,7 @@ public class AutomationDto {
       jobGroupId = "0";
     } else {
       jobGroupId = filters.get(0).id;
+      campaignId = "0";
     }
     setDefaultJobFilter();
   }
