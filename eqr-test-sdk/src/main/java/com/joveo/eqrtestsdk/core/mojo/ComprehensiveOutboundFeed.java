@@ -24,7 +24,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OutboundFeed {
+public class ComprehensiveOutboundFeed {
   private static Logger logger = LoggerFactory.getLogger(OutboundFeed.class);
   private static ObjectMapper xmlMapper = new XmlMapper();
 
@@ -41,17 +41,17 @@ public class OutboundFeed {
   }
 
   /**
-   * .
+   * Constructor for comprehensive outbound feed.
    *
    * @param feedUrl feedUrl
    * @param clientId clientId
    * @param schedulerService schedulerService
    * @param session session
    * @param config config
-   * @throws InvalidInputException On invalid credentials
-   * @throws UnexpectedResponseException On unexpected Response
+   * @throws InvalidInputException On invalid URL
+   * @throws UnexpectedResponseException The API response was not as expected On unexpected Response
    */
-  public OutboundFeed(
+  public ComprehensiveOutboundFeed(
       String feedUrl,
       String clientId,
       SchedulerService schedulerService,
@@ -200,7 +200,7 @@ public class OutboundFeed {
     statsRequest.setSponsoredBotClicks(sponsoredBotClicks);
     statsRequest.setSponsoredApplyStarts(sponsoredApplyStarts);
     statsRequest.setSponsoredApplyFinishes(sponsoredApplyFinishes);
-    // statsRequest.setOutboundFeed(this);
+    statsRequest.setOutboundFeed(this);
     return statsRequest;
   }
 

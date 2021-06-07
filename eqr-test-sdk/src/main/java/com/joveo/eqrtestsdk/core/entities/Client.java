@@ -3,7 +3,9 @@ package com.joveo.eqrtestsdk.core.entities;
 import static com.joveo.eqrtestsdk.utils.DateUtils.startOfMonth;
 
 import com.joveo.eqrtestsdk.core.models.fetcher.Pixels;
+import com.joveo.eqrtestsdk.core.mojo.ComprehensiveOutboundFeed;
 import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
+import com.joveo.eqrtestsdk.core.mojo.PerClientOutboundFeed;
 import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
@@ -153,8 +155,21 @@ public class Client {
     return driver.clientService.getInboundFeedData(this.id, driver.session, driver.conf);
   }
 
+  @Deprecated
   public OutboundFeed getOutboundFeed(String publisherId) throws MojoException {
     return driver.clientService.getOutboundFeedData(
+        publisherId, this.id, driver.session, driver.conf);
+  }
+
+  public PerClientOutboundFeed getPerClientOutboundFeed(String publisherId)
+      throws InvalidInputException, ApiRequestException, UnexpectedResponseException {
+    return driver.clientService.getPerClientOutboundFeedData(
+        publisherId, this.id, driver.session, driver.conf);
+  }
+
+  public ComprehensiveOutboundFeed getComprehensiveOutboundFeed(String publisherId)
+      throws InvalidInputException, ApiRequestException, UnexpectedResponseException {
+    return driver.clientService.getComprehensiveOutboundFeedData(
         publisherId, this.id, driver.session, driver.conf);
   }
 

@@ -9,9 +9,8 @@ import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
-import com.joveo.eqrtestsdk.models.ComprehensiveOutboundFeedDto;
-import com.joveo.eqrtestsdk.models.ComprehensiveOutboundJob;
-import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
+import com.joveo.eqrtestsdk.models.PerClientOutboundFeedDto;
+import com.joveo.eqrtestsdk.models.PerClientOutboundJob;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,8 +23,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OutboundFeed {
-  private static Logger logger = LoggerFactory.getLogger(OutboundFeed.class);
+public class PerClientOutboundFeed {
+  private static Logger logger = LoggerFactory.getLogger(PerClientOutboundFeed.class);
   private static ObjectMapper xmlMapper = new XmlMapper();
 
   private SchedulerService schedulerService;
@@ -33,7 +32,7 @@ public class OutboundFeed {
   private Config config;
   private String clientId;
   private String feedUrl;
-  private ComprehensiveOutboundFeedDto feed;
+  private PerClientOutboundFeedDto feed;
   private LocalDateTime feedRefreshTime;
 
   static {
@@ -41,17 +40,17 @@ public class OutboundFeed {
   }
 
   /**
-   * .
+   * Constructor for per client outbound feed.
    *
    * @param feedUrl feedUrl
    * @param clientId clientId
    * @param schedulerService schedulerService
    * @param session session
    * @param config config
-   * @throws InvalidInputException On invalid credentials
-   * @throws UnexpectedResponseException On unexpected Response
+   * @throws InvalidInputException On invalid URL
+   * @throws UnexpectedResponseException The API response was not as expected On unexpected Response
    */
-  public OutboundFeed(
+  public PerClientOutboundFeed(
       String feedUrl,
       String clientId,
       SchedulerService schedulerService,
@@ -66,7 +65,7 @@ public class OutboundFeed {
     refreshFeed();
   }
 
-  public ComprehensiveOutboundFeedDto getFeed() {
+  public PerClientOutboundFeedDto getFeed() {
     return feed;
   }
 
@@ -78,7 +77,7 @@ public class OutboundFeed {
    */
   public void refreshFeed() throws InvalidInputException, UnexpectedResponseException {
     try {
-      this.feed = xmlMapper.readValue(new URL(this.feedUrl), ComprehensiveOutboundFeedDto.class);
+      this.feed = xmlMapper.readValue(new URL(this.feedUrl), PerClientOutboundFeedDto.class);
     } catch (MalformedURLException e) {
       logger.error(e.getMessage());
       throw new InvalidInputException("invalid URL for outbound feed " + this.feedUrl);
@@ -127,9 +126,9 @@ public class OutboundFeed {
     if (referenceNumber == null) {
       throw new InvalidInputException("Reference number should not be a NULL value");
     }
-    List<ComprehensiveOutboundJob> jobs = feed.getJobs();
-    for (ComprehensiveOutboundJob job : jobs) {
-      if (job.referencenumber.equals(referenceNumber)) {
+    List<PerClientOutboundJob> jobs = feed.getJobs();
+    for (PerClientOutboundJob job : jobs) {
+      if (job.getJobReference().equals(referenceNumber)) {
         return true;
       }
     }
@@ -150,9 +149,9 @@ public class OutboundFeed {
     }
     Set<String> referenceNumbersSet = new HashSet<String>(referenceNumbers);
     Set<String> referenceNumbersInOutBoundFeed = new HashSet<String>();
-    List<ComprehensiveOutboundJob> jobs = feed.getJobs();
-    for (ComprehensiveOutboundJob job : jobs) {
-      referenceNumbersInOutBoundFeed.add(job.referencenumber);
+    List<PerClientOutboundJob> jobs = feed.getJobs();
+    for (PerClientOutboundJob job : jobs) {
+      referenceNumbersInOutBoundFeed.add(job.getJobReference());
     }
     referenceNumbersSet.removeAll(referenceNumbersInOutBoundFeed);
     return referenceNumbersSet.size() == 0;
@@ -169,63 +168,65 @@ public class OutboundFeed {
       }
     }
   }
-
-  /**
-   * This method creates a stats request object for valid dates. if dates provided are of previous
-   * calendar month then they are exception is thrown as gandalf don't pick previous calendar month
-   * dates.
-   *
-   * @param sponsoredClicks Sponsored Clicks
-   * @param sponsoredBotClicks Sponsored Bot Clicks
-   * @param sponsoredApplyStarts Sponsored Apply Starts
-   * @param sponsoredApplyFinishes Sponsored Apply Finishes
-   * @return Stats request object
-   * @throws InvalidInputException invalid input provided
-   */
-  public StatsRequest createStatsRequest(
-      Map<LocalDateTime, Integer> sponsoredClicks,
-      Map<LocalDateTime, Integer> sponsoredBotClicks,
-      Map<LocalDateTime, Integer> sponsoredApplyStarts,
-      Map<LocalDateTime, Integer> sponsoredApplyFinishes)
-      throws InvalidInputException {
-    StatsRequest statsRequest = new StatsRequest();
-    statsRequest.setClientId(this.clientId);
-
-    validateDates(sponsoredClicks);
-    validateDates(sponsoredBotClicks);
-    validateDates(sponsoredApplyStarts);
-    validateDates(sponsoredApplyFinishes);
-
-    statsRequest.setSponsoredClicks(sponsoredClicks);
-    statsRequest.setSponsoredBotClicks(sponsoredBotClicks);
-    statsRequest.setSponsoredApplyStarts(sponsoredApplyStarts);
-    statsRequest.setSponsoredApplyFinishes(sponsoredApplyFinishes);
-    // statsRequest.setOutboundFeed(this);
-    return statsRequest;
-  }
-
-  /**
-   * This method creates a stats request object for given list of reference numbers.
-   *
-   * @param sponsoredClicks Sponsored Clicks
-   * @param sponsoredBotClicks Sponsored Bot Clicks
-   * @param sponsoredApplyStarts Sponsored Apply Starts
-   * @param sponsoredApplyFinishes Sponsored Apply Finishes
-   * @param refNumbers List of job reference numbers
-   * @return Stats request object
-   * @throws InvalidInputException invalid input provided
-   */
-  public StatsRequest createStatsRequest(
-      Map<LocalDateTime, Integer> sponsoredClicks,
-      Map<LocalDateTime, Integer> sponsoredBotClicks,
-      Map<LocalDateTime, Integer> sponsoredApplyStarts,
-      Map<LocalDateTime, Integer> sponsoredApplyFinishes,
-      List<String> refNumbers)
-      throws InvalidInputException {
-    StatsRequest statsRequest =
-        createStatsRequest(
-            sponsoredClicks, sponsoredBotClicks, sponsoredApplyStarts, sponsoredApplyFinishes);
-    statsRequest.setRefNumbers(refNumbers);
-    return statsRequest;
-  }
+  //
+  //  /**
+  //   * This method creates a stats request object for valid dates. if dates provided are of
+  // previous
+  //   * calendar month then they are exception is thrown as gandalf don't pick previous calendar
+  // month
+  //   * dates.
+  //   *
+  //   * @param sponsoredClicks Sponsored Clicks
+  //   * @param sponsoredBotClicks Sponsored Bot Clicks
+  //   * @param sponsoredApplyStarts Sponsored Apply Starts
+  //   * @param sponsoredApplyFinishes Sponsored Apply Finishes
+  //   * @return Stats request object
+  //   * @throws InvalidInputException invalid input provided
+  //   */
+  //  public StatsRequest createStatsRequest(
+  //      Map<LocalDateTime, Integer> sponsoredClicks,
+  //      Map<LocalDateTime, Integer> sponsoredBotClicks,
+  //      Map<LocalDateTime, Integer> sponsoredApplyStarts,
+  //      Map<LocalDateTime, Integer> sponsoredApplyFinishes)
+  //      throws InvalidInputException {
+  //    StatsRequest statsRequest = new StatsRequest();
+  //    statsRequest.setClientId(this.clientId);
+  //
+  //    validateDates(sponsoredClicks);
+  //    validateDates(sponsoredBotClicks);
+  //    validateDates(sponsoredApplyStarts);
+  //    validateDates(sponsoredApplyFinishes);
+  //
+  //    statsRequest.setSponsoredClicks(sponsoredClicks);
+  //    statsRequest.setSponsoredBotClicks(sponsoredBotClicks);
+  //    statsRequest.setSponsoredApplyStarts(sponsoredApplyStarts);
+  //    statsRequest.setSponsoredApplyFinishes(sponsoredApplyFinishes);
+  //    statsRequest.setOutboundFeed(this);
+  //    return statsRequest;
+  //  }
+  //
+  //  /**
+  //   * This method creates a stats request object for given list of reference numbers.
+  //   *
+  //   * @param sponsoredClicks Sponsored Clicks
+  //   * @param sponsoredBotClicks Sponsored Bot Clicks
+  //   * @param sponsoredApplyStarts Sponsored Apply Starts
+  //   * @param sponsoredApplyFinishes Sponsored Apply Finishes
+  //   * @param refNumbers List of job reference numbers
+  //   * @return Stats request object
+  //   * @throws InvalidInputException invalid input provided
+  //   */
+  //  public StatsRequest createStatsRequest(
+  //      Map<LocalDateTime, Integer> sponsoredClicks,
+  //      Map<LocalDateTime, Integer> sponsoredBotClicks,
+  //      Map<LocalDateTime, Integer> sponsoredApplyStarts,
+  //      Map<LocalDateTime, Integer> sponsoredApplyFinishes,
+  //      List<String> refNumbers)
+  //      throws InvalidInputException {
+  //    StatsRequest statsRequest =
+  //        createStatsRequest(
+  //            sponsoredClicks, sponsoredBotClicks, sponsoredApplyStarts, sponsoredApplyFinishes);
+  //    statsRequest.setRefNumbers(refNumbers);
+  //    return statsRequest;
+  //  }
 }

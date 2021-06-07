@@ -15,7 +15,7 @@ import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.RedisIoException;
 import com.joveo.eqrtestsdk.exception.SqsEventFailedException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
-import com.joveo.eqrtestsdk.models.OutboundJob;
+import com.joveo.eqrtestsdk.models.ComprehensiveOutboundJob;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
 import com.typesafe.config.Config;
 import java.time.Duration;
@@ -129,7 +129,7 @@ public class TrafficGenerator implements Waitable {
     Map<String, ConversionCodes> clientIdToConversionCodes = new HashMap<>();
 
     for (StatsRequest statsRequest : statsRequestList) {
-      List<OutboundJob> outboundJobs = statsRequest.getJobsInStats();
+      List<ComprehensiveOutboundJob> outboundJobs = statsRequest.getJobsInStats();
       String clientId = statsRequest.getClientId();
 
       if (!clientIdToConversionCodes.containsKey(clientId)) {

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joveo.eqrtestsdk.core.models.ConversionCodes;
 import com.joveo.eqrtestsdk.core.models.SponsoredEvents;
 import com.joveo.eqrtestsdk.exception.MojoException;
-import com.joveo.eqrtestsdk.models.OutboundJob;
+import com.joveo.eqrtestsdk.models.ComprehensiveOutboundJob;
 import com.joveo.eqrtestsdk.models.clickmeterevents.ApplyEvent;
 import com.joveo.eqrtestsdk.models.clickmeterevents.ClickEvent;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
@@ -66,8 +66,8 @@ public class EventGenerator {
     return randomIp;
   }
 
-  private String generateSingleClick(LocalDateTime eventDate, OutboundJob job, Boolean isBot)
-      throws MojoException {
+  private String generateSingleClick(
+      LocalDateTime eventDate, ComprehensiveOutboundJob job, Boolean isBot) throws MojoException {
     ClickEvent clickEvent = new ClickEvent();
 
     clickEvent.setDefaultValues();
@@ -117,10 +117,12 @@ public class EventGenerator {
   }
 
   private List<String> generateClickEvents(
-      Map<LocalDateTime, Integer> clicks, List<OutboundJob> outboundJobs, Boolean isBot)
+      Map<LocalDateTime, Integer> clicks,
+      List<ComprehensiveOutboundJob> outboundJobs,
+      Boolean isBot)
       throws MojoException {
     List<String> clickEvents = new ArrayList<>();
-    for (OutboundJob job : outboundJobs) {
+    for (ComprehensiveOutboundJob job : outboundJobs) {
       for (Map.Entry<LocalDateTime, Integer> click : clicks.entrySet()) {
         LocalDateTime eventDate = click.getKey();
         Integer clicksCount = click.getValue();
@@ -133,7 +135,10 @@ public class EventGenerator {
   }
 
   private String generateSingleApply(
-      LocalDateTime eventDate, OutboundJob job, long conversionId, String conversionCode)
+      LocalDateTime eventDate,
+      ComprehensiveOutboundJob job,
+      long conversionId,
+      String conversionCode)
       throws MojoException {
     ClickEvent clickEvent = new ClickEvent();
 
@@ -192,12 +197,12 @@ public class EventGenerator {
 
   private List<String> generateApplyEvents(
       Map<LocalDateTime, Integer> applies,
-      List<OutboundJob> outboundJobs,
+      List<ComprehensiveOutboundJob> outboundJobs,
       long conversionId,
       String conversionCode)
       throws MojoException {
     List<String> applyEvents = new ArrayList<>();
-    for (OutboundJob job : outboundJobs) {
+    for (ComprehensiveOutboundJob job : outboundJobs) {
       for (Map.Entry<LocalDateTime, Integer> apply : applies.entrySet()) {
         LocalDateTime eventDate = apply.getKey();
         Integer appliesCount = apply.getValue();
@@ -221,7 +226,7 @@ public class EventGenerator {
   public void generateClickMeterEvents(
       SponsoredEvents sponsoredEvents,
       StatsRequest statsRequest,
-      List<OutboundJob> outboundJobs,
+      List<ComprehensiveOutboundJob> outboundJobs,
       ConversionCodes conversionCodes)
       throws MojoException {
     logger.info("Events generation started...");

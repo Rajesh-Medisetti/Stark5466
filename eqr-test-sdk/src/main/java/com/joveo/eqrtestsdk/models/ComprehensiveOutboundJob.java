@@ -3,7 +3,7 @@ package com.joveo.eqrtestsdk.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
-public class OutboundJob {
+public class ComprehensiveOutboundJob {
   public String advertiser;
   public String country;
 

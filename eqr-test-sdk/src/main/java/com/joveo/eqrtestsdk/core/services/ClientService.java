@@ -12,8 +12,10 @@ import com.joveo.eqrtestsdk.core.entities.Job;
 import com.joveo.eqrtestsdk.core.models.fetcher.ClientGetResponse;
 import com.joveo.eqrtestsdk.core.models.fetcher.ClientPostResponse;
 import com.joveo.eqrtestsdk.core.models.fetcher.Pixels;
+import com.joveo.eqrtestsdk.core.mojo.ComprehensiveOutboundFeed;
 import com.joveo.eqrtestsdk.core.mojo.JoveoHttpExecutor;
 import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
+import com.joveo.eqrtestsdk.core.mojo.PerClientOutboundFeed;
 import com.joveo.eqrtestsdk.core.mojo.RestResponse;
 import com.joveo.eqrtestsdk.core.mojo.SchedulerRunner;
 import com.joveo.eqrtestsdk.exception.ApiRequestException;
@@ -686,6 +688,47 @@ public class ClientService extends BaseService {
     String agencyName = session.getInstanceIdentifier();
     String outboundFeedUrl = getOutboundFeedUrl(publisherId, clientId, agencyName);
     return new OutboundFeed(outboundFeedUrl, clientId, schedulerService, session, conf);
+  }
+
+  /**
+   * get outbound feed data.
+   *
+   * @param publisherId Mojo publisher Id
+   * @param clientId clientId as a string
+   * @param session session details
+   * @param conf configuration details
+   * @return outbound feed
+   * @throws InvalidInputException invalid input provided
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException something wrong with request
+   */
+  public PerClientOutboundFeed getPerClientOutboundFeedData(
+      String publisherId, String clientId, Session session, Config conf)
+      throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
+    String agencyName = session.getInstanceIdentifier();
+    String outboundFeedUrl = getOutboundFeedUrl(publisherId, clientId, agencyName);
+    return new PerClientOutboundFeed(outboundFeedUrl, clientId, schedulerService, session, conf);
+  }
+
+  /**
+   * get outbound feed data.
+   *
+   * @param publisherId Mojo publisher Id
+   * @param clientId clientId as a string
+   * @param session session details
+   * @param conf configuration details
+   * @return outbound feed
+   * @throws InvalidInputException invalid input provided
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException something wrong with request
+   */
+  public ComprehensiveOutboundFeed getComprehensiveOutboundFeedData(
+      String publisherId, String clientId, Session session, Config conf)
+      throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
+    String agencyName = session.getInstanceIdentifier();
+    String outboundFeedUrl = getOutboundFeedUrl(publisherId, clientId, agencyName);
+    return new ComprehensiveOutboundFeed(
+        outboundFeedUrl, clientId, schedulerService, session, conf);
   }
 
   @Override

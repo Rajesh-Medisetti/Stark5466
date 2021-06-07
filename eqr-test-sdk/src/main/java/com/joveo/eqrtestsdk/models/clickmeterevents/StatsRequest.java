@@ -1,7 +1,7 @@
 package com.joveo.eqrtestsdk.models.clickmeterevents;
 
-import com.joveo.eqrtestsdk.core.mojo.OutboundFeed;
-import com.joveo.eqrtestsdk.models.OutboundJob;
+import com.joveo.eqrtestsdk.core.mojo.ComprehensiveOutboundFeed;
+import com.joveo.eqrtestsdk.models.ComprehensiveOutboundJob;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class StatsRequest {
   private Map<LocalDateTime, Integer> sponsoredApplyStarts;
   private Map<LocalDateTime, Integer> sponsoredApplyFinishes;
 
-  private OutboundFeed outboundFeed;
+  private ComprehensiveOutboundFeed outboundFeed;
   private List<String> refNumbers;
 
   public StatsRequest() {}
@@ -60,11 +60,11 @@ public class StatsRequest {
     this.sponsoredApplyFinishes = sponsoredApplyFinishes;
   }
 
-  public OutboundFeed getOutboundFeed() {
+  public ComprehensiveOutboundFeed getOutboundFeed() {
     return outboundFeed;
   }
 
-  public void setOutboundFeed(OutboundFeed outboundFeed) {
+  public void setOutboundFeed(ComprehensiveOutboundFeed outboundFeed) {
     this.outboundFeed = outboundFeed;
   }
 
@@ -81,13 +81,13 @@ public class StatsRequest {
    *
    * @return List of jobs
    */
-  public List<OutboundJob> getJobsInStats() {
-    List<OutboundJob> alljobs = outboundFeed.getFeed().getJobs();
+  public List<ComprehensiveOutboundJob> getJobsInStats() {
+    List<ComprehensiveOutboundJob> alljobs = outboundFeed.getFeed().getJobs();
     if (refNumbers == null) {
       return alljobs;
     }
-    List<OutboundJob> outboundJobs = new ArrayList<>();
-    for (OutboundJob job : alljobs) {
+    List<ComprehensiveOutboundJob> outboundJobs = new ArrayList<>();
+    for (ComprehensiveOutboundJob job : alljobs) {
       for (String refNo : refNumbers) {
         if (refNo.equals(job.referencenumber)) {
           outboundJobs.add(job);
