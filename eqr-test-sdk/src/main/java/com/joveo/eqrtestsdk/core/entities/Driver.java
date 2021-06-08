@@ -257,14 +257,28 @@ public class Driver {
     allStatsService.run(session, conf, trackingService, databaseService, allStatsRequests);
   }
 
+  public List<String> getRunningIpList() {
+    return this.awsService.getIpByTags(conf.getString("InstanceTag"), "true");
+  }
+
   public void refreshJobCount() throws ApiRequestException, UnexpectedResponseException {
     cacheRefreshService.refreshCache(
         session, awsService, conf.getString("InstanceTag"), conf.getString("FlashRefreshUrl"));
   }
 
+  public void refreshJobCount(List<String> ipList)
+      throws ApiRequestException, UnexpectedResponseException {
+    cacheRefreshService.refreshCache(session, ipList, conf.getString("FlashRefreshUrl"));
+  }
+
   public void refreshEntityCache() throws ApiRequestException, UnexpectedResponseException {
     cacheRefreshService.refreshCache(
         session, awsService, conf.getString("InstanceTag"), conf.getString("AragonRefreshUrl"));
+  }
+
+  public void refreshEntityCache(List<String> ipList)
+      throws ApiRequestException, UnexpectedResponseException {
+    cacheRefreshService.refreshCache(session, ipList, conf.getString("AragonRefreshUrl"));
   }
 
   public boolean doesFileExistsInS3Bucket(String bucketName, String objectName) {
