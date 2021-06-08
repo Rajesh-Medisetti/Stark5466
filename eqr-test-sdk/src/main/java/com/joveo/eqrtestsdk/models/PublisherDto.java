@@ -47,6 +47,10 @@ public class PublisherDto {
     this.placement.bidType = bidType;
   }
 
+  public void setFeedType(OutboundFeedType feedType) {
+    this.placement.perClientPlacements = feedType.equals(OutboundFeedType.PERCLIENT_FEED);
+  }
+
   public void setIndustry(String industry) {
     this.placement.industry = industry;
   }
@@ -90,7 +94,9 @@ public class PublisherDto {
   public void setDefaultValue() {
 
     this.placement.deliverFeedByFtp = false;
-    this.placement.perClientPlacements = false;
+    if (this.placement.perClientPlacements == null) {
+      this.placement.perClientPlacements = false;
+    }
     this.placement.ftpConfig = new Placement.FtpConfig();
     this.placement.feedFileType = "newXml";
     this.placement.currency = "USD";
