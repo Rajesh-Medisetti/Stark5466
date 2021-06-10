@@ -25,7 +25,7 @@ public class UiUtils {
   public static void createDataForCalendar() {
 
     List<LocalDate> dateList = new ArrayList<>();
-
+    LocalDate date = LocalDate.now();
     dateList.add(LocalDate.now());
     dateList.add(LocalDate.now());
     dateRange.put("Today", new ArrayList<>(dateList));

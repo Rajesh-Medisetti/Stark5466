@@ -4,6 +4,7 @@ import base.OurWebDriver;
 import helpers.Month;
 import helpers.UiUtils;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
@@ -27,7 +28,7 @@ public class Calendar {
   String apply;
 
   /** Consructor. */
-  public Calendar(OurWebDriver driver, String xpath) {
+  public Calendar(OurWebDriver driver, String xpath) throws InterruptedException {
     this.driver = driver;
     this.xpath = xpath;
     this.dateRangePicker =
@@ -46,12 +47,12 @@ public class Calendar {
     this.cancel = xpath + "/div/jv-ngx-daterangepicker-material/div/div[4]/div/button[1]";
     this.apply = xpath + "/div/jv-ngx-daterangepicker-material/div/div[4]/div/button[2]";
     UiUtils.createDataForCalendar();
-
+    driver.waitForAngular();
     driver.findElement(By.xpath(xpath)).click();
   }
 
   /** checks if the no. of future dates are disabled. */
-  public void isFutureDatesDisabled(SoftAssert softAssert) {
+  public void isFutureDatesDisabled(SoftAssert softAssert, ZoneId zoneId) {
 
     List<WebElement> dates =
         driver
@@ -61,10 +62,12 @@ public class Calendar {
 
     boolean result = true;
 
+    LocalDate localDate = LocalDate.now(zoneId);
+
     for (WebElement element : dates) {
 
       if ((element.getAttribute("class").contains("off")
-              || Integer.parseInt(element.getText()) <= LocalDate.now().getDayOfMonth())
+              || Integer.parseInt(element.getText()) <= localDate.getDayOfMonth())
           && element.getAttribute("class").contains("available")) {
         continue;
       } else {
@@ -86,10 +89,9 @@ public class Calendar {
   }
 
   /** checks the custom range test scenario. */
-  public void checkCustomRanges(LocalDate start, LocalDate end, SoftAssert softAssert)
+  public void checkCustomRanges(LocalDate start, LocalDate end, SoftAssert softAssert, ZoneId zoneId)
       throws InterruptedException {
-
-    goToStartMonth(start);
+    goToStartMonth(start,zoneId);
 
     selectDate(start, thisMonth);
 
@@ -155,12 +157,12 @@ public class Calendar {
   }
 
   /** to go to the starting month. */
-  private void goToStartMonth(LocalDate start) {
-
+  private void goToStartMonth(LocalDate start, ZoneId zoneId) {
+    LocalDate localDate = LocalDate.now(zoneId);
     int startMonthValue = start.getMonthValue();
-    int prevMonthValue = LocalDate.now().minusMonths(1).getMonthValue();
+    int prevMonthValue = localDate.minusMonths(1).getMonthValue();
     int startYear = start.getYear();
-    int currentYear = LocalDate.now().getYear();
+    int currentYear = localDate.getYear();
 
     prevMonthValue += (currentYear - startYear) * 12;
 
@@ -226,8 +228,8 @@ public class Calendar {
   }
 
   /** check the date ranger. */
-  public void checkDateRangePickerInterval(SoftAssert softAssert) throws InterruptedException {
-
+  public void checkDateRangePickerInterval(SoftAssert softAssert, ZoneId zoneId) throws InterruptedException {
+    LocalDate localDate =  LocalDate.now(zoneId);
     String dateRangeText;
     boolean isSelected = false;
     for (int i = 1; i <= 7; i++) {
@@ -249,9 +251,9 @@ public class Calendar {
 
       driver.click(By.xpath(this.xpath));
 
-      if (LocalDate.now().getDayOfWeek().toString().equals("SUNDAY")
+      if (localDate.getDayOfWeek().toString().equals("SUNDAY")
               && driver.findElement(By.xpath(xpath)).getText().equals("This Week")
-          || LocalDate.now().getDayOfMonth() == 1) {
+          || localDate.getDayOfMonth() == 1) {
 
         dateRangeText = driver.findElement(By.xpath(xpath)).getText();
 

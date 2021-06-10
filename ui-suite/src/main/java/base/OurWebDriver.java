@@ -1,5 +1,6 @@
 package base;
 
+import helpers.WaitForAngular;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -42,11 +43,11 @@ public class OurWebDriver {
     uiDriver.close();
   }
 
-//  /** Waiting for angular hits. */
-//  public void waitForAngular(WebDriver driver) {
-//
-//    WaiterForAngular waiterForAngular = new WaiterForAngular();
-//    waiterForAngular.setDriver(driver);
-//    waiterForAngular.waitUntilAngularReady();
-//  }
+  /** Waiting for angular hits. */
+  public void waitForAngular() {
+
+    WaitForAngular waiterForAngular = new WaitForAngular();
+    waiterForAngular.setDriver(this.uiDriver);
+    waiterForAngular.waitUntilAngularReady();
+  }
 }
