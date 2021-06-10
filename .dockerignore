@@ -1,3 +1,4 @@
 data
 e2e-suite/target
+ui-suite/target
 perf-suite/target
