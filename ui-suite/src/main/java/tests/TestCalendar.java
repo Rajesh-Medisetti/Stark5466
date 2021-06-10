@@ -7,7 +7,6 @@ import enums.ui.BrowserType;
 import enums.ui.ClientTabs;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import model.Calendar;
 import org.testng.annotations.AfterClass;
@@ -31,13 +30,14 @@ public class TestCalendar extends TestRunnerBaseUI {
     new Homepage(driver).landAtClientHomepage();
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
-@Test
+  @Test
   public static void testCalendarAtPublisherHomepage() throws InterruptedException {
     ZoneId zoneId = ZoneId.of("Asia/Kolkata");
     SoftAssert softAssert = new SoftAssert();
@@ -47,14 +47,16 @@ public class TestCalendar extends TestRunnerBaseUI {
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
   @Test(dataProvider = "myDataProvider", dataProviderClass = CalendarDP.class)
-  public static void testCalendarAtCampaignHomepage(String clientName, ZoneId zoneId) throws InterruptedException {
+  public static void testCalendarAtCampaignHomepage(String clientName, ZoneId zoneId)
+      throws InterruptedException {
     SoftAssert softAssert = new SoftAssert();
     OurWebDriver driver = createDriver(BrowserType.CHROME);
     driverList.add(driver);
@@ -62,14 +64,16 @@ public class TestCalendar extends TestRunnerBaseUI {
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
   @Test(dataProvider = "myDataProvider", dataProviderClass = CalendarDP.class)
-  public static void testCalendarAtJobGroupHomepage(String clientName, ZoneId zoneId) throws InterruptedException {
+  public static void testCalendarAtJobGroupHomepage(String clientName, ZoneId zoneId)
+      throws InterruptedException {
     SoftAssert softAssert = new SoftAssert();
     OurWebDriver driver = createDriver(BrowserType.CHROME);
     driverList.add(driver);
@@ -77,14 +81,16 @@ public class TestCalendar extends TestRunnerBaseUI {
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
   @Test(dataProvider = "myDataProvider", dataProviderClass = CalendarDP.class)
-  public static void testCalendarAtJobsHomepage(String clientName, ZoneId zoneId) throws InterruptedException {
+  public static void testCalendarAtJobsHomepage(String clientName, ZoneId zoneId)
+      throws InterruptedException {
     SoftAssert softAssert = new SoftAssert();
     OurWebDriver driver = createDriver(BrowserType.CHROME);
     driverList.add(driver);
@@ -92,14 +98,16 @@ public class TestCalendar extends TestRunnerBaseUI {
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
   @Test(dataProvider = "myDataProvider", dataProviderClass = CalendarDP.class)
-  public static void testCalendarAtPlacementsHomepage(String clientName, ZoneId zoneId) throws InterruptedException {
+  public static void testCalendarAtPlacementsHomepage(String clientName, ZoneId zoneId)
+      throws InterruptedException {
     SoftAssert softAssert = new SoftAssert();
     OurWebDriver driver = createDriver(BrowserType.CHROME);
     driverList.add(driver);
@@ -107,10 +115,11 @@ public class TestCalendar extends TestRunnerBaseUI {
     Calendar calendar = new Calendar(driver, dashboardCalendar);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     LocalDate localDate = LocalDate.now(zoneId);
-    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert,zoneId);
+    calendar.checkCustomRanges(localDate.minusMonths(7), localDate, softAssert, zoneId);
     calendar.checkDateRangePickerInterval(softAssert, zoneId);
     calendar.isFutureDatesDisabled(softAssert, zoneId);
     calendar.isFutureMonthDisabled(softAssert);
+    softAssert.assertAll();
   }
 
   /** removing all browsers. */

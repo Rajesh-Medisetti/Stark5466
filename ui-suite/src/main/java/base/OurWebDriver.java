@@ -7,7 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-
 public class OurWebDriver {
   public WebDriver uiDriver;
 
@@ -17,7 +16,7 @@ public class OurWebDriver {
 
   /** find Element for the waitied condition. */
   public WebElement findElement(By by) {
-    new WebDriverWait(this.uiDriver, 60).until(ExpectedConditions.elementToBeClickable(by));
+    new WebDriverWait(this.uiDriver, 75).until(ExpectedConditions.elementToBeClickable(by));
     return this.uiDriver.findElement(by);
   }
 

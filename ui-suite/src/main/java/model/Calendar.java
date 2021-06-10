@@ -89,9 +89,10 @@ public class Calendar {
   }
 
   /** checks the custom range test scenario. */
-  public void checkCustomRanges(LocalDate start, LocalDate end, SoftAssert softAssert, ZoneId zoneId)
+  public void checkCustomRanges(
+      LocalDate start, LocalDate end, SoftAssert softAssert, ZoneId zoneId)
       throws InterruptedException {
-    goToStartMonth(start,zoneId);
+    goToStartMonth(start, zoneId);
 
     selectDate(start, thisMonth);
 
@@ -228,8 +229,9 @@ public class Calendar {
   }
 
   /** check the date ranger. */
-  public void checkDateRangePickerInterval(SoftAssert softAssert, ZoneId zoneId) throws InterruptedException {
-    LocalDate localDate =  LocalDate.now(zoneId);
+  public void checkDateRangePickerInterval(SoftAssert softAssert, ZoneId zoneId)
+      throws InterruptedException {
+    LocalDate localDate = LocalDate.now(zoneId);
     String dateRangeText;
     boolean isSelected = false;
     for (int i = 1; i <= 7; i++) {
