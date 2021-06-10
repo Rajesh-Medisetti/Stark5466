@@ -6,6 +6,7 @@ import java.util.Map;
 public class Month {
   public Map<String, Integer> map;
 
+  /** Method for returning map. */
   public Month() {
     map = new HashMap<>();
     map.put("Jan", 1);
