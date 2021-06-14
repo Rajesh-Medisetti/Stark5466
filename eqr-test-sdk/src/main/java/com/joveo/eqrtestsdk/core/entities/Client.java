@@ -153,9 +153,15 @@ public class Client {
     return driver.clientService.getInboundFeedData(this.id, driver.session, driver.conf);
   }
 
+  @Deprecated
   public OutboundFeed getOutboundFeed(String publisherId) throws MojoException {
     return driver.clientService.getOutboundFeedData(
         publisherId, this.id, driver.session, driver.conf);
+  }
+
+  public OutboundFeed getOutboundFeed(String publisherId, boolean isCombined) throws MojoException {
+    return driver.clientService.getOutboundFeedData(
+        publisherId, this.id, driver.session, driver.conf, isCombined);
   }
 
   /**

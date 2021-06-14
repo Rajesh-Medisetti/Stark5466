@@ -9,6 +9,8 @@ import com.joveo.eqrtestsdk.exception.ApiRequestException;
 import com.joveo.eqrtestsdk.exception.InvalidInputException;
 import com.joveo.eqrtestsdk.exception.MojoException;
 import com.joveo.eqrtestsdk.exception.UnexpectedResponseException;
+import com.joveo.eqrtestsdk.models.ComprehensiveOutboundFeedDto;
+import com.joveo.eqrtestsdk.models.PerClientOutboundFeedDto;
 import com.joveo.eqrtestsdk.models.OutboundFeedDto;
 import com.joveo.eqrtestsdk.models.OutboundJob;
 import com.joveo.eqrtestsdk.models.clickmeterevents.StatsRequest;
@@ -34,6 +36,7 @@ public class OutboundFeed {
   private String clientId;
   private String feedUrl;
   private OutboundFeedDto feed;
+  private boolean isCombined;
   private LocalDateTime feedRefreshTime;
 
   static {
@@ -66,6 +69,35 @@ public class OutboundFeed {
     refreshFeed();
   }
 
+  /**
+   * .
+   *
+   * @param feedUrl feedUrl
+   * @param clientId clientId
+   * @param schedulerService schedulerService
+   * @param session session
+   * @param config config
+   * @throws InvalidInputException On invalid credentials
+   * @throws UnexpectedResponseException On unexpected Response
+   */
+  public OutboundFeed(
+      String feedUrl,
+      String clientId,
+      SchedulerService schedulerService,
+      Session session,
+      Config config,
+      boolean isCombined
+      )
+      throws InvalidInputException, UnexpectedResponseException {
+    this.feedUrl = feedUrl;
+    this.schedulerService = schedulerService;
+    this.session = session;
+    this.config = config;
+    this.clientId = clientId;
+    this.isCombined = isCombined;
+    refreshFeed();
+  }
+
   public OutboundFeedDto getFeed() {
     return feed;
   }
@@ -78,7 +110,12 @@ public class OutboundFeed {
    */
   public void refreshFeed() throws InvalidInputException, UnexpectedResponseException {
     try {
-      this.feed = xmlMapper.readValue(new URL(this.feedUrl), OutboundFeedDto.class);
+      if(isCombined) {
+        this.feed = xmlMapper.readValue(new URL(this.feedUrl), ComprehensiveOutboundFeedDto.class);
+      }
+      else {
+        this.feed = xmlMapper.readValue(new URL(this.feedUrl), PerClientOutboundFeedDto.class);
+      }
     } catch (MalformedURLException e) {
       logger.error(e.getMessage());
       throw new InvalidInputException("invalid URL for outbound feed " + this.feedUrl);
@@ -129,7 +166,7 @@ public class OutboundFeed {
     }
     List<OutboundJob> jobs = feed.getJobs();
     for (OutboundJob job : jobs) {
-      if (job.referencenumber.equals(referenceNumber)) {
+      if (job.getReferenceNumber().equals(referenceNumber)) {
         return true;
       }
     }
@@ -148,11 +185,11 @@ public class OutboundFeed {
     if (referenceNumbers.isEmpty()) {
       throw new InvalidInputException("Please provide atleast one reference number");
     }
-    Set<String> referenceNumbersSet = new HashSet<String>(referenceNumbers);
-    Set<String> referenceNumbersInOutBoundFeed = new HashSet<String>();
+    Set<String> referenceNumbersSet = new HashSet<>(referenceNumbers);
+    Set<String> referenceNumbersInOutBoundFeed = new HashSet<>();
     List<OutboundJob> jobs = feed.getJobs();
     for (OutboundJob job : jobs) {
-      referenceNumbersInOutBoundFeed.add(job.referencenumber);
+      referenceNumbersInOutBoundFeed.add(job.getReferenceNumber());
     }
     referenceNumbersSet.removeAll(referenceNumbersInOutBoundFeed);
     return referenceNumbersSet.size() == 0;

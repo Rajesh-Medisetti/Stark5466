@@ -680,12 +680,34 @@ public class ClientService extends BaseService {
    * @throws UnexpectedResponseException The API response was not as expected
    * @throws ApiRequestException something wrong with request
    */
+  @Deprecated
   public OutboundFeed getOutboundFeedData(
       String publisherId, String clientId, Session session, Config conf)
       throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
     String agencyName = session.getInstanceIdentifier();
     String outboundFeedUrl = getOutboundFeedUrl(publisherId, clientId, agencyName);
     return new OutboundFeed(outboundFeedUrl, clientId, schedulerService, session, conf);
+  }
+
+  /**
+   * get outbound feed data.
+   *
+   * @param publisherId Mojo publisher Id
+   * @param clientId clientId as a string
+   * @param session session details
+   * @param conf configuration details
+   * @return outbound feed
+   * @throws InvalidInputException invalid input provided
+   * @throws UnexpectedResponseException The API response was not as expected
+   * @throws ApiRequestException something wrong with request
+   */
+  public OutboundFeed getOutboundFeedData(
+      String publisherId, String clientId, Session session, Config conf, boolean isCombined)
+      throws InvalidInputException, UnexpectedResponseException, ApiRequestException {
+    String agencyName = session.getInstanceIdentifier();
+    String outboundFeedUrl = getOutboundFeedUrl(publisherId, clientId, agencyName);
+    //will check the isCombined
+    return new OutboundFeed(outboundFeedUrl, clientId, schedulerService, session, conf, isCombined);
   }
 
   @Override

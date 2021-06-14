@@ -86,15 +86,15 @@ public class StatsRequest {
     if (refNumbers == null) {
       return alljobs;
     }
-    List<OutboundJob> outboundJobs = new ArrayList<>();
+    List<OutboundJob> combinedOutboundJobs = new ArrayList<>();
     for (OutboundJob job : alljobs) {
       for (String refNo : refNumbers) {
-        if (refNo.equals(job.referencenumber)) {
-          outboundJobs.add(job);
+        if (refNo.equals(job.getReferenceNumber())) {
+          combinedOutboundJobs.add(job);
           break;
         }
       }
     }
-    return outboundJobs;
+    return combinedOutboundJobs;
   }
 }
