@@ -15,6 +15,7 @@ public class TestRunnerBaseUI {
     WebDriver uiDriver = null;
     if (browser.equals(BrowserType.CHROME)) {
       uiDriver = new ChromeDriver();
+      uiDriver.manage().window().maximize();
     }
     return new OurWebDriver(uiDriver);
   }

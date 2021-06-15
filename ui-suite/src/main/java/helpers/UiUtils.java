@@ -78,7 +78,7 @@ public class UiUtils {
   /**
    * returns ranges for the calendar.
    *
-   * @return
+   * @return list of strings.
    */
   private static List<String> getCalendarRangeTexts() {
 

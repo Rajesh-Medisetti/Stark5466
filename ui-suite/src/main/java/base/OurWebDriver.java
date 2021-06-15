@@ -1,6 +1,7 @@
 package base;
 
 import helpers.WaitForAngular;
+import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -18,6 +19,12 @@ public class OurWebDriver {
   public WebElement findElement(By by) {
     new WebDriverWait(this.uiDriver, 75).until(ExpectedConditions.elementToBeClickable(by));
     return this.uiDriver.findElement(by);
+  }
+
+  /** find list of WebElements for the waitied condition. */
+  public List<WebElement> findElements(By by) {
+    new WebDriverWait(this.uiDriver, 75).until(ExpectedConditions.visibilityOfElementLocated(by));
+    return this.uiDriver.findElements(by);
   }
 
   /** find Element for the waitied condition. */
