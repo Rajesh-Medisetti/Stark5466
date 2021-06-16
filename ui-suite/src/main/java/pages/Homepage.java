@@ -10,6 +10,7 @@ public class Homepage {
           + "div/jv-content-nav/nav/div[2]/div/div/a[2]";
 
   private String urlIdentifier = "https://mojo2.staging.joveo.com";
+  private String  clientTabXpath = "/html/body/jv-root/jv-home/mat-sidenav-container/mat-sidenav-content/jv-content-viewer/div/jv-content-nav/nav/div[2]/div/div/a[1]";
 
   public Homepage(OurWebDriver driver) {
     this.driver = driver;
@@ -32,5 +33,13 @@ public class Homepage {
   /** returns the title of the page. */
   public String getTitle() {
     return this.driver.getTitle();
+  }
+
+  public String getPublisherTabText(){
+    return this.driver.findElement(By.xpath(publisherTabXpath)).getText();
+  }
+
+  public String getClientTabText(){
+    return this.driver.findElement(By.xpath(clientTabXpath)).getText();
   }
 }

@@ -42,6 +42,7 @@ public class DropDown {
         return true;
       }
     }
+    driver.findElement(By.xpath("/html")).click();
     return false;
   }
 }

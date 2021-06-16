@@ -174,6 +174,7 @@ public class EditClientDP {
     clientDto.addFeed(jobCreator.clientUrlMap.get(clientDto));
 
     Client client = driver.createClient(clientDto);
+    System.out.println(client.id + " client id ");
     clientSet.add(client);
 
     ClientDto editClientDto = dtosList.get(1).getClientDto();

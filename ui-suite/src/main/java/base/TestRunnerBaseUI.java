@@ -27,6 +27,11 @@ public class TestRunnerBaseUI {
     tabMap.put("JOBGROUPS", 2);
     tabMap.put("JOBS", 3);
     tabMap.put("PLACEMENTS", 4);
+    tabMap.put("AUTOMATION", 5);
+    tabMap.put("POSTINGS", 6);
+    tabMap.put("SLOTS", 7);
+    tabMap.put("GOOGLEADS", 8);
+    tabMap.put("FACEBOOK", 9);
     return tabMap;
   }
 }

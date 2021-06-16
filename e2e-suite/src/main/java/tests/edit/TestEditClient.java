@@ -66,6 +66,7 @@ public class TestEditClient extends TestRunnerBase {
   public void removeFeedTestCases(FeedDto feed, Client client, String pubId)
       throws MojoException, InterruptedException {
     SoftAssert softAssertion = new SoftAssert();
+    System.out.println(" ---- " + client.id);
 
     Assert.assertTrue(JobFilterDP.ifSchedulerRan, "Scheduler run failed");
 

@@ -2,7 +2,9 @@ package pages;
 
 import base.OurWebDriver;
 import base.TestRunnerBaseUI;
+import enums.Language;
 import enums.ui.ClientTabs;
+import model.LanguageSelector;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -36,9 +38,10 @@ public class ClientPage {
   }
 
   /** lands at the client page, after searching and then clicking the mentioned clientName. */
-  public void landAtClientPage(String clientName) {
+  public void landAtClientPage(String clientName) throws InterruptedException {
     new Homepage(this.driver).landAtClientHomepage();
     driver.findElement(By.xpath(clientSearchIconXpath)).click();
+    Thread.sleep(3000);
     driver.findElement(By.xpath(clientSearchXpath)).sendKeys(clientName);
     driver.findElement(By.xpath(clientSearchXpath)).sendKeys(Keys.ENTER);
     driver.findElement(By.xpath(firstRowResult)).click();
@@ -58,5 +61,19 @@ public class ClientPage {
   /** returns the title of the page. */
   public String getTitle() {
     return this.driver.getTitle();
+  }
+
+  /**
+   * makes you land at client page , based on the clientname mentioned and then giving the text of the specific tab.
+   */
+  public String getTabText(String clientName, ClientTabs tab, Language language) throws InterruptedException {
+    landAtClientPage(clientName);
+    Thread.sleep(5000);
+    LanguageSelector languageObj = new LanguageSelector();
+    if (!languageObj.selectLanguage(driver, language)){
+      return "Language is not selected";
+    }
+    tabsXpath = tabsXpath + TestRunnerBaseUI.clientMap.get(tab.toString()) + "]";
+    return driver.findElement(By.xpath(tabsXpath)).getText();
   }
 }
